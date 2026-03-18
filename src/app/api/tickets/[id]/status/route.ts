@@ -1,0 +1,60 @@
+import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
+import { getApplicationById } from "@/features/applications/server/applicationService";
+import {
+  ticketStatusParamsSchema,
+  ticketStatusSchema,
+} from "@/features/tickets/schemas/ticketSchemas";
+import { updateTicketStatus } from "@/features/tickets/server/ticketService";
+import { getSessionFromRequest } from "@/lib/auth/session";
+import { errorResponse } from "@/lib/http";
+
+interface TicketStatusRouteProps {
+  params: Promise<{
+    id: string;
+  }>;
+}
+
+export async function PATCH(
+  request: NextRequest,
+  { params }: TicketStatusRouteProps,
+) {
+  const session = await getSessionFromRequest(request.headers);
+
+  if (!session) {
+    return errorResponse("UNAUTHORIZED", "Authentication required", 401);
+  }
+
+  if (session.user.role !== "admin") {
+    return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const parsedParams = ticketStatusParamsSchema.safeParse(await params);
+  const parsedBody = ticketStatusSchema.safeParse(await request.json());
+
+  if (!parsedParams.success || !parsedBody.success) {
+    return errorResponse(
+      "VALIDATION_ERROR",
+      "Invalid status update payload",
+      400,
+    );
+  }
+
+  const ticket = await updateTicketStatus(
+    parsedParams.data.id,
+    parsedBody.data.status,
+  );
+
+  if (!ticket) {
+    return errorResponse("NOT_FOUND", "Ticket not found", 404);
+  }
+
+  const application = await getApplicationById(ticket.appId);
+  revalidateTag("tickets", "max");
+
+  if (application) {
+    revalidateTag(`application-${application.slug}`, "max");
+  }
+
+  return NextResponse.json(ticket);
+}
