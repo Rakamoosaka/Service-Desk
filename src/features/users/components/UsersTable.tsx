@@ -49,20 +49,28 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
   return (
     <Card>
       <CardContent className="overflow-hidden p-0">
-        <table className="divide-border/80 min-w-full divide-y text-left text-sm">
-          <thead className="bg-muted/40 text-muted-foreground">
+        <table className="divide-border min-w-full divide-y text-left text-sm">
+          <thead className="bg-muted/70 text-muted-foreground">
             <tr>
-              <th className="px-5 py-3 font-medium">User</th>
-              <th className="px-5 py-3 font-medium">GitLab</th>
-              <th className="px-5 py-3 font-medium">Role</th>
-              <th className="px-5 py-3 font-medium">Joined</th>
+              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                User
+              </th>
+              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                GitLab
+              </th>
+              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                Role
+              </th>
+              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                Joined
+              </th>
             </tr>
           </thead>
-          <tbody className="divide-border/70 bg-panel divide-y">
+          <tbody className="divide-border bg-panel divide-y">
             {usersQuery.data.map((user) => (
-              <tr key={user.id}>
+              <tr key={user.id} className="hover:bg-white/[0.02]">
                 <td className="px-5 py-4">
-                  <p className="font-semibold">{user.name}</p>
+                  <p className="font-semibold text-white">{user.name}</p>
                   <p className="text-muted-foreground text-xs">{user.email}</p>
                 </td>
                 <td className="text-muted-foreground px-5 py-4">

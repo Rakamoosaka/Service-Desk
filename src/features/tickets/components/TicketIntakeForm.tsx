@@ -14,6 +14,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardEyebrow,
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
@@ -80,6 +81,7 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
   return (
     <Card>
       <CardHeader>
+        <CardEyebrow>Intake</CardEyebrow>
         <CardTitle>Submit a ticket</CardTitle>
         <CardDescription>
           Every submission is accepted immediately. AI triage is planned later,
@@ -93,10 +95,10 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
               key={option.value}
               type="button"
               className={cn(
-                "rounded-3xl border p-4 text-left transition",
+                "rounded-[18px] border p-4 text-left transition duration-150 ease-out",
                 selectedType === option.value
-                  ? "border-accent bg-accent/10"
-                  : "border-border bg-background hover:border-accent/40",
+                  ? "border-accent bg-accent/10 shadow-[0_0_24px_rgb(from_var(--accent)_r_g_b_/_0.14)]"
+                  : "border-border bg-muted/50 hover:border-accent/40 hover:bg-muted",
               )}
               onClick={() => {
                 startTransition(() => {
@@ -105,8 +107,8 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
                 });
               }}
             >
-              <p className="font-semibold">{option.label}</p>
-              <p className="text-muted-foreground mt-2 text-sm leading-6">
+              <p className="font-semibold text-white">{option.label}</p>
+              <p className="text-muted-foreground mt-2 text-sm leading-7">
                 {option.summary}
               </p>
             </button>

@@ -118,7 +118,7 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
 
   return (
     <Card>
-      <CardContent className="space-y-6 p-6">
+      <CardContent className="space-y-6">
         <div className="grid gap-3 lg:grid-cols-[1.3fr_0.4fr_0.4fr]">
           <Input
             placeholder="Search title or description"
@@ -163,24 +163,36 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
           </Select>
         </div>
 
-        <div className="border-border/80 overflow-hidden rounded-3xl border">
-          <table className="divide-border/80 min-w-full divide-y text-left text-sm">
-            <thead className="bg-muted/40 text-muted-foreground">
+        <div className="border-border overflow-hidden rounded-[20px] border">
+          <table className="divide-border min-w-full divide-y text-left text-sm">
+            <thead className="bg-muted/70 text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 font-medium">Ticket</th>
-                <th className="px-4 py-3 font-medium">Application</th>
-                <th className="px-4 py-3 font-medium">Submitted by</th>
-                <th className="px-4 py-3 font-medium">Status</th>
-                <th className="px-4 py-3 font-medium">Created</th>
+                <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  Ticket
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  Application
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  Submitted by
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  Status
+                </th>
+                <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  Created
+                </th>
               </tr>
             </thead>
-            <tbody className="divide-border/70 bg-panel divide-y">
+            <tbody className="divide-border bg-panel divide-y">
               {ticketsQuery.data?.map((ticket) => (
-                <tr key={ticket.id}>
+                <tr key={ticket.id} className="hover:bg-white/[0.02]">
                   <td className="px-4 py-4 align-top">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold">{ticket.title}</p>
+                        <p className="font-semibold text-white">
+                          {ticket.title}
+                        </p>
                         <Badge tone="accent">{ticket.type}</Badge>
                         <Badge tone="neutral">{ticket.priority}</Badge>
                       </div>

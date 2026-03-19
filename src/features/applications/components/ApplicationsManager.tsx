@@ -18,6 +18,7 @@ import {
   Card,
   CardContent,
   CardDescription,
+  CardEyebrow,
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
@@ -129,6 +130,7 @@ export function ApplicationsManager({
     <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
       <Card>
         <CardHeader>
+          <CardEyebrow>Catalog</CardEyebrow>
           <CardTitle>Service catalog</CardTitle>
           <CardDescription>
             Manage the applications users can submit tickets against.
@@ -138,19 +140,19 @@ export function ApplicationsManager({
           {applications.map((application) => (
             <div
               key={application.id}
-              className="border-border/80 bg-background/70 rounded-3xl border p-5"
+              className="border-border bg-muted/50 rounded-[18px] border p-5"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-2">
                   <div>
-                    <p className="text-muted-foreground text-xs font-semibold tracking-[0.22em] uppercase">
+                    <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
                       /{application.slug}
                     </p>
-                    <h3 className="text-lg font-semibold">
+                    <h3 className="display-face mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
                       {application.name}
                     </h3>
                   </div>
-                  <p className="text-muted-foreground max-w-xl text-sm leading-6">
+                  <p className="text-muted-foreground max-w-xl text-sm leading-7">
                     {application.description}
                   </p>
                 </div>
@@ -181,6 +183,7 @@ export function ApplicationsManager({
 
       <Card>
         <CardHeader>
+          <CardEyebrow>{editing ? "Edit" : "Create"}</CardEyebrow>
           <CardTitle>{editing ? "Update service" : "Add service"}</CardTitle>
           <CardDescription>
             Use clear names and stable slugs so the public catalog remains
@@ -247,7 +250,7 @@ export function ApplicationsManager({
                 {editing ? "Save changes" : "Create application"}
               </Button>
               {editing ? (
-                <Button variant="secondary" onClick={clearForm}>
+                <Button type="button" variant="secondary" onClick={clearForm}>
                   Cancel
                 </Button>
               ) : null}

@@ -1,18 +1,24 @@
 import type { Metadata } from "next";
-import { Fraunces, IBM_Plex_Sans } from "next/font/google";
+import { Manrope, Outfit } from "next/font/google";
 import { AppProviders } from "@/components/providers/AppProviders";
 import "./globals.css";
 
-const bodyFont = IBM_Plex_Sans({
+const bodyFont = Manrope({
   variable: "--font-body",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  display: "swap",
 });
 
-const displayFont = Fraunces({
+const displayFont = Outfit({
   variable: "--font-display",
   subsets: ["latin"],
-  weight: ["500", "600", "700"],
+  display: "swap",
+});
+
+const dataFont = Manrope({
+  variable: "--font-data",
+  subsets: ["latin"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +38,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${bodyFont.variable} ${displayFont.variable} bg-background text-foreground antialiased`}
+        className={`${bodyFont.variable} ${displayFont.variable} ${dataFont.variable} bg-background text-foreground antialiased`}
       >
         <AppProviders>{children}</AppProviders>
       </body>

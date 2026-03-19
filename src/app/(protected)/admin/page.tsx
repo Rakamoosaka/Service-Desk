@@ -1,5 +1,11 @@
 import Link from "next/link";
-import { BarChart3, FolderKanban, Ticket, UserRoundCog } from "lucide-react";
+import {
+  ArrowRight,
+  BarChart3,
+  FolderKanban,
+  Ticket,
+  UserRoundCog,
+} from "lucide-react";
 import { SectionIntro } from "@/components/layout/SectionIntro";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -42,13 +48,15 @@ export default async function AdminOverviewPage() {
           },
         ].map((item) => (
           <Card key={item.label}>
-            <CardContent className="space-y-5 p-6">
+            <CardContent className="space-y-6">
               <div className="text-muted-foreground flex items-center justify-between">
-                <span className="text-sm font-medium">{item.label}</span>
+                <span className="text-[11px] font-semibold tracking-[0.24em] uppercase">
+                  {item.label}
+                </span>
                 {item.icon}
               </div>
               <div>
-                <p className="display-face text-5xl leading-none font-semibold">
+                <p className="display-face data-face text-5xl leading-none font-semibold text-white md:text-6xl">
                   {item.value}
                 </p>
               </div>
@@ -59,8 +67,8 @@ export default async function AdminOverviewPage() {
 
       <div className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <Card>
-          <CardContent className="space-y-4 p-6">
-            <div className="text-muted-foreground flex items-center gap-2 text-sm font-semibold">
+          <CardContent className="space-y-5">
+            <div className="text-muted-foreground flex items-center gap-2 text-[11px] font-semibold tracking-[0.24em] uppercase">
               <BarChart3 className="size-4" />
               Ticket distribution
             </div>
@@ -75,19 +83,22 @@ export default async function AdminOverviewPage() {
         </Card>
 
         <Card>
-          <CardContent className="space-y-4 p-6">
+          <CardContent className="space-y-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold">Recently added services</p>
-                <p className="text-muted-foreground text-sm">
+                <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                  Recently added services
+                </p>
+                <p className="text-muted-foreground mt-2 text-sm leading-7">
                   Use the services page to update descriptions and slugs.
                 </p>
               </div>
               <Link
                 href="/admin/applications"
-                className="text-accent text-sm font-semibold"
+                className="text-accent inline-flex items-center gap-2 text-sm font-semibold tracking-[0.14em] uppercase"
               >
                 Manage catalog
+                <ArrowRight className="size-4" />
               </Link>
             </div>
 
@@ -95,13 +106,15 @@ export default async function AdminOverviewPage() {
               {recentApplications.map((application) => (
                 <div
                   key={application.id}
-                  className="border-border/80 bg-background/70 rounded-3xl border p-4"
+                  className="border-border bg-muted/50 rounded-[18px] border p-4"
                 >
-                  <p className="text-muted-foreground text-xs font-semibold tracking-[0.22em] uppercase">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
                     /{application.slug}
                   </p>
-                  <p className="mt-2 font-semibold">{application.name}</p>
-                  <p className="text-muted-foreground mt-2 text-sm leading-6">
+                  <p className="mt-3 font-semibold text-white">
+                    {application.name}
+                  </p>
+                  <p className="text-muted-foreground mt-2 text-sm leading-7">
                     {application.description}
                   </p>
                 </div>

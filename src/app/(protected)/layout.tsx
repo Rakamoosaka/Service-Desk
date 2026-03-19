@@ -54,18 +54,19 @@ export default async function ProtectedLayout({
   }
 
   return (
-    <div className="bg-background min-h-screen lg:grid lg:grid-cols-[288px_1fr]">
-      <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground border-b lg:border-r lg:border-b-0">
-        <div className="flex h-full flex-col gap-8 p-6">
-          <div className="space-y-4">
+    <div className="bg-background min-h-screen lg:grid lg:grid-cols-[296px_1fr]">
+      <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground relative border-b lg:border-r lg:border-b-0">
+        <div className="panel-grid absolute inset-0 opacity-30" />
+        <div className="relative flex h-full flex-col gap-8 p-6">
+          <div className="space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sidebar-muted text-xs font-semibold tracking-[0.28em] uppercase">
+                <p className="text-sidebar-muted text-[11px] font-semibold tracking-[0.34em] uppercase">
                   KOZ AI
                 </p>
                 <Link
                   href="/"
-                  className="display-face mt-2 block text-2xl font-semibold text-white"
+                  className="display-face mt-2 block text-[2rem] leading-none font-semibold tracking-[-0.04em] text-white"
                 >
                   Service Desk
                 </Link>
@@ -73,11 +74,13 @@ export default async function ProtectedLayout({
               <ThemeToggle />
             </div>
 
-            <div className="border-sidebar-border rounded-3xl border bg-white/4 p-4">
+            <div className="border-sidebar-border rounded-[22px] border bg-white/3 p-4 backdrop-blur-sm">
               <div className="flex items-center justify-between gap-3">
                 <div>
-                  <p className="font-semibold">{session.user.name}</p>
-                  <p className="text-sidebar-muted text-sm">
+                  <p className="font-semibold text-white">
+                    {session.user.name}
+                  </p>
+                  <p className="text-sidebar-muted mt-1 text-sm">
                     {session.user.email}
                   </p>
                 </div>
@@ -101,14 +104,14 @@ export default async function ProtectedLayout({
             ))}
           </nav>
 
-          <div className="border-sidebar-border rounded-3xl border bg-white/4 p-3">
+          <div className="border-sidebar-border rounded-[20px] border bg-white/3 p-3">
             <SignOutButton />
           </div>
         </div>
       </aside>
 
       <div className="min-w-0">
-        <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-6 py-8 md:px-8 md:py-10">
+        <main className="mx-auto flex min-h-screen w-full max-w-400 flex-col gap-8 px-6 py-8 md:px-8 md:py-10 xl:px-10">
           {children}
         </main>
       </div>

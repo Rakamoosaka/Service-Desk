@@ -33,19 +33,21 @@ export default async function HomePage() {
       <div className="grid gap-5 xl:grid-cols-2">
         {applications.map((application) => (
           <Card key={application.id}>
-            <CardContent className="space-y-5 p-6">
-              <div className="space-y-3">
+            <CardContent className="space-y-6">
+              <div className="space-y-4">
                 <Badge tone="accent">/{application.slug}</Badge>
                 <div>
-                  <h2 className="text-2xl font-semibold">{application.name}</h2>
-                  <p className="text-muted-foreground mt-2 text-sm leading-6">
+                  <h2 className="display-face text-3xl font-semibold tracking-[-0.03em] text-white">
+                    {application.name}
+                  </h2>
+                  <p className="text-muted-foreground mt-3 max-w-2xl text-sm leading-7">
                     {application.description}
                   </p>
                 </div>
               </div>
               <Link
                 href={`/app/${application.slug}` as Route}
-                className="text-accent inline-flex items-center gap-2 text-sm font-semibold"
+                className="text-accent inline-flex items-center gap-2 text-sm font-semibold tracking-[0.14em] uppercase"
               >
                 Open workspace
                 <ArrowRight className="size-4" />

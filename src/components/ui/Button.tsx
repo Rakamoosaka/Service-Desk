@@ -4,21 +4,21 @@ import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-full text-sm font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
+  "inline-flex items-center justify-center gap-2 rounded-xl border text-sm font-semibold tracking-[0.08em] uppercase transition duration-150 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50",
   {
     variants: {
       variant: {
         primary:
-          "bg-accent px-5 py-2.5 text-accent-foreground hover:brightness-105",
+          "border-accent bg-accent px-5 py-2.5 text-accent-foreground shadow-[0_0_24px_rgb(from_var(--accent)_r_g_b_/_0.22)] hover:-translate-y-px hover:shadow-[0_0_30px_rgb(from_var(--accent)_r_g_b_/_0.3)]",
         secondary:
-          "border border-border bg-panel px-5 py-2.5 text-panel-foreground hover:border-accent hover:text-accent",
+          "border-border bg-panel px-5 py-2.5 text-panel-foreground hover:-translate-y-px hover:border-accent hover:text-accent",
         ghost:
-          "px-4 py-2 text-muted-foreground hover:bg-muted hover:text-foreground",
+          "border-transparent px-4 py-2 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
         danger:
-          "bg-destructive px-5 py-2.5 text-destructive-foreground hover:brightness-110",
+          "border-destructive bg-destructive px-5 py-2.5 text-destructive-foreground shadow-[0_0_20px_rgb(from_var(--destructive)_r_g_b_/_0.16)] hover:-translate-y-px hover:shadow-[0_0_28px_rgb(from_var(--destructive)_r_g_b_/_0.22)]",
       },
       size: {
-        sm: "h-9",
+        sm: "h-9 px-3 text-[11px]",
         md: "h-11",
         lg: "h-12 px-6",
       },

@@ -1,38 +1,40 @@
-# Service Desk Design System
+# Service Desk Design System (KOZ AI)
 
 ## Direction
 
-The interface is an editorial internal tool: sharp structure, warm neutrals, high-contrast labels, and restrained accent color. It should feel precise rather than playful.
+The interface embodies a highly modern, tech-forward aesthetic driven by dark mode, neon accents, and clean, geometric typography. It leans into a futuristic AI brand narrative—sharp, high-contrast, yet deeply functional and precise.
 
 ## Typography
 
-- Body: IBM Plex Sans for dense operational UI and readable tables.
-- Display: Fraunces for page headers, section titles, and emphasized metrics.
+- Display / Headers: **Outfit** for striking, geometric headings and page titles.
+- Body / UI Elements: **Satoshi** for modern, highly legible body copy and form elements.
+- Data / Operational: **Manrope** for dense data tables, precise numeric metrics, and structural metadata.
 
 ## Color Tokens
 
-- Canvas: warm paper neutrals, not pure white.
-- Panels: slightly elevated cream cards in light mode, charcoal stone in dark mode.
-- Accent: ember orange for action states and active navigation.
-- Status colors:
-  - `new`: muted blue
-  - `in_review`: amber
-  - `resolved`: green
-  - `closed`: zinc
+- Canvas: Deep blacks (`#050505`, `#141414`) for primary and secondary background planes.
+- Panels & Elevated Surfaces: Subtle dark greys (`#171717`, `#262626`, `#3d3d3d`) for cards, dialogs, and sidebar surfaces.
+- Accents (Neon glow/action):
+  - Primary Neon Cyan: `#0dd7f2` for active states, primary buttons, and navigational focus.
+  - Secondary Neon Pink/Red: `#ff2244` (approx `#f24`) for destructive actions, alerts, or critical badges.
+- Text & Iconography:
+  - Primary Text: Bright white (`#ffffff`) and off-white (`#dedede`).
+  - Muted Text: Soft greys (`#afafaf`, `#919191`, `#626262`) for disabled states, placeholders, and secondary metadata.
 
 ## Surfaces
 
-- Cards use soft outlines and long shadows instead of hard borders.
-- Dense admin tables keep generous row spacing to avoid spreadsheet fatigue.
-- Form sections are grouped with small caps labels and clear field rhythm.
+- Cards drop the soft drop-shadows in favor of sharp 1px borders (e.g., `#262626`) and flat dark backgrounds.
+- Optional subtle glowing borders or glowing box-shadows (cyan or pink) on active inputs or selection.
+- Interactive elements feature subtle, bright-neon hover states and tight border radii.
 
 ## Motion
 
-- Motion is functional only.
-- Use short fades and vertical easing for page entry, dialogs, and success feedback.
-- Avoid decorative looping animation.
+- Crisp, aggressive transitions (fast durations, sharp eases).
+- Subtle neon glowing effects on hover transitions for primary interactive layers.
+- Avoid playful bouncing; rely on crisp opacity or 1px shifts.
 
 ## Layout
 
-- The protected shell is a split layout with a narrow navigation rail and a wide working canvas.
-- Pages should open with a clear title row, supporting description, and a compact action zone.
+- Full-bleed dark canvas stretching edge-to-edge.
+- The protected shell uses a dark, structured rail separating content zones via thin `#262626` dividing strokes.
+- High contrast with neon status badges (`#0dd7f2` for active, `#ff2244` for error) to pop against the dark canvas (`#141414`).

@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { SectionIntro } from "@/components/layout/SectionIntro";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
+import { Card, CardContent, CardEyebrow } from "@/components/ui/Card";
 import { TicketIntakeForm } from "@/features/tickets/components/TicketIntakeForm";
 import { getApplicationBySlugCached } from "@/features/applications/server/applicationService";
 import { requireUser } from "@/lib/auth/session";
@@ -49,10 +49,13 @@ export default async function ApplicationPage({
         <TicketIntakeForm appId={application.id} />
 
         <Card>
-          <CardContent className="space-y-4 p-6">
+          <CardContent className="space-y-4">
             <div>
-              <p className="text-sm font-semibold">Recent ticket activity</p>
-              <p className="text-muted-foreground text-sm">
+              <CardEyebrow>Activity</CardEyebrow>
+              <p className="display-face mt-3 text-2xl font-semibold tracking-[-0.03em] text-white">
+                Recent ticket activity
+              </p>
+              <p className="text-muted-foreground mt-3 text-sm leading-7">
                 Service health will arrive in phase 6 through the provider
                 abstraction planned in the grand plan.
               </p>
@@ -63,10 +66,10 @@ export default async function ApplicationPage({
                 application.tickets.slice(0, 6).map((ticket) => (
                   <div
                     key={ticket.id}
-                    className="border-border/80 bg-background/70 rounded-3xl border p-4"
+                    className="border-border bg-muted/50 rounded-[18px] border p-4"
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-semibold">{ticket.title}</p>
+                      <p className="font-semibold text-white">{ticket.title}</p>
                       <Badge tone={ticketTone(ticket.status)}>
                         {ticket.status.replace("_", " ")}
                       </Badge>
@@ -78,7 +81,7 @@ export default async function ApplicationPage({
                   </div>
                 ))
               ) : (
-                <div className="border-border bg-background/60 text-muted-foreground rounded-3xl border border-dashed p-5 text-sm">
+                <div className="border-border bg-muted/40 text-muted-foreground rounded-[18px] border border-dashed p-5 text-sm">
                   No tickets have been submitted for this application yet.
                 </div>
               )}

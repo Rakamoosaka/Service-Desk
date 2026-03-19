@@ -1,27 +1,27 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f4efe6;
-  --foreground: #1b1a17;
-  --panel: #fffaf2;
-  --panel-foreground: #1f1d19;
-  --muted: #e9dfcf;
-  --muted-foreground: #6f675c;
-  --border: #d9cebc;
-  --input: #efe5d5;
-  --accent: #b65122;
-  --accent-foreground: #fff8f1;
-  --ring: #cf6a3b;
-  --destructive: #8d2b1d;
-  --destructive-foreground: #fff8f4;
-  --success: #2f6e4f;
-  --warning: #9a620b;
-  --info: #325e8f;
-  --sidebar: #201d19;
-  --sidebar-foreground: #f4efe6;
-  --sidebar-muted: #a99c89;
-  --sidebar-border: #3a342d;
-  --shadow-color: 28 22 14;
+  --background: #edf3f5;
+  --foreground: #081217;
+  --panel: #ffffff;
+  --panel-foreground: #0f1b20;
+  --muted: #dfe8eb;
+  --muted-foreground: #51636b;
+  --border: #c6d3d8;
+  --input: #f5f9fa;
+  --accent: #0dd7f2;
+  --accent-foreground: #041418;
+  --ring: #0dd7f2;
+  --destructive: #ff2244;
+  --destructive-foreground: #fff3f5;
+  --success: #0dd7f2;
+  --warning: #ff8a3d;
+  --info: #0dd7f2;
+  --sidebar: #f8fbfc;
+  --sidebar-foreground: #081217;
+  --sidebar-muted: #5f7178;
+  --sidebar-border: #c6d3d8;
+  --shadow-color: 13 215 242;
 }
 
 @theme inline {
@@ -47,30 +47,31 @@
   --color-sidebar-border: var(--sidebar-border);
   --font-sans: var(--font-body);
   --font-display: var(--font-display);
+  --font-data: var(--font-data);
 }
 
 .dark {
-  --background: #13110f;
-  --foreground: #f7efe1;
-  --panel: #1c1814;
-  --panel-foreground: #f8f1e7;
-  --muted: #28211b;
-  --muted-foreground: #b3a18d;
-  --border: #342c24;
-  --input: #241d17;
-  --accent: #de7645;
-  --accent-foreground: #1f140d;
-  --ring: #f09b72;
-  --destructive: #d96b5a;
-  --destructive-foreground: #230c0a;
-  --success: #62b387;
-  --warning: #d7a34c;
-  --info: #7caad7;
-  --sidebar: #0f0d0b;
-  --sidebar-foreground: #f7efe1;
-  --sidebar-muted: #988a77;
-  --sidebar-border: #2a241d;
-  --shadow-color: 0 0 0;
+  --background: #050505;
+  --foreground: #ffffff;
+  --panel: #171717;
+  --panel-foreground: #dedede;
+  --muted: #141414;
+  --muted-foreground: #919191;
+  --border: #262626;
+  --input: #141414;
+  --accent: #0dd7f2;
+  --accent-foreground: #041418;
+  --ring: #0dd7f2;
+  --destructive: #ff2244;
+  --destructive-foreground: #fff3f5;
+  --success: #0dd7f2;
+  --warning: #ff8a3d;
+  --info: #0dd7f2;
+  --sidebar: #050505;
+  --sidebar-foreground: #ffffff;
+  --sidebar-muted: #919191;
+  --sidebar-border: #262626;
+  --shadow-color: 13 215 242;
 }
 
 * {
@@ -88,10 +89,33 @@ body {
   background-image:
     radial-gradient(
       circle at top left,
-      rgb(from var(--accent) r g b / 0.1),
-      transparent 28%
+      rgb(from var(--accent) r g b / 0.17),
+      transparent 24%
     ),
-    linear-gradient(180deg, rgb(from var(--panel) r g b / 0.4), transparent 30%);
+    radial-gradient(
+      circle at 85% 15%,
+      rgb(from var(--destructive) r g b / 0.08),
+      transparent 18%
+    ),
+    linear-gradient(180deg, #050505 0%, #090909 48%, #050505 100%);
+  letter-spacing: -0.01em;
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: -1;
+  content: "";
+  background-image:
+    linear-gradient(rgb(from var(--border) r g b / 0.22) 1px, transparent 1px),
+    linear-gradient(
+      90deg,
+      rgb(from var(--border) r g b / 0.22) 1px,
+      transparent 1px
+    );
+  background-size: 72px 72px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 92%);
 }
 
 a {
@@ -104,23 +128,47 @@ a {
 }
 
 .display-face {
-  font-family: var(--font-display), serif;
+  font-family: var(--font-display), sans-serif;
+}
+
+.data-face {
+  font-family: var(--font-data), sans-serif;
+  letter-spacing: -0.02em;
 }
 
 .surface-shadow {
   box-shadow:
-    0 2px 4px rgb(var(--shadow-color) / 0.05),
-    0 18px 50px rgb(var(--shadow-color) / 0.08);
+    0 0 0 1px rgb(from var(--border) r g b / 0.75),
+    0 14px 40px rgb(var(--shadow-color) / 0.09),
+    inset 0 1px 0 rgb(255 255 255 / 0.02);
 }
 
 .panel-grid {
   background-image:
-    linear-gradient(rgb(from var(--border) r g b / 0.24) 1px, transparent 1px),
+    linear-gradient(rgb(from var(--border) r g b / 0.3) 1px, transparent 1px),
     linear-gradient(
       90deg,
-      rgb(from var(--border) r g b / 0.24) 1px,
+      rgb(from var(--border) r g b / 0.3) 1px,
       transparent 1px
     );
   background-position: -1px -1px;
-  background-size: 24px 24px;
+  background-size: 28px 28px;
+}
+
+.panel-noise {
+  position: relative;
+}
+
+.panel-noise::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  content: "";
+  background-image: radial-gradient(
+    rgb(255 255 255 / 0.05) 0.7px,
+    transparent 0.7px
+  );
+  background-size: 10px 10px;
+  opacity: 0.18;
 }

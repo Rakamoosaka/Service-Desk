@@ -20,10 +20,10 @@ export function SidebarLink({ href, icon, label }: SidebarLinkProps) {
     <Link
       href={href}
       className={cn(
-        "flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium transition",
+        "flex items-center gap-3 rounded-xl border px-4 py-3 text-sm font-semibold tracking-[0.08em] uppercase transition duration-150 ease-out",
         isActive
-          ? "border-accent bg-accent text-accent-foreground"
-          : "text-sidebar-foreground hover:border-sidebar-border border-transparent hover:bg-white/5",
+          ? "border-accent bg-accent/12 text-accent shadow-[inset_0_0_0_1px_var(--accent),0_0_22px_rgb(from_var(--accent)_r_g_b_/_0.18)]"
+          : "text-sidebar-foreground hover:border-sidebar-border border-transparent hover:bg-white/4 hover:text-white",
       )}
     >
       <span className="size-4">{icon}</span>
