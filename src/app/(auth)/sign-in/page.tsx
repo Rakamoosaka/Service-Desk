@@ -1,12 +1,9 @@
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { GitLabSignInButton } from "@/components/navigation/GitLabSignInButton";
 import { Card, CardContent } from "@/components/ui/Card";
 import { getSession } from "@/lib/auth/session";
 
 export default async function SignInPage() {
-  await connection();
-
   const session = await getSession();
 
   if (session) {

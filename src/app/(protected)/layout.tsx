@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import type { Route } from "next";
 import Link from "next/link";
 import {
@@ -19,8 +18,6 @@ export default async function ProtectedLayout({
 }: {
   children: React.ReactNode;
 }) {
-  await connection();
-
   const session = await requireUser();
 
   const links: Array<{ href: Route; label: string; icon: React.ReactNode }> = [
