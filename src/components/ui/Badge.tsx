@@ -10,6 +10,7 @@ const badgeVariants = cva(
         neutral: "border-border bg-muted text-muted-foreground",
         info: "border-info/30 bg-info/12 text-info",
         warning: "border-warning/30 bg-warning/12 text-warning",
+        danger: "border-destructive/35 bg-destructive/12 text-destructive",
         success: "border-accent/35 bg-accent/12 text-accent",
         accent:
           "border-accent/35 bg-accent/12 text-accent shadow-[0_0_18px_rgb(from_var(--accent)_r_g_b_/_0.16)]",

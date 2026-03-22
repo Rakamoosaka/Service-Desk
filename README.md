@@ -79,6 +79,7 @@ GITLAB_CLIENT_SECRET=replace-with-gitlab-client-secret
 GITLAB_ISSUER=https://gitlab.com
 GITLAB_ADMIN_ALLOWLIST=you@example.com
 NEXT_PUBLIC_APP_URL=http://localhost:3000
+UPTIME_KUMA_BASE_URL=https://test-monitor.koz-ai.com
 ```
 
 Notes:
@@ -86,6 +87,7 @@ Notes:
 - `BETTER_AUTH_SECRET` must be at least 32 characters
 - `GITLAB_ADMIN_ALLOWLIST` accepts a comma-separated list of GitLab emails and or GitLab user IDs
 - If you want your first login to be an admin, include your own GitLab email or GitLab numeric user ID in `GITLAB_ADMIN_ALLOWLIST`
+- `UPTIME_KUMA_BASE_URL` should point to the public Uptime Kuma host if you want application pages to poll service health
 
 ### 2. Configure GitLab OAuth for local development
 
@@ -232,6 +234,7 @@ The application validates its environment at startup.
 | `GITLAB_ISSUER`          | Yes      | GitLab OAuth issuer URL, usually `https://gitlab.com` |
 | `GITLAB_ADMIN_ALLOWLIST` | Yes      | Comma-separated admin bootstrap allowlist             |
 | `NEXT_PUBLIC_APP_URL`    | Yes      | Public base URL used by the frontend                  |
+| `UPTIME_KUMA_BASE_URL`   | No       | Public Uptime Kuma host used for status page polling  |
 
 ## Available scripts
 

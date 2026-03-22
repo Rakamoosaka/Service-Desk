@@ -21,19 +21,19 @@ export const seedApplications = [
     slug: "atlas-crm",
     description:
       "Customer relationship workflows for sales and support handoffs.",
-    uptimeKumaIdentifier: "atlas-crm",
+    uptimeKumaIdentifier: "test-task",
   },
   {
     name: "Beacon Payroll",
     slug: "beacon-payroll",
     description: "Internal payroll approvals, reports, and export operations.",
-    uptimeKumaIdentifier: "beacon-payroll",
+    uptimeKumaIdentifier: "test-task",
   },
   {
     name: "Relay Docs",
     slug: "relay-docs",
     description: "Knowledge publishing and controlled internal documentation.",
-    uptimeKumaIdentifier: "relay-docs",
+    uptimeKumaIdentifier: "test-task",
   },
 ];
 
