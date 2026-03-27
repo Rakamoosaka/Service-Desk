@@ -17,7 +17,7 @@ export default async function HomePage() {
       <SectionIntro
         eyebrow="Workspace"
         title="Application support catalog"
-        description="Open an application to review recent ticket activity and submit new feedback, suggestions, or bug reports."
+        description="Open an application to report issues, request changes, share feedback, and check service health in one place."
         actions={
           session.user.role === "admin" ? (
             <Button asChild variant="secondary">

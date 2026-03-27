@@ -8,7 +8,6 @@ export const applications = pgTable(
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description").notNull(),
-    uptimeKumaIdentifier: text("uptime_kuma_identifier"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -20,7 +19,9 @@ export const applications = pgTable(
 );
 
 export const applicationRelations = relations(applications, ({ many }) => ({
+  services: many(services),
   tickets: many(tickets),
 }));
 
+import { services } from "@/db/schema/services";
 import { tickets } from "@/db/schema/tickets";

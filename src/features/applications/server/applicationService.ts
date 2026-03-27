@@ -10,7 +10,6 @@ export async function listApplications() {
       name: true,
       slug: true,
       description: true,
-      uptimeKumaIdentifier: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -34,6 +33,17 @@ export async function getApplicationBySlug(slug: string) {
   const [application] = await db.query.applications.findMany({
     where: eq(applications.slug, slug),
     with: {
+      services: {
+        orderBy: (service, helpers) => [helpers.asc(service.name)],
+        columns: {
+          id: true,
+          applicationId: true,
+          name: true,
+          slug: true,
+          description: true,
+          uptimeKumaIdentifier: true,
+        },
+      },
       tickets: {
         orderBy: (ticket, helpers) => [helpers.desc(ticket.createdAt)],
         columns: {
@@ -43,6 +53,15 @@ export async function getApplicationBySlug(slug: string) {
           status: true,
           priority: true,
           createdAt: true,
+        },
+        with: {
+          service: {
+            columns: {
+              id: true,
+              name: true,
+              slug: true,
+            },
+          },
         },
       },
     },
@@ -62,7 +81,6 @@ export async function createApplication(input: ApplicationInput) {
       name: input.name,
       slug: input.slug,
       description: input.description,
-      uptimeKumaIdentifier: input.uptimeKumaIdentifier || null,
     })
     .returning();
 
@@ -76,7 +94,6 @@ export async function updateApplication(id: string, input: ApplicationInput) {
       name: input.name,
       slug: input.slug,
       description: input.description,
-      uptimeKumaIdentifier: input.uptimeKumaIdentifier || null,
       updatedAt: new Date(),
     })
     .where(eq(applications.id, id))

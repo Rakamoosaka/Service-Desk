@@ -23,6 +23,8 @@ import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { cn } from "@/lib/utils";
+import { Select } from "@/components/ui/Select";
+import { Badge } from "@/components/ui/Badge";
 
 const typeOptions: Array<{
   value: TicketInput["type"];
@@ -47,17 +49,78 @@ const typeOptions: Array<{
 ];
 
 interface TicketIntakeFormProps {
-  appId: string;
+  applicationId: string;
+  services?: Array<{
+    id: string;
+    name: string;
+    slug: string;
+  }>;
+  defaultServiceId?: string;
+  fixedType?: TicketInput["type"];
+  eyebrow?: string;
+  title?: string;
+  description?: string;
+  submitLabel?: string;
+  titleLabel?: string;
+  titlePlaceholder?: string;
+  descriptionLabel?: string;
+  descriptionPlaceholder?: string;
+  serviceLabel?: string;
+  serviceHelpText?: string;
+  className?: string;
 }
 
-export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
-  const [selectedType, setSelectedType] =
-    useState<TicketInput["type"]>("feedback");
+function ticketTypeTone(type: TicketInput["type"]) {
+  switch (type) {
+    case "bug":
+      return "danger" as const;
+    case "suggestion":
+      return "accent" as const;
+    default:
+      return "info" as const;
+  }
+}
+
+function ticketTypeCardClass(type: TicketInput["type"]) {
+  switch (type) {
+    case "bug":
+      return "border-destructive/35 shadow-[0_0_28px_rgb(from_var(--destructive)_r_g_b_/_0.08)]";
+    case "suggestion":
+      return "border-accent/35 shadow-[0_0_28px_rgb(from_var(--accent)_r_g_b_/_0.08)]";
+    default:
+      return "border-info/30 shadow-[0_0_28px_rgb(from_var(--info)_r_g_b_/_0.08)]";
+  }
+}
+
+export function TicketIntakeForm({
+  applicationId,
+  services = [],
+  defaultServiceId = "",
+  fixedType,
+  eyebrow = "Intake",
+  title = "Submit a ticket",
+  description = "Every submission is accepted immediately. AI triage is planned later, so priority stays manual for now.",
+  submitLabel,
+  titleLabel = "Title",
+  titlePlaceholder = "Summarize the issue or request",
+  descriptionLabel = "Description",
+  descriptionPlaceholder = "Include context, reproduction steps, or the impact on your work.",
+  serviceLabel = "Service",
+  serviceHelpText = "Select a specific service if the issue is isolated to one microservice.",
+  className,
+}: TicketIntakeFormProps) {
+  const [selectedType, setSelectedType] = useState<TicketInput["type"]>(
+    fixedType ?? "feedback",
+  );
+  const activeType = fixedType ?? selectedType;
+  const showTypePicker = !fixedType;
+
   const form = useForm<TicketInput>({
     resolver: zodResolver(ticketInputSchema),
     defaultValues: {
-      appId,
-      type: "feedback",
+      appId: applicationId,
+      serviceId: defaultServiceId,
+      type: fixedType ?? "feedback",
       title: "",
       description: "",
     },
@@ -71,7 +134,13 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
       }),
     onSuccess: () => {
       toast.success("Ticket submitted");
-      form.reset({ appId, type: selectedType, title: "", description: "" });
+      form.reset({
+        appId: applicationId,
+        serviceId: defaultServiceId,
+        type: activeType,
+        title: "",
+        description: "",
+      });
     },
     onError: (error) => {
       toast.error(error.message);
@@ -79,54 +148,88 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
   });
 
   return (
-    <Card>
+    <Card
+      className={cn(
+        fixedType ? ticketTypeCardClass(fixedType) : undefined,
+        className,
+      )}
+    >
       <CardHeader>
-        <CardEyebrow>Intake</CardEyebrow>
-        <CardTitle>Submit a ticket</CardTitle>
-        <CardDescription>
-          Every submission is accepted immediately. AI triage is planned later,
-          so priority stays manual for now.
-        </CardDescription>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div className="space-y-2">
+            <CardEyebrow>{eyebrow}</CardEyebrow>
+            <CardTitle>{title}</CardTitle>
+            <CardDescription>{description}</CardDescription>
+          </div>
+          <Badge tone={ticketTypeTone(activeType)}>{activeType}</Badge>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="grid gap-3 md:grid-cols-3">
-          {typeOptions.map((option) => (
-            <button
-              key={option.value}
-              type="button"
-              className={cn(
-                "rounded-[18px] border p-4 text-left transition duration-150 ease-out",
-                selectedType === option.value
-                  ? "border-accent bg-accent/10 shadow-[0_0_24px_rgb(from_var(--accent)_r_g_b_/_0.14)]"
-                  : "border-border bg-muted/50 hover:border-accent/40 hover:bg-muted",
-              )}
-              onClick={() => {
-                startTransition(() => {
-                  setSelectedType(option.value);
-                  form.setValue("type", option.value, { shouldValidate: true });
-                });
-              }}
-            >
-              <p className="font-semibold text-white">{option.label}</p>
-              <p className="text-muted-foreground mt-2 text-sm leading-7">
-                {option.summary}
-              </p>
-            </button>
-          ))}
-        </div>
+        {showTypePicker ? (
+          <div className="grid gap-3 md:grid-cols-3">
+            {typeOptions.map((option) => (
+              <button
+                key={option.value}
+                type="button"
+                className={cn(
+                  "rounded-[18px] border p-4 text-left transition duration-150 ease-out",
+                  selectedType === option.value
+                    ? "border-accent bg-accent/10 shadow-[0_0_24px_rgb(from_var(--accent)_r_g_b/0.14)]"
+                    : "border-border bg-muted/50 hover:border-accent/40 hover:bg-muted",
+                )}
+                onClick={() => {
+                  startTransition(() => {
+                    setSelectedType(option.value);
+                    form.setValue("type", option.value, {
+                      shouldValidate: true,
+                    });
+                  });
+                }}
+              >
+                <p className="font-semibold text-white">{option.label}</p>
+                <p className="text-muted-foreground mt-2 text-sm leading-7">
+                  {option.summary}
+                </p>
+              </button>
+            ))}
+          </div>
+        ) : null}
 
         <form
           className="space-y-4"
           onSubmit={form.handleSubmit((values) =>
-            createMutation.mutate(values),
+            createMutation.mutate({
+              ...values,
+              type: activeType,
+            }),
           )}
         >
+          {services.length ? (
+            <div className="space-y-2">
+              <Label htmlFor="serviceId">{serviceLabel}</Label>
+              <Select id="serviceId" {...form.register("serviceId")}>
+                <option value="">Application-level ticket</option>
+                {services.map((service) => (
+                  <option key={service.id} value={service.id}>
+                    {service.name}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-muted-foreground text-sm leading-6">
+                {serviceHelpText}
+              </p>
+              <p className="text-destructive text-sm">
+                {form.formState.errors.serviceId?.message}
+              </p>
+            </div>
+          ) : null}
+
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">{titleLabel}</Label>
             <Input
               id="title"
               {...form.register("title")}
-              placeholder="Summarize the issue or request"
+              placeholder={titlePlaceholder}
             />
             <p className="text-destructive text-sm">
               {form.formState.errors.title?.message}
@@ -134,11 +237,11 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+            <Label htmlFor="description">{descriptionLabel}</Label>
             <Textarea
               id="description"
               {...form.register("description")}
-              placeholder="Include context, reproduction steps, or the impact on your work."
+              placeholder={descriptionPlaceholder}
             />
             <p className="text-destructive text-sm">
               {form.formState.errors.description?.message}
@@ -146,7 +249,7 @@ export function TicketIntakeForm({ appId }: TicketIntakeFormProps) {
           </div>
 
           <Button type="submit" disabled={createMutation.isPending}>
-            Submit {selectedType}
+            {submitLabel ?? `Submit ${activeType}`}
           </Button>
         </form>
       </CardContent>

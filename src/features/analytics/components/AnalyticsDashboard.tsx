@@ -1,3 +1,4 @@
+import type { Route } from "next";
 import Link from "next/link";
 import {
   ArrowRight,
@@ -119,9 +120,9 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
           icon={Waves}
         />
         <SummaryCard
-          label="Services touched"
+          label="Applications touched"
           value={data.summary.totals.applicationsWithActivity.toString()}
-          supporting={`${data.summary.totals.totalApplications} tracked services exist in the catalog.`}
+          supporting={`${data.summary.totals.totalApplications} tracked applications exist in the catalog.`}
           icon={Radar}
         />
         <SummaryCard
@@ -158,7 +159,7 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
                         className="group flex h-full flex-1 items-end"
                       >
                         <div
-                          className="from-accent/30 via-accent to-accent/75 group-hover:via-accent group-hover:to-accent w-full rounded-t-[12px] border border-white/8 bg-linear-to-t transition duration-200 group-hover:from-white/40"
+                          className="from-accent/30 via-accent to-accent/75 group-hover:via-accent group-hover:to-accent w-full rounded-t-xl border border-white/8 bg-linear-to-t transition duration-200 group-hover:from-white/40"
                           style={{
                             height: `${Math.max((point.value / maxTrendValue) * 100, 6)}%`,
                           }}
@@ -236,10 +237,12 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-3">
               <CardEyebrow>Applications</CardEyebrow>
-              <CardTitle className="text-white">Tickets per service</CardTitle>
+              <CardTitle className="text-white">
+                Tickets per application
+              </CardTitle>
               <p className="text-muted-foreground max-w-2xl text-sm leading-7">
-                Services are ranked by ticket volume within the current window
-                so you can spot where support load is clustering.
+                Applications are ranked by ticket volume within the current
+                window so you can spot where support load is clustering.
               </p>
             </div>
             <Badge tone="neutral">
@@ -279,8 +282,8 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
                         </p>
                       </div>
                       <Button asChild variant="secondary" size="sm">
-                        <Link href={`/app/${application.slug}`}>
-                          Open service
+                        <Link href={`/app/${application.slug}` as Route}>
+                          Open application
                         </Link>
                       </Button>
                     </div>

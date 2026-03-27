@@ -7,9 +7,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
-  applicationInputSchema,
-  type ApplicationInput,
-} from "@/features/applications/schemas/applicationSchemas";
+  serviceInputSchema,
+  type ServiceInput,
+} from "@/features/services/schemas/serviceSchemas";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
 import { slugify } from "@/lib/utils";
@@ -24,62 +24,78 @@ import {
 } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
+import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 
-type ApplicationRecord = {
+type ApplicationOption = {
   id: string;
   name: string;
   slug: string;
-  description: string;
 };
 
-interface ApplicationsManagerProps {
-  initialApplications: ApplicationRecord[];
+type ServiceRecord = {
+  id: string;
+  applicationId: string;
+  name: string;
+  slug: string;
+  description: string;
+  uptimeKumaIdentifier: string | null;
+  application: ApplicationOption;
+};
+
+interface ServicesManagerProps {
+  initialServices: ServiceRecord[];
+  initialApplications: ApplicationOption[];
 }
 
-export function ApplicationsManager({
+export function ServicesManager({
+  initialServices,
   initialApplications,
-}: ApplicationsManagerProps) {
+}: ServicesManagerProps) {
   const queryClient = useQueryClient();
-  const [editing, setEditing] = useState<ApplicationRecord | null>(null);
+  const [editing, setEditing] = useState<ServiceRecord | null>(null);
 
-  const form = useForm<ApplicationInput>({
-    resolver: zodResolver(applicationInputSchema),
+  const form = useForm<ServiceInput>({
+    resolver: zodResolver(serviceInputSchema),
     defaultValues: {
+      applicationId: initialApplications[0]?.id ?? "",
       name: "",
       slug: "",
       description: "",
+      uptimeKumaIdentifier: "",
     },
   });
 
-  const applicationsQuery = useQuery({
-    queryKey: queryKeys.applications,
-    queryFn: () => fetchJson<ApplicationRecord[]>("/api/applications"),
-    initialData: initialApplications,
+  const servicesQuery = useQuery({
+    queryKey: queryKeys.services,
+    queryFn: () => fetchJson<ServiceRecord[]>("/api/services"),
+    initialData: initialServices,
   });
 
   const saveMutation = useMutation({
-    mutationFn: async (values: ApplicationInput) => {
+    mutationFn: async (values: ServiceInput) => {
       if (editing) {
-        return fetchJson(`/api/applications/${editing.id}`, {
+        return fetchJson(`/api/services/${editing.id}`, {
           method: "PATCH",
           body: JSON.stringify(values),
         });
       }
 
-      return fetchJson("/api/applications", {
+      return fetchJson("/api/services", {
         method: "POST",
         body: JSON.stringify(values),
       });
     },
     onSuccess: async () => {
-      toast.success(editing ? "Application updated" : "Application created");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.applications });
+      toast.success(editing ? "Service updated" : "Service created");
+      await queryClient.invalidateQueries({ queryKey: queryKeys.services });
       setEditing(null);
       form.reset({
+        applicationId: initialApplications[0]?.id ?? "",
         name: "",
         slug: "",
         description: "",
+        uptimeKumaIdentifier: "",
       });
     },
     onError: (error) => {
@@ -89,73 +105,78 @@ export function ApplicationsManager({
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) =>
-      fetchJson(`/api/applications/${id}`, {
+      fetchJson(`/api/services/${id}`, {
         method: "DELETE",
       }),
     onSuccess: async () => {
-      toast.success("Application removed");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.applications });
+      toast.success("Service removed");
+      await queryClient.invalidateQueries({ queryKey: queryKeys.services });
     },
     onError: (error) => {
       toast.error(error.message);
     },
   });
 
-  function editApplication(application: ApplicationRecord) {
-    setEditing(application);
+  function editService(service: ServiceRecord) {
+    setEditing(service);
     form.reset({
-      name: application.name,
-      slug: application.slug,
-      description: application.description,
+      applicationId: service.applicationId,
+      name: service.name,
+      slug: service.slug,
+      description: service.description,
+      uptimeKumaIdentifier: service.uptimeKumaIdentifier ?? "",
     });
   }
 
   function clearForm() {
     setEditing(null);
     form.reset({
+      applicationId: initialApplications[0]?.id ?? "",
       name: "",
       slug: "",
       description: "",
+      uptimeKumaIdentifier: "",
     });
   }
 
-  const applications = applicationsQuery.data;
+  const services = servicesQuery.data;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
       <Card>
         <CardHeader>
           <CardEyebrow>Catalog</CardEyebrow>
-          <CardTitle>Application catalog</CardTitle>
+          <CardTitle>Service catalog</CardTitle>
           <CardDescription>
-            Manage the applications users can submit tickets against.
+            Map microservices to their parent application and attach their
+            uptime monitor identifiers here.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {applications.map((application) => (
+          {services.map((service) => (
             <div
-              key={application.id}
+              key={service.id}
               className="border-border bg-muted/50 rounded-[18px] border p-5"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-2">
                   <div>
                     <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
-                      /{application.slug}
+                      {service.application.name} / {service.slug}
                     </p>
                     <h3 className="display-face mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
-                      {application.name}
+                      {service.name}
                     </h3>
                   </div>
                   <p className="text-muted-foreground max-w-xl text-sm leading-7">
-                    {application.description}
+                    {service.description}
                   </p>
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="secondary"
                     size="sm"
-                    onClick={() => editApplication(application)}
+                    onClick={() => editService(service)}
                   >
                     <Pencil className="size-4" />
                     Edit
@@ -164,7 +185,7 @@ export function ApplicationsManager({
                     variant="ghost"
                     size="sm"
                     className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => deleteMutation.mutate(application.id)}
+                    onClick={() => deleteMutation.mutate(service.id)}
                   >
                     <Trash2 className="size-4" />
                     Delete
@@ -179,12 +200,10 @@ export function ApplicationsManager({
       <Card>
         <CardHeader>
           <CardEyebrow>{editing ? "Edit" : "Create"}</CardEyebrow>
-          <CardTitle>
-            {editing ? "Update application" : "Add application"}
-          </CardTitle>
+          <CardTitle>{editing ? "Update service" : "Add service"}</CardTitle>
           <CardDescription>
-            Use clear names and stable slugs so the public catalog remains
-            predictable.
+            Keep service slugs stable because they power the nested workspace
+            routes and uptime endpoints.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -194,6 +213,20 @@ export function ApplicationsManager({
               saveMutation.mutate(values),
             )}
           >
+            <div className="space-y-2">
+              <Label htmlFor="applicationId">Application</Label>
+              <Select id="applicationId" {...form.register("applicationId")}>
+                {initialApplications.map((application) => (
+                  <option key={application.id} value={application.id}>
+                    {application.name}
+                  </option>
+                ))}
+              </Select>
+              <p className="text-destructive text-sm">
+                {form.formState.errors.applicationId?.message}
+              </p>
+            </div>
+
             <div className="space-y-2">
               <Label htmlFor="name">Name</Label>
               <Input
@@ -229,10 +262,22 @@ export function ApplicationsManager({
               </p>
             </div>
 
+            <div className="space-y-2">
+              <Label htmlFor="uptimeKumaIdentifier">Uptime identifier</Label>
+              <Input
+                id="uptimeKumaIdentifier"
+                {...form.register("uptimeKumaIdentifier")}
+                placeholder="Public status page identifier"
+              />
+              <p className="text-destructive text-sm">
+                {form.formState.errors.uptimeKumaIdentifier?.message}
+              </p>
+            </div>
+
             <div className="flex items-center gap-3">
               <Button type="submit" disabled={saveMutation.isPending}>
                 <Plus className="size-4" />
-                {editing ? "Save changes" : "Create application"}
+                {editing ? "Save changes" : "Create service"}
               </Button>
               {editing ? (
                 <Button type="button" variant="secondary" onClick={clearForm}>

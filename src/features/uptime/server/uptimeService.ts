@@ -1,9 +1,6 @@
 import { uptimeKumaStatusPageProvider } from "@/features/uptime/server/uptimeKumaStatusPageProvider";
 
-export async function getApplicationUptime(
-  applicationSlug: string,
-  uptimeKumaIdentifier?: string | null,
-) {
+export async function getServiceUptime(uptimeKumaIdentifier?: string | null) {
   if (!uptimeKumaIdentifier) {
     return uptimeKumaStatusPageProvider.getStatus("");
   }
@@ -11,6 +8,6 @@ export async function getApplicationUptime(
   return uptimeKumaStatusPageProvider.getStatus(uptimeKumaIdentifier);
 }
 
-export async function getApplicationUptimeByIdentifier(identifier: string) {
+export async function getServiceUptimeByIdentifier(identifier: string) {
   return uptimeKumaStatusPageProvider.getStatus(identifier);
 }

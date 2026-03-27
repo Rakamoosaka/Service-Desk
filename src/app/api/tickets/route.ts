@@ -9,6 +9,7 @@ import {
   listTickets,
 } from "@/features/tickets/server/ticketService";
 import { getApplicationById } from "@/features/applications/server/applicationService";
+import { getServiceById } from "@/features/services/server/serviceService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
 
@@ -59,6 +60,18 @@ export async function POST(request: NextRequest) {
 
   if (!application) {
     return errorResponse("NOT_FOUND", "Application not found", 404);
+  }
+
+  if (parsed.data.serviceId) {
+    const service = await getServiceById(parsed.data.serviceId);
+
+    if (!service || service.applicationId !== application.id) {
+      return errorResponse(
+        "VALIDATION_ERROR",
+        "Selected service does not belong to this application",
+        400,
+      );
+    }
   }
 
   const ticket = await createTicket(parsed.data, session.user.id);

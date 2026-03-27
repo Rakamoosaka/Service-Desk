@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-export const applicationInputSchema = z.object({
+export const serviceInputSchema = z.object({
+  applicationId: z.string().uuid(),
   name: z.string().min(2).max(80),
   slug: z
     .string()
@@ -11,10 +12,11 @@ export const applicationInputSchema = z.object({
       "Slug must contain only lowercase letters, numbers, and hyphens",
     ),
   description: z.string().min(12).max(600),
+  uptimeKumaIdentifier: z.string().max(120).optional().or(z.literal("")),
 });
 
-export const applicationIdSchema = z.object({
+export const serviceIdSchema = z.object({
   id: z.string().uuid(),
 });
 
-export type ApplicationInput = z.infer<typeof applicationInputSchema>;
+export type ServiceInput = z.infer<typeof serviceInputSchema>;

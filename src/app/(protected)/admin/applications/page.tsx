@@ -1,6 +1,6 @@
+import { SectionIntro } from "@/components/layout/SectionIntro";
 import { ApplicationsManager } from "@/features/applications/components/ApplicationsManager";
 import { listApplicationsCached } from "@/features/applications/server/applicationService";
-import { SectionIntro } from "@/components/layout/SectionIntro";
 import { requireAdmin } from "@/lib/auth/session";
 
 export default async function AdminApplicationsPage() {
@@ -11,7 +11,7 @@ export default async function AdminApplicationsPage() {
     <>
       <SectionIntro
         eyebrow="Admin"
-        title="Service catalog"
+        title="Application catalog"
         description="Create, update, and retire supported applications without leaving the protected workspace."
       />
       <ApplicationsManager initialApplications={applications} />

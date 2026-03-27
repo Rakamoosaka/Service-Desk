@@ -4,6 +4,7 @@ import {
   AppWindow,
   FolderKanban,
   LayoutDashboard,
+  Server,
   Ticket,
   UserRoundCog,
 } from "lucide-react";
@@ -36,17 +37,22 @@ export default async function ProtectedLayout({
         icon: <LayoutDashboard className="size-4" />,
       },
       {
-        href: "/admin/applications",
-        label: "Services",
+        href: "/admin/applications" as Route,
+        label: "Applications",
         icon: <FolderKanban className="size-4" />,
       },
       {
-        href: "/admin/tickets",
+        href: "/admin/services" as Route,
+        label: "Services",
+        icon: <Server className="size-4" />,
+      },
+      {
+        href: "/admin/tickets" as Route,
         label: "Tickets",
         icon: <Ticket className="size-4" />,
       },
       {
-        href: "/admin/users",
+        href: "/admin/users" as Route,
         label: "Users",
         icon: <UserRoundCog className="size-4" />,
       },

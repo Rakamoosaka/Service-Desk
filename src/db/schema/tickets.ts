@@ -9,6 +9,7 @@ import {
 } from "drizzle-orm/pg-core";
 import { applications } from "@/db/schema/applications";
 import { users } from "@/db/schema/auth";
+import { services } from "@/db/schema/services";
 
 export const ticketTypeEnum = pgEnum("ticket_type", [
   "feedback",
@@ -42,6 +43,9 @@ export const tickets = pgTable(
     appId: uuid("app_id")
       .notNull()
       .references(() => applications.id, { onDelete: "cascade" }),
+    serviceId: uuid("service_id").references(() => services.id, {
+      onDelete: "set null",
+    }),
     type: ticketTypeEnum("type").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
@@ -62,6 +66,7 @@ export const tickets = pgTable(
   },
   (table) => [
     index("tickets_app_id_idx").on(table.appId),
+    index("tickets_service_id_idx").on(table.serviceId),
     index("tickets_status_idx").on(table.status),
     index("tickets_type_idx").on(table.type),
     index("tickets_app_status_idx").on(table.appId, table.status),
@@ -73,6 +78,10 @@ export const ticketRelations = relations(tickets, ({ one }) => ({
   application: one(applications, {
     fields: [tickets.appId],
     references: [applications.id],
+  }),
+  service: one(services, {
+    fields: [tickets.serviceId],
+    references: [services.id],
   }),
   submittedBy: one(users, {
     fields: [tickets.submittedByUserId],

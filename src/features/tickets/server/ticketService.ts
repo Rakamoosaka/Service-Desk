@@ -14,6 +14,7 @@ export async function createTicket(
     .insert(tickets)
     .values({
       appId: input.appId,
+      serviceId: input.serviceId || null,
       type: input.type,
       title: input.title,
       description: input.description,
@@ -50,6 +51,13 @@ export async function listTickets(filters: TicketFilters = {}) {
           slug: true,
         },
       },
+      service: {
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
       submittedBy: {
         columns: {
           id: true,
@@ -71,6 +79,13 @@ export async function listTicketsByApplication(appId: string) {
     where: eq(tickets.appId, appId),
     orderBy: [desc(tickets.createdAt)],
     with: {
+      service: {
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+        },
+      },
       submittedBy: {
         columns: {
           name: true,

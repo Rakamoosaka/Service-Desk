@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const ticketInputSchema = z.object({
   appId: z.string().uuid(),
+  serviceId: z.string().uuid().optional().or(z.literal("")),
   type: z.enum(["feedback", "suggestion", "bug"]),
   title: z.string().min(4).max(120),
   description: z.string().min(16).max(2000),

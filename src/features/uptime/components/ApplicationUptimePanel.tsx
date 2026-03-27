@@ -1,6 +1,7 @@
 "use client";
-import { Activity, ExternalLink, Radar, Siren } from "lucide-react";
+
 import { useQuery } from "@tanstack/react-query";
+import { Activity, ExternalLink, Radar, Siren } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import {
   Card,
@@ -57,18 +58,23 @@ function formatLatency(value: number | null) {
   return `${Math.round(value)} ms`;
 }
 
-interface ApplicationUptimePanelProps {
+interface ServiceUptimePanelProps {
   applicationSlug: string;
+  serviceSlug: string;
   initialSnapshot: UptimeSnapshot;
 }
 
-export function ApplicationUptimePanel({
+export function ServiceUptimePanel({
   applicationSlug,
+  serviceSlug,
   initialSnapshot,
-}: ApplicationUptimePanelProps) {
+}: ServiceUptimePanelProps) {
   const uptimeQuery = useQuery({
-    queryKey: queryKeys.uptime(applicationSlug),
-    queryFn: () => fetchJson<UptimeSnapshot>(`/api/uptime/${applicationSlug}`),
+    queryKey: queryKeys.uptime(applicationSlug, serviceSlug),
+    queryFn: () =>
+      fetchJson<UptimeSnapshot>(
+        `/api/uptime/${applicationSlug}/${serviceSlug}`,
+      ),
     initialData: initialSnapshot,
     refetchInterval: (query) => {
       const interval = query.state.data?.pollIntervalMs ?? 60_000;

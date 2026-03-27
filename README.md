@@ -132,12 +132,13 @@ Default local database settings from `compose.yaml`:
 
 ### 4. Generate and apply the database schema
 
-This repository does not currently check in migration files, so first-time local setup should generate them before running the migrator.
+This repository checks in migration files, so local setup should apply the committed migrations before the app starts.
 
 ```bash
-npm run db:generate
 npm run db:migrate
 ```
+
+`npm run dev` and `npm start` now run `db:migrate` automatically before the app boots.
 
 ### 5. Seed development data
 
@@ -145,7 +146,7 @@ npm run db:migrate
 npm run db:seed
 ```
 
-The seed inserts demo applications, users, and tickets for local development.
+The seed inserts demo applications, services, users, and tickets for local development.
 
 ### 6. Start the app
 
@@ -165,7 +166,6 @@ After `.env.local` is filled in, the full local bootstrap is:
 
 ```bash
 npm run db:up
-npm run db:generate
 npm run db:migrate
 npm run db:seed
 npm run dev
