@@ -18,6 +18,18 @@ export async function listUsers() {
   });
 }
 
+export async function listAdminNotificationRecipients() {
+  return db.query.users.findMany({
+    columns: {
+      id: true,
+      name: true,
+      email: true,
+    },
+    where: eq(users.role, "admin"),
+    orderBy: [asc(users.name)],
+  });
+}
+
 export async function updateUserRole(id: string, input: UserRoleInput) {
   const [user] = await db
     .update(users)

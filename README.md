@@ -80,6 +80,8 @@ GITLAB_ISSUER=https://gitlab.com
 GITLAB_ADMIN_ALLOWLIST=you@example.com
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 UPTIME_KUMA_BASE_URL=https://test-monitor.koz-ai.com
+RESEND_API_KEY=re_xxxxxxxxx
+RESEND_FROM_EMAIL=Service Desk <notifications@example.com>
 ```
 
 Notes:
@@ -88,6 +90,7 @@ Notes:
 - `GITLAB_ADMIN_ALLOWLIST` accepts a comma-separated list of GitLab emails and or GitLab user IDs
 - If you want your first login to be an admin, include your own GitLab email or GitLab numeric user ID in `GITLAB_ADMIN_ALLOWLIST`
 - `UPTIME_KUMA_BASE_URL` should point to the public Uptime Kuma host if you want application pages to poll service health
+- `RESEND_API_KEY` and `RESEND_FROM_EMAIL` enable admin email notifications for newly created tickets
 
 ### 2. Configure GitLab OAuth for local development
 
@@ -193,6 +196,8 @@ This project is structured for Vercel deployment, but the local Docker PostgreSQ
 - `GITLAB_ISSUER`
 - `GITLAB_ADMIN_ALLOWLIST`
 - `NEXT_PUBLIC_APP_URL`
+- `RESEND_API_KEY`
+- `RESEND_FROM_EMAIL`
 
 ### Production GitLab OAuth values
 
@@ -224,17 +229,19 @@ At the moment, local setup generates the initial migration because `src/db/migra
 
 The application validates its environment at startup.
 
-| Variable                 | Required | Purpose                                               |
-| ------------------------ | -------- | ----------------------------------------------------- |
-| `DATABASE_URL`           | Yes      | PostgreSQL connection string used by Drizzle          |
-| `BETTER_AUTH_SECRET`     | Yes      | better-auth signing secret                            |
-| `BETTER_AUTH_URL`        | Yes      | Base URL used by better-auth                          |
-| `GITLAB_CLIENT_ID`       | Yes      | GitLab OAuth application client ID                    |
-| `GITLAB_CLIENT_SECRET`   | Yes      | GitLab OAuth application client secret                |
-| `GITLAB_ISSUER`          | Yes      | GitLab OAuth issuer URL, usually `https://gitlab.com` |
-| `GITLAB_ADMIN_ALLOWLIST` | Yes      | Comma-separated admin bootstrap allowlist             |
-| `NEXT_PUBLIC_APP_URL`    | Yes      | Public base URL used by the frontend                  |
-| `UPTIME_KUMA_BASE_URL`   | No       | Public Uptime Kuma host used for status page polling  |
+| Variable                 | Required | Purpose                                                |
+| ------------------------ | -------- | ------------------------------------------------------ |
+| `DATABASE_URL`           | Yes      | PostgreSQL connection string used by Drizzle           |
+| `BETTER_AUTH_SECRET`     | Yes      | better-auth signing secret                             |
+| `BETTER_AUTH_URL`        | Yes      | Base URL used by better-auth                           |
+| `GITLAB_CLIENT_ID`       | Yes      | GitLab OAuth application client ID                     |
+| `GITLAB_CLIENT_SECRET`   | Yes      | GitLab OAuth application client secret                 |
+| `GITLAB_ISSUER`          | Yes      | GitLab OAuth issuer URL, usually `https://gitlab.com`  |
+| `GITLAB_ADMIN_ALLOWLIST` | Yes      | Comma-separated admin bootstrap allowlist              |
+| `NEXT_PUBLIC_APP_URL`    | Yes      | Public base URL used by the frontend                   |
+| `UPTIME_KUMA_BASE_URL`   | No       | Public Uptime Kuma host used for status page polling   |
+| `RESEND_API_KEY`         | No       | Resend API key used to send admin ticket notifications |
+| `RESEND_FROM_EMAIL`      | No       | From address used for admin ticket notifications       |
 
 ## Available scripts
 

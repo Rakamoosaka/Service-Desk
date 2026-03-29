@@ -15,6 +15,8 @@ const envSchema = z.object({
   GITLAB_ADMIN_ALLOWLIST: z.string().default(""),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
   UPTIME_KUMA_BASE_URL: z.string().url().optional(),
+  RESEND_API_KEY: z.string().min(1).optional(),
+  RESEND_FROM_EMAIL: z.string().min(1).optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

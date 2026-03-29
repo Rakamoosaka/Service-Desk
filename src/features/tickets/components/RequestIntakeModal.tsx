@@ -114,32 +114,48 @@ export function RequestIntakeModal({
                     title=""
                     description=""
                     headerAddon={
-                      <div className="border-t border-white/8 pt-4">
-                        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-                          <div className="min-w-0 space-y-2">
-                            <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold tracking-[0.18em] text-white/48 uppercase">
-                              <span>Selected application</span>
-                              <span
-                                aria-hidden="true"
-                                className="size-1 rounded-full bg-white/18"
-                              />
-                              <span>
+                      <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-4 md:px-5 md:py-4.5">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                          <div className="min-w-0 space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge
+                                tone="neutral"
+                                className="border-white/10 bg-white/4 text-[10px] tracking-[0.18em] text-white/72"
+                              >
+                                Selected application
+                              </Badge>
+                              <Badge
+                                tone="accent"
+                                className="text-accent border-white/10 bg-white/4.5 text-[10px] tracking-[0.18em] shadow-none"
+                              >
+                                /{selectedApplication!.slug}
+                              </Badge>
+                              <Badge
+                                tone="neutral"
+                                className="border-white/10 bg-white/3 text-[10px] tracking-[0.18em] text-white/68"
+                              >
                                 {selectedApplication!.services.length} service
                                 {selectedApplication!.services.length === 1
                                   ? ""
                                   : "s"}
-                              </span>
+                              </Badge>
                             </div>
 
-                            <p className="display-face truncate text-[1.5rem] font-semibold tracking-[-0.045em] text-white md:text-[1.8rem]">
-                              {selectedApplication!.name}
-                            </p>
+                            <div className="min-w-0 space-y-1">
+                              <p className="display-face text-[1.15rem] font-semibold tracking-[-0.04em] text-white md:text-[1.3rem]">
+                                {selectedApplication!.name}
+                              </p>
+                              <p className="text-muted-foreground text-[12px] leading-5 md:text-[13px]">
+                                This ticket will be created directly against
+                                this application unless you switch context.
+                              </p>
+                            </div>
                           </div>
 
                           <Button
                             variant="secondary"
                             size="sm"
-                            className="w-full shrink-0 rounded-full border-white/8 bg-black/20 px-4 text-[11px] tracking-[0.14em] text-white/82 hover:border-white/14 hover:bg-black/28 hover:text-white sm:w-auto"
+                            className="w-full shrink-0 sm:w-auto"
                             onClick={() => onSelectedApplicationSlugChange("")}
                           >
                             <ArrowLeft className="size-4" />
@@ -148,7 +164,6 @@ export function RequestIntakeModal({
                         </div>
                       </div>
                     }
-                    submitButtonClassName="!shadow-none hover:!shadow-none"
                     submitLabel="Create ticket"
                   />
                 </motion.div>

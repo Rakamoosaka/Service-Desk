@@ -8,6 +8,7 @@ import {
   createTicket,
   listTickets,
 } from "@/features/tickets/server/ticketService";
+import { sendNewTicketAdminNotification } from "@/features/tickets/server/sendNewTicketAdminNotification";
 import { getApplicationById } from "@/features/applications/server/applicationService";
 import { getServiceById } from "@/features/services/server/serviceService";
 import { getSessionFromRequest } from "@/lib/auth/session";
@@ -58,8 +59,10 @@ export async function POST(request: NextRequest) {
     return errorResponse("NOT_FOUND", "Application not found", 404);
   }
 
+  let service = null;
+
   if (parsed.data.serviceId) {
-    const service = await getServiceById(parsed.data.serviceId);
+    service = await getServiceById(parsed.data.serviceId);
 
     if (!service || service.applicationId !== application.id) {
       return errorResponse(
@@ -71,6 +74,18 @@ export async function POST(request: NextRequest) {
   }
 
   const ticket = await createTicket(parsed.data, session.user.id);
+  await sendNewTicketAdminNotification({
+    ticket,
+    application,
+    service,
+    submittedBy: {
+      id: session.user.id,
+      name: session.user.name,
+      email: session.user.email,
+      role: session.user.role,
+    },
+  });
+
   revalidateTag("tickets", "max");
   revalidateTag(`application-${application.slug}`, "max");
 
