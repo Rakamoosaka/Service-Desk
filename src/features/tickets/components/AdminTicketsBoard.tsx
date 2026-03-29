@@ -8,6 +8,7 @@ import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
 import { formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -53,6 +54,17 @@ function toTone(status: TicketRecord["status"]) {
   }
 }
 
+function buildTicketSearchParams(filters: TicketFilters) {
+  const params = new URLSearchParams();
+
+  if (filters.appId) params.set("appId", filters.appId);
+  if (filters.status) params.set("status", filters.status);
+  if (filters.type) params.set("type", filters.type);
+  if (filters.search) params.set("search", filters.search);
+
+  return params;
+}
+
 export function AdminTicketsBoard({
   initialTickets,
   applications,
@@ -61,16 +73,15 @@ export function AdminTicketsBoard({
   const [filters, setFilters] = useState<TicketFilters>({});
   const deferredSearch = useDeferredValue(filters.search);
   const activeFilters = { ...filters, search: deferredSearch };
+  const exportParams = buildTicketSearchParams(activeFilters).toString();
+  const exportHref = exportParams
+    ? `/api/tickets/export?${exportParams}`
+    : "/api/tickets/export";
 
   const ticketsQuery = useQuery({
     queryKey: queryKeys.tickets(activeFilters),
     queryFn: async () => {
-      const params = new URLSearchParams();
-
-      if (activeFilters.appId) params.set("appId", activeFilters.appId);
-      if (activeFilters.status) params.set("status", activeFilters.status);
-      if (activeFilters.type) params.set("type", activeFilters.type);
-      if (activeFilters.search) params.set("search", activeFilters.search);
+      const params = buildTicketSearchParams(activeFilters);
 
       return fetchJson<TicketRecord[]>(`/api/tickets?${params.toString()}`);
     },
@@ -130,64 +141,73 @@ export function AdminTicketsBoard({
   return (
     <Card>
       <CardContent className="space-y-6">
-        <div className="grid gap-3 lg:grid-cols-[1.2fr_0.6fr_0.4fr_0.4fr]">
-          <Input
-            placeholder="Search title or description"
-            value={filters.search ?? ""}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                search: event.target.value || undefined,
-              }))
-            }
-          />
-          <Select
-            value={filters.appId ?? ""}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                appId: event.target.value || undefined,
-              }))
-            }
-          >
-            <option value="">All applications</option>
-            {applications.map((application) => (
-              <option key={application.id} value={application.id}>
-                {application.name}
-              </option>
-            ))}
-          </Select>
-          <Select
-            value={filters.status ?? ""}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                status:
-                  (event.target.value as TicketFilters["status"]) || undefined,
-              }))
-            }
-          >
-            <option value="">All statuses</option>
-            <option value="new">New</option>
-            <option value="in_review">In review</option>
-            <option value="resolved">Resolved</option>
-            <option value="closed">Closed</option>
-          </Select>
-          <Select
-            value={filters.type ?? ""}
-            onChange={(event) =>
-              setFilters((current) => ({
-                ...current,
-                type:
-                  (event.target.value as TicketFilters["type"]) || undefined,
-              }))
-            }
-          >
-            <option value="">All types</option>
-            <option value="feedback">Feedback</option>
-            <option value="suggestion">Suggestion</option>
-            <option value="bug">Bug</option>
-          </Select>
+        <div className="space-y-3">
+          <div className="grid gap-3 lg:grid-cols-[1.2fr_0.6fr_0.4fr_0.4fr]">
+            <Input
+              placeholder="Search title or description"
+              value={filters.search ?? ""}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  search: event.target.value || undefined,
+                }))
+              }
+            />
+            <Select
+              value={filters.appId ?? ""}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  appId: event.target.value || undefined,
+                }))
+              }
+            >
+              <option value="">All applications</option>
+              {applications.map((application) => (
+                <option key={application.id} value={application.id}>
+                  {application.name}
+                </option>
+              ))}
+            </Select>
+            <Select
+              value={filters.status ?? ""}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  status:
+                    (event.target.value as TicketFilters["status"]) ||
+                    undefined,
+                }))
+              }
+            >
+              <option value="">All statuses</option>
+              <option value="new">New</option>
+              <option value="in_review">In review</option>
+              <option value="resolved">Resolved</option>
+              <option value="closed">Closed</option>
+            </Select>
+            <Select
+              value={filters.type ?? ""}
+              onChange={(event) =>
+                setFilters((current) => ({
+                  ...current,
+                  type:
+                    (event.target.value as TicketFilters["type"]) || undefined,
+                }))
+              }
+            >
+              <option value="">All types</option>
+              <option value="feedback">Feedback</option>
+              <option value="suggestion">Suggestion</option>
+              <option value="bug">Bug</option>
+            </Select>
+          </div>
+
+          <div className="flex justify-end">
+            <Button asChild size="sm" variant="secondary">
+              <a href={exportHref}>Download CSV</a>
+            </Button>
+          </div>
         </div>
 
         <div className="border-border overflow-hidden rounded-[20px] border">

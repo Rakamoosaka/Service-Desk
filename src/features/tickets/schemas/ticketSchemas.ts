@@ -15,6 +15,15 @@ export const ticketFiltersSchema = z.object({
   search: z.string().trim().max(120).optional(),
 });
 
+export function parseTicketFilters(searchParams: URLSearchParams) {
+  return ticketFiltersSchema.safeParse({
+    appId: searchParams.get("appId") ?? undefined,
+    status: searchParams.get("status") ?? undefined,
+    type: searchParams.get("type") ?? undefined,
+    search: searchParams.get("search") ?? undefined,
+  });
+}
+
 export const ticketStatusSchema = z.object({
   status: z.enum(["new", "in_review", "resolved", "closed"]),
 });

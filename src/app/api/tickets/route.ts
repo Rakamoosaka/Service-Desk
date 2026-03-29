@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import {
-  ticketFiltersSchema,
+  parseTicketFilters,
   ticketInputSchema,
 } from "@/features/tickets/schemas/ticketSchemas";
 import {
@@ -24,12 +24,7 @@ export async function GET(request: NextRequest) {
     return errorResponse("FORBIDDEN", "Admin access required", 403);
   }
 
-  const filters = ticketFiltersSchema.safeParse({
-    appId: request.nextUrl.searchParams.get("appId") ?? undefined,
-    status: request.nextUrl.searchParams.get("status") ?? undefined,
-    type: request.nextUrl.searchParams.get("type") ?? undefined,
-    search: request.nextUrl.searchParams.get("search") ?? undefined,
-  });
+  const filters = parseTicketFilters(request.nextUrl.searchParams);
 
   if (!filters.success) {
     return errorResponse("VALIDATION_ERROR", "Invalid ticket filters", 400);
