@@ -23,12 +23,12 @@ export function SignOutButton({ className }: SignOutButtonProps) {
     <Button
       variant="ghost"
       className={cn(
-        "text-sidebar-foreground w-full justify-start border-transparent px-3 hover:bg-white/5 hover:text-white",
+        "text-sidebar-muted w-full justify-start px-4 py-3 text-sm font-medium hover:bg-transparent hover:text-white",
         className,
       )}
       onClick={handleSignOut}
     >
-      <LogOut className="size-4" />
+      <LogOut className="text-sidebar-muted size-4 shrink-0" />
       Sign out
     </Button>
   );

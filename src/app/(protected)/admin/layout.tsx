@@ -10,7 +10,6 @@ import {
 import { SidebarLink } from "@/components/navigation/SidebarLink";
 import { SignOutButton } from "@/components/navigation/SignOutButton";
 import { ThemeToggle } from "@/components/theme/ThemeToggle";
-import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { requireAdmin } from "@/lib/auth/session";
 
@@ -50,7 +49,7 @@ export default async function AdminLayout({
         <div className="panel-grid absolute inset-0 opacity-30" />
         <div className="relative flex h-full flex-col gap-8 overflow-y-auto p-6">
           <div className="space-y-5">
-            <div className="flex items-start justify-between gap-4">
+            <div className="flex items-center justify-between gap-4">
               <div>
                 <p className="text-sidebar-muted text-[11px] font-semibold tracking-[0.34em] uppercase">
                   KOZ AI
@@ -63,32 +62,6 @@ export default async function AdminLayout({
                 </Link>
               </div>
               <ThemeToggle />
-            </div>
-
-            <div className="border-sidebar-border rounded-[22px] border bg-white/3 p-4 backdrop-blur-sm">
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-semibold text-white">
-                    {session.user.name}
-                  </p>
-                  <p className="text-sidebar-muted mt-1 text-sm">
-                    {session.user.email}
-                  </p>
-                </div>
-                <Badge tone="accent">admin</Badge>
-              </div>
-
-              <Button
-                asChild
-                variant="secondary"
-                size="sm"
-                className="mt-4 w-full justify-center"
-              >
-                <Link href="/">
-                  <ArrowUpLeft className="size-4" />
-                  Shared home
-                </Link>
-              </Button>
             </div>
           </div>
 
@@ -103,7 +76,28 @@ export default async function AdminLayout({
             ))}
           </nav>
 
-          <div className="border-sidebar-border sticky bottom-0 mt-auto rounded-[20px] border bg-white/3 p-3 backdrop-blur-sm">
+          <div className="from-sidebar via-sidebar/95 sticky bottom-0 mt-auto space-y-2.5 bg-linear-to-t to-transparent pt-6">
+            <div className="px-1 py-2">
+              <div>
+                <p className="font-semibold text-white">{session.user.name}</p>
+                <p className="text-sidebar-muted mt-1 text-sm">
+                  {session.user.email}
+                </p>
+              </div>
+
+              <Button
+                asChild
+                variant="secondary"
+                size="sm"
+                className="mt-4 w-full justify-center border-white/10 bg-white/6 hover:bg-white/10"
+              >
+                <Link href="/">
+                  <ArrowUpLeft className="size-4" />
+                  Shared home
+                </Link>
+              </Button>
+            </div>
+
             <SignOutButton />
           </div>
         </div>
