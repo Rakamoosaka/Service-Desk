@@ -1,10 +1,10 @@
 "use client";
 
+import type { Route } from "next";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
-import { HomeServiceUptimeCard } from "@/app/(protected)/_components/HomeServiceUptimeCard";
 import { SignOutButton } from "@/components/navigation/SignOutButton";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -214,10 +214,10 @@ export function HomePageExperience({
             <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
               <div className="space-y-2.5">
                 <p className="text-accent text-[11px] font-semibold tracking-[0.32em] uppercase">
-                  Uptime status
+                  Applications
                 </p>
                 <h2 className="display-face max-w-3xl text-xl font-semibold tracking-[-0.03em] text-white md:text-[1.6rem]">
-                  Live application health.
+                  Open an application for full status and ticket intake.
                 </h2>
               </div>
             </div>
@@ -254,13 +254,15 @@ export function HomePageExperience({
                           </div>
 
                           <Button
+                            asChild
                             variant="secondary"
                             size="sm"
                             className="rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
-                            onClick={() => openIntake(application.slug)}
                           >
-                            Create ticket
-                            <ArrowRight className="size-4" />
+                            <Link href={`/app/${application.slug}` as Route}>
+                              Open app
+                              <ArrowRight className="size-4" />
+                            </Link>
                           </Button>
                         </div>
 
@@ -300,25 +302,6 @@ export function HomePageExperience({
                             </div>
                           </div>
                         </div>
-
-                        <div className="overflow-hidden rounded-2xl border border-white/8 bg-black/15">
-                          {application.services.length ? (
-                            application.services.map((service) => (
-                              <HomeServiceUptimeCard
-                                key={service.id}
-                                applicationSlug={service.applicationSlug}
-                                serviceSlug={service.slug}
-                                serviceName={service.name}
-                                isActive={service.isActive}
-                                initialSnapshot={service.initialSnapshot}
-                              />
-                            ))
-                          ) : (
-                            <div className="border-border bg-muted/40 text-muted-foreground m-4 rounded-lg border border-dashed p-5 text-sm">
-                              No services are mapped to this application yet.
-                            </div>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </motion.div>
@@ -330,14 +313,12 @@ export function HomePageExperience({
                       No monitored services
                     </p>
                     <h3 className="display-face text-3xl font-semibold tracking-[-0.03em] text-white">
-                      Add real applications and services to see live Kuma status
-                      here
+                      Add real applications to build out the app directory
                     </h3>
                     <p className="text-muted-foreground max-w-3xl text-sm leading-7">
-                      The seeded demo applications and services have been
-                      removed. Once you configure real services with Uptime Kuma
-                      identifiers, this homepage will start polling and render
-                      their monitor history strips automatically.
+                      Once applications and services are configured, this home
+                      view will surface their top-level status and route into
+                      the dedicated application pages.
                     </p>
                   </div>
                 </div>
