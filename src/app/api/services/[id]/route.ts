@@ -2,14 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import {
   serviceIdSchema,
-  serviceInputSchema,
+  serviceMetadataInputSchema,
 } from "@/features/services/schemas/serviceSchemas";
 import {
-  deleteService,
   getServiceById,
-  updateService,
+  updateServiceMetadata,
 } from "@/features/services/server/serviceService";
-import { getApplicationById } from "@/features/applications/server/applicationService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
 
@@ -50,7 +48,7 @@ export async function PATCH(
   }
 
   const body = await request.json();
-  const parsedBody = serviceInputSchema.safeParse(body);
+  const parsedBody = serviceMetadataInputSchema.safeParse(body);
 
   if (!parsedBody.success) {
     return errorResponse(
@@ -60,20 +58,23 @@ export async function PATCH(
     );
   }
 
-  const application = await getApplicationById(parsedBody.data.applicationId);
+  const existingService = await getServiceById(parsedParams.data.id);
 
-  if (!application) {
-    return errorResponse("NOT_FOUND", "Application not found", 404);
+  if (!existingService) {
+    return errorResponse("NOT_FOUND", "Service not found", 404);
   }
 
-  const service = await updateService(parsedParams.data.id, parsedBody.data);
+  const service = await updateServiceMetadata(
+    parsedParams.data.id,
+    parsedBody.data,
+  );
 
   if (!service) {
     return errorResponse("NOT_FOUND", "Service not found", 404);
   }
 
   revalidateTag("applications", "max");
-  revalidateTag(`application-${application.slug}`, "max");
+  revalidateTag(`application-${existingService.application.slug}`, "max");
 
   return NextResponse.json(service);
 }
@@ -82,32 +83,12 @@ export async function DELETE(
   request: NextRequest,
   { params }: ServiceRouteProps,
 ) {
-  const authError = await requireAdmin(request.headers);
+  void request;
+  void params;
 
-  if (authError) {
-    return authError;
-  }
-
-  const parsedParams = serviceIdSchema.safeParse(await params);
-
-  if (!parsedParams.success) {
-    return errorResponse("VALIDATION_ERROR", "Invalid service id", 400);
-  }
-
-  const existing = await getServiceById(parsedParams.data.id);
-
-  if (!existing) {
-    return errorResponse("NOT_FOUND", "Service not found", 404);
-  }
-
-  const service = await deleteService(parsedParams.data.id);
-
-  if (!service) {
-    return errorResponse("NOT_FOUND", "Service not found", 404);
-  }
-
-  revalidateTag("applications", "max");
-  revalidateTag(`application-${existing.application.slug}`, "max");
-
-  return NextResponse.json({ success: true });
+  return errorResponse(
+    "VALIDATION_ERROR",
+    "Synced services can only be retired by removing them from the linked Uptime Kuma status page",
+    405,
+  );
 }

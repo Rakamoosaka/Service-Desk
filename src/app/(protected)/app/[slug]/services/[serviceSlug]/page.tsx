@@ -46,7 +46,11 @@ export default async function ServicePage({ params }: ServicePageProps) {
     notFound();
   }
 
-  const initialUptime = await getServiceUptime(service.uptimeKumaIdentifier);
+  const initialUptime = await getServiceUptime(
+    application.uptimeKumaIdentifier,
+    service.kumaMonitorId,
+    service.name,
+  );
 
   return (
     <div className="mx-auto flex min-h-screen w-full max-w-400 flex-col gap-8 px-6 py-8 md:px-8 md:py-10 xl:px-10">
@@ -67,13 +71,16 @@ export default async function ServicePage({ params }: ServicePageProps) {
       <div className="flex flex-wrap gap-2">
         <Badge tone="neutral">Application: {application.name}</Badge>
         <Badge tone="accent">/{service.slug}</Badge>
+        <Badge tone={service.isActive ? "success" : "warning"}>
+          {service.isActive ? "active" : "inactive"}
+        </Badge>
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[0.95fr_1.05fr]">
         <TicketIntakeForm
           applicationId={application.id}
-          services={application.services}
-          defaultServiceId={service.id}
+          services={application.services.filter((item) => item.isActive)}
+          defaultServiceId={service.isActive ? service.id : undefined}
         />
 
         <div className="space-y-6">

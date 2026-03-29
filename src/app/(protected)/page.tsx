@@ -1,6 +1,9 @@
 import { HomePageExperience } from "@/app/(protected)/_components/HomePageExperience";
 import { listApplicationsWithServicesCached } from "@/features/applications/server/applicationService";
-import { getServiceUptime } from "@/features/uptime/server/uptimeService";
+import {
+  buildServiceUptimeSnapshot,
+  getApplicationUptime,
+} from "@/features/uptime/server/uptimeService";
 import type { UptimeState } from "@/features/uptime/server/uptimeTypes";
 import { requireUser } from "@/lib/auth/session";
 
@@ -50,21 +53,29 @@ export default async function HomePage() {
   const applications = await listApplicationsWithServicesCached();
   const applicationsWithStatus = await Promise.all(
     applications.map(async (application) => {
+      const applicationSnapshot = await getApplicationUptime(
+        application.uptimeKumaIdentifier,
+      );
       const services = await Promise.all(
         application.services.map(async (service) => {
-          const snapshot = await getServiceUptime(service.uptimeKumaIdentifier);
+          const snapshot = buildServiceUptimeSnapshot(
+            applicationSnapshot,
+            service.kumaMonitorId,
+            service.name,
+          );
           const healthStatus = normalizeStatus(snapshot.status);
 
           return {
             id: service.id,
             name: service.name,
             slug: service.slug,
+            description: service.description,
+            isActive: service.isActive,
+            applicationSlug: application.slug,
             healthStatus,
             healthLabel: statusLabel(healthStatus),
-            checkedAt:
-              service.uptimeKumaIdentifier && snapshot.monitors.length
-                ? snapshot.checkedAt
-                : null,
+            initialSnapshot: snapshot,
+            checkedAt: snapshot.monitors.length ? snapshot.checkedAt : null,
             statusPageUrl: snapshot.statusPageUrl,
           };
         }),

@@ -1,7 +1,7 @@
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { services } from "@/db/schema";
-import type { ServiceInput } from "@/features/services/schemas/serviceSchemas";
+import type { ServiceMetadataInput } from "@/features/services/schemas/serviceSchemas";
 
 export async function listServices() {
   return db.query.services.findMany({
@@ -11,7 +11,10 @@ export async function listServices() {
       name: true,
       slug: true,
       description: true,
-      uptimeKumaIdentifier: true,
+      kumaMonitorId: true,
+      kumaMonitorName: true,
+      isActive: true,
+      lastSyncedAt: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -21,6 +24,7 @@ export async function listServices() {
           id: true,
           name: true,
           slug: true,
+          uptimeKumaIdentifier: true,
         },
       },
     },
@@ -41,6 +45,7 @@ export async function getServiceById(id: string) {
           id: true,
           name: true,
           slug: true,
+          uptimeKumaIdentifier: true,
         },
       },
     },
@@ -55,12 +60,26 @@ export async function getServiceBySlugs(
 ) {
   const serviceMatches = await db.query.services.findMany({
     where: eq(services.slug, serviceSlug),
+    columns: {
+      id: true,
+      applicationId: true,
+      name: true,
+      slug: true,
+      description: true,
+      kumaMonitorId: true,
+      kumaMonitorName: true,
+      isActive: true,
+      lastSyncedAt: true,
+      createdAt: true,
+      updatedAt: true,
+    },
     with: {
       application: {
         columns: {
           id: true,
           name: true,
           slug: true,
+          uptimeKumaIdentifier: true,
         },
       },
       tickets: {
@@ -84,30 +103,15 @@ export async function getServiceBySlugs(
   );
 }
 
-export async function createService(input: ServiceInput) {
-  const [service] = await db
-    .insert(services)
-    .values({
-      applicationId: input.applicationId,
-      name: input.name,
-      slug: input.slug,
-      description: input.description,
-      uptimeKumaIdentifier: input.uptimeKumaIdentifier || null,
-    })
-    .returning();
-
-  return service;
-}
-
-export async function updateService(id: string, input: ServiceInput) {
+export async function updateServiceMetadata(
+  id: string,
+  input: ServiceMetadataInput,
+) {
   const [service] = await db
     .update(services)
     .set({
-      applicationId: input.applicationId,
       name: input.name,
-      slug: input.slug,
       description: input.description,
-      uptimeKumaIdentifier: input.uptimeKumaIdentifier || null,
       updatedAt: new Date(),
     })
     .where(eq(services.id, id))

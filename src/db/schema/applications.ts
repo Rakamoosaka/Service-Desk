@@ -8,6 +8,8 @@ export const applications = pgTable(
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
     description: text("description").notNull(),
+    uptimeKumaIdentifier: text("uptime_kuma_identifier").notNull(),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),

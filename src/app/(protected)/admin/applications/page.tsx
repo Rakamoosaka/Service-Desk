@@ -1,18 +1,18 @@
 import { SectionIntro } from "@/components/layout/SectionIntro";
 import { ApplicationsManager } from "@/features/applications/components/ApplicationsManager";
-import { listApplicationsCached } from "@/features/applications/server/applicationService";
+import { listApplicationsWithServicesCached } from "@/features/applications/server/applicationService";
 import { requireAdmin } from "@/lib/auth/session";
 
 export default async function AdminApplicationsPage() {
   await requireAdmin();
-  const applications = await listApplicationsCached();
+  const applications = await listApplicationsWithServicesCached();
 
   return (
     <>
       <SectionIntro
         eyebrow="Admin"
         title="Application catalog"
-        description="Create, update, and retire supported applications without leaving the protected workspace."
+        description="Create supported applications, validate their Uptime Kuma identifier, and manage synced service labels from one page."
       />
       <ApplicationsManager initialApplications={applications} />
     </>

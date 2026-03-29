@@ -2,6 +2,7 @@ import JSON5 from "json5";
 import { z } from "zod";
 import { env } from "@/lib/env";
 import type {
+  UptimeMonitorHistoryPoint,
   UptimeIncidentSnapshot,
   UptimeMonitorSnapshot,
   UptimeProvider,
@@ -116,22 +117,6 @@ function summarizeStatus(status: UptimeState, monitorCount: number) {
   }
 }
 
-function fallbackSnapshot(
-  summary: string,
-  statusPageUrl: string | null,
-): UptimeSnapshot {
-  return {
-    status: "unknown",
-    checkedAt: new Date().toISOString(),
-    source: "kuma-page-parser",
-    pollIntervalMs: 0,
-    summary,
-    statusPageUrl,
-    monitors: [],
-    incidents: [],
-  };
-}
-
 function overallStatus(monitors: UptimeMonitorSnapshot[]): UptimeState {
   if (!monitors.length) {
     return "unknown";
@@ -208,6 +193,12 @@ function buildMonitors(
       const heartbeatEntries =
         heartbeatPayload.heartbeatList[String(monitor.id)] ?? [];
       const latestHeartbeat = heartbeatEntries.at(-1);
+      const history: UptimeMonitorHistoryPoint[] = heartbeatEntries
+        .slice(-60)
+        .map((heartbeat) => ({
+          status: statusFromHeartbeatCode(heartbeat.status),
+          checkedAt: toIsoDate(heartbeat.time),
+        }));
       const checkedAt = toIsoDate(latestHeartbeat?.time);
       const isStale =
         checkedAt !== null &&
@@ -224,6 +215,7 @@ function buildMonitors(
         checkedAt,
         responseTimeMs: latestHeartbeat?.ping ?? null,
         uptimeRatio24h: heartbeatPayload.uptimeList[`${monitor.id}_24`] ?? null,
+        history,
       } satisfies UptimeMonitorSnapshot;
     }),
   );
@@ -281,53 +273,52 @@ function parsePreloadData(html: string) {
 }
 
 class UptimeKumaStatusPageProvider implements UptimeProvider {
-  async getStatus(identifier: string): Promise<UptimeSnapshot> {
+  async getStatusOrThrow(identifier: string): Promise<UptimeSnapshot> {
     const url = statusPageUrl(identifier);
 
     if (!identifier.trim()) {
-      return fallbackSnapshot(
-        "No Uptime Kuma identifier is configured for this application.",
-        url,
-      );
+      throw new Error("An Uptime Kuma identifier is required");
     }
 
     if (!env.UPTIME_KUMA_BASE_URL) {
-      return fallbackSnapshot(
-        "UPTIME_KUMA_BASE_URL is not configured, so live health polling is disabled.",
-        null,
-      );
+      throw new Error("UPTIME_KUMA_BASE_URL is not configured");
     }
 
+    const [pageHtml, rawHeartbeatPayload] = await Promise.all([
+      fetchText(url as string),
+      fetchJson(heartbeatUrl(identifier)),
+    ]);
+
+    const preloadData = parsePreloadData(pageHtml);
+    const heartbeatPayload = heartbeatPayloadSchema.parse(rawHeartbeatPayload);
+    const pollIntervalMs =
+      (preloadData.config.autoRefreshInterval ?? defaultPollIntervalMs / 1000) *
+      1000;
+    const monitors = buildMonitors(
+      preloadData,
+      heartbeatPayload,
+      pollIntervalMs,
+    );
+    const status = overallStatus(monitors);
+    const incidents = buildIncidents(preloadData.incident);
+
+    return {
+      status,
+      checkedAt: new Date().toISOString(),
+      source: "kuma-page-parser",
+      pollIntervalMs,
+      summary: summarizeStatus(status, monitors.length),
+      statusPageUrl: url,
+      monitors,
+      incidents,
+    };
+  }
+
+  async getStatus(identifier: string): Promise<UptimeSnapshot> {
+    const url = statusPageUrl(identifier);
+
     try {
-      const [pageHtml, rawHeartbeatPayload] = await Promise.all([
-        fetchText(url as string),
-        fetchJson(heartbeatUrl(identifier)),
-      ]);
-
-      const preloadData = parsePreloadData(pageHtml);
-      const heartbeatPayload =
-        heartbeatPayloadSchema.parse(rawHeartbeatPayload);
-      const pollIntervalMs =
-        (preloadData.config.autoRefreshInterval ??
-          defaultPollIntervalMs / 1000) * 1000;
-      const monitors = buildMonitors(
-        preloadData,
-        heartbeatPayload,
-        pollIntervalMs,
-      );
-      const status = overallStatus(monitors);
-      const incidents = buildIncidents(preloadData.incident);
-
-      return {
-        status,
-        checkedAt: new Date().toISOString(),
-        source: "kuma-page-parser",
-        pollIntervalMs,
-        summary: summarizeStatus(status, monitors.length),
-        statusPageUrl: url,
-        monitors,
-        incidents,
-      };
+      return await this.getStatusOrThrow(identifier);
     } catch {
       return {
         status: "unknown",

@@ -7,6 +7,11 @@ export type UptimeState =
 
 export type UptimeSource = "mock" | "kuma-api" | "kuma-page-parser";
 
+export interface UptimeMonitorHistoryPoint {
+  status: Exclude<UptimeState, "stale">;
+  checkedAt: string | null;
+}
+
 export interface UptimeMonitorSnapshot {
   id: string;
   name: string;
@@ -14,6 +19,7 @@ export interface UptimeMonitorSnapshot {
   checkedAt: string | null;
   responseTimeMs: number | null;
   uptimeRatio24h: number | null;
+  history: UptimeMonitorHistoryPoint[];
 }
 
 export interface UptimeIncidentSnapshot {

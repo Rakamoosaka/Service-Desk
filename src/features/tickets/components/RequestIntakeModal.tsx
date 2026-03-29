@@ -192,45 +192,61 @@ export function RequestIntakeModal({
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   className="space-y-5"
                 >
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                    {applications.map((application, index) => (
-                      <motion.button
-                        key={application.id}
-                        type="button"
-                        initial={{ opacity: 0, y: 18 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{
-                          duration: 0.28,
-                          delay: 0.03 * index,
-                          ease: [0.22, 1, 0.36, 1],
-                        }}
-                        className="border-border bg-muted/35 hover:border-accent/40 hover:bg-muted/55 group rounded-3xl border p-5 text-left transition duration-200"
-                        onClick={() =>
-                          onSelectedApplicationSlugChange(application.slug)
-                        }
-                      >
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone="accent">/{application.slug}</Badge>
-                          <Badge tone="neutral">
-                            {application.services.length} service
-                            {application.services.length === 1 ? "" : "s"}
-                          </Badge>
-                        </div>
+                  {applications.length ? (
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                      {applications.map((application, index) => (
+                        <motion.button
+                          key={application.id}
+                          type="button"
+                          initial={{ opacity: 0, y: 18 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{
+                            duration: 0.28,
+                            delay: 0.03 * index,
+                            ease: [0.22, 1, 0.36, 1],
+                          }}
+                          className="border-border bg-muted/35 hover:border-accent/40 hover:bg-muted/55 group rounded-3xl border p-5 text-left transition duration-200"
+                          onClick={() =>
+                            onSelectedApplicationSlugChange(application.slug)
+                          }
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge tone="accent">/{application.slug}</Badge>
+                            <Badge tone="neutral">
+                              {application.services.length} service
+                              {application.services.length === 1 ? "" : "s"}
+                            </Badge>
+                          </div>
 
-                        <h3 className="display-face mt-4 text-3xl font-semibold tracking-[-0.04em] text-white">
-                          {application.name}
-                        </h3>
-                        <p className="text-muted-foreground mt-3 text-sm leading-7">
-                          {application.description}
-                        </p>
+                          <h3 className="display-face mt-4 text-3xl font-semibold tracking-[-0.04em] text-white">
+                            {application.name}
+                          </h3>
+                          <p className="text-muted-foreground mt-3 text-sm leading-7">
+                            {application.description}
+                          </p>
 
-                        <div className="text-accent mt-5 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.14em] uppercase transition group-hover:translate-x-1">
-                          Continue
-                          <ArrowRight className="size-4" />
-                        </div>
-                      </motion.button>
-                    ))}
-                  </div>
+                          <div className="text-accent mt-5 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.14em] uppercase transition group-hover:translate-x-1">
+                            Continue
+                            <ArrowRight className="size-4" />
+                          </div>
+                        </motion.button>
+                      ))}
+                    </div>
+                  ) : (
+                    <Card>
+                      <CardContent className="space-y-3">
+                        <CardEyebrow>No applications configured</CardEyebrow>
+                        <CardTitle className="text-white">
+                          There is nothing to submit a request against yet
+                        </CardTitle>
+                        <CardDescription className="leading-7">
+                          Add a real application with a valid Uptime Kuma
+                          identifier from the admin area before opening the
+                          shared intake flow.
+                        </CardDescription>
+                      </CardContent>
+                    </Card>
+                  )}
                 </motion.div>
               )}
             </AnimatePresence>

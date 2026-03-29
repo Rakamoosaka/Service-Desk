@@ -5,6 +5,7 @@ import {
   applicationInputSchema,
 } from "@/features/applications/schemas/applicationSchemas";
 import {
+  getApplicationById,
   deleteApplication,
   updateApplication,
 } from "@/features/applications/server/applicationService";
@@ -58,19 +59,34 @@ export async function PATCH(
     );
   }
 
-  const application = await updateApplication(
-    parsedParams.data.id,
-    parsedBody.data,
-  );
+  const previousApplication = await getApplicationById(parsedParams.data.id);
 
-  if (!application) {
-    return errorResponse("NOT_FOUND", "Application not found", 404);
+  try {
+    const application = await updateApplication(
+      parsedParams.data.id,
+      parsedBody.data,
+    );
+
+    if (!application) {
+      return errorResponse("NOT_FOUND", "Application not found", 404);
+    }
+
+    revalidateTag("applications", "max");
+    revalidateTag(`application-${application.slug}`, "max");
+    if (previousApplication && previousApplication.slug !== application.slug) {
+      revalidateTag(`application-${previousApplication.slug}`, "max");
+    }
+
+    return NextResponse.json(application);
+  } catch (error) {
+    return errorResponse(
+      "VALIDATION_ERROR",
+      error instanceof Error
+        ? error.message
+        : "Unable to validate the Uptime Kuma identifier",
+      400,
+    );
   }
-
-  revalidateTag("applications", "max");
-  revalidateTag(`application-${application.slug}`, "max");
-
-  return NextResponse.json(application);
 }
 
 export async function DELETE(

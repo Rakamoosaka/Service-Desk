@@ -11,6 +11,10 @@ export const applicationInputSchema = z.object({
       "Slug must contain only lowercase letters, numbers, and hyphens",
     ),
   description: z.string().min(12).max(600),
+  uptimeKumaIdentifier: z
+    .string()
+    .min(1, "Uptime identifier is required")
+    .max(120),
 });
 
 export const applicationIdSchema = z.object({

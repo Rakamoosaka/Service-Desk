@@ -1,5 +1,6 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   index,
   pgTable,
   text,
@@ -21,6 +22,10 @@ export const services = pgTable(
     slug: text("slug").notNull(),
     description: text("description").notNull(),
     uptimeKumaIdentifier: text("uptime_kuma_identifier"),
+    kumaMonitorId: text("kuma_monitor_id"),
+    kumaMonitorName: text("kuma_monitor_name"),
+    isActive: boolean("is_active").notNull().default(true),
+    lastSyncedAt: timestamp("last_synced_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()
       .defaultNow(),
@@ -31,9 +36,14 @@ export const services = pgTable(
   (table) => [
     index("services_application_id_idx").on(table.applicationId),
     index("services_slug_idx").on(table.slug),
+    index("services_kuma_monitor_id_idx").on(table.kumaMonitorId),
     uniqueIndex("services_application_slug_unique").on(
       table.applicationId,
       table.slug,
+    ),
+    uniqueIndex("services_application_monitor_unique").on(
+      table.applicationId,
+      table.kumaMonitorId,
     ),
   ],
 );

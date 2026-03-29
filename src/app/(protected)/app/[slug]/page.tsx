@@ -13,7 +13,10 @@ import {
 } from "@/components/ui/Card";
 import { getApplicationBySlugCached } from "@/features/applications/server/applicationService";
 import { TicketIntakeForm } from "@/features/tickets/components/TicketIntakeForm";
-import { getServiceUptime } from "@/features/uptime/server/uptimeService";
+import {
+  buildServiceUptimeSnapshot,
+  getApplicationUptime,
+} from "@/features/uptime/server/uptimeService";
 import type {
   UptimeMonitorSnapshot,
   UptimeState,
@@ -134,9 +137,20 @@ export default async function ApplicationPage({
     notFound();
   }
 
+  const applicationSnapshot = await getApplicationUptime(
+    application.uptimeKumaIdentifier,
+  );
+  const activeServices = application.services.filter(
+    (service) => service.isActive,
+  );
+
   const servicesWithStatus = await Promise.all(
     application.services.map(async (service) => {
-      const snapshot = await getServiceUptime(service.uptimeKumaIdentifier);
+      const snapshot = buildServiceUptimeSnapshot(
+        applicationSnapshot,
+        service.kumaMonitorId,
+        service.name,
+      );
       const healthStatus = normalizeStatus(snapshot.status);
 
       return {
@@ -146,10 +160,7 @@ export default async function ApplicationPage({
         monitorCount: snapshot.monitors.length,
         averageLatencyMs: averageMetric(snapshot.monitors, "responseTimeMs"),
         uptimeRatio24h: averageMetric(snapshot.monitors, "uptimeRatio24h"),
-        checkedAt:
-          service.uptimeKumaIdentifier && snapshot.monitors.length
-            ? snapshot.checkedAt
-            : null,
+        checkedAt: snapshot.monitors.length ? snapshot.checkedAt : null,
         statusPageUrl: snapshot.statusPageUrl,
         summary: snapshot.summary,
       };
@@ -243,7 +254,7 @@ export default async function ApplicationPage({
               <TicketIntakeForm
                 key={lane.type}
                 applicationId={application.id}
-                services={application.services}
+                services={activeServices}
                 fixedType={lane.type}
                 eyebrow={lane.eyebrow}
                 title={lane.title}
@@ -292,15 +303,11 @@ export default async function ApplicationPage({
                             </Badge>
                             <Badge tone="neutral">/{service.slug}</Badge>
                             <Badge
-                              tone={
-                                service.uptimeKumaIdentifier
-                                  ? "accent"
-                                  : "neutral"
-                              }
+                              tone={service.isActive ? "accent" : "warning"}
                             >
-                              {service.uptimeKumaIdentifier
+                              {service.isActive
                                 ? "monitor connected"
-                                : "monitor pending"}
+                                : "monitor inactive"}
                             </Badge>
                           </div>
 

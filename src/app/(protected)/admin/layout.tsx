@@ -4,7 +4,6 @@ import {
   ArrowUpLeft,
   FolderKanban,
   LayoutDashboard,
-  Server,
   Ticket,
   UserRoundCog,
 } from "lucide-react";
@@ -32,11 +31,6 @@ export default async function AdminLayout({
       href: "/admin/applications" as Route,
       label: "Applications",
       icon: <FolderKanban className="size-4" />,
-    },
-    {
-      href: "/admin/services" as Route,
-      label: "Services",
-      icon: <Server className="size-4" />,
     },
     {
       href: "/admin/tickets" as Route,

@@ -1,7 +1,9 @@
 import { asc, desc, eq } from "drizzle-orm";
 import { db } from "@/db";
 import { applications } from "@/db/schema";
+import { syncApplicationServices } from "@/features/applications/server/applicationSyncService";
 import type { ApplicationInput } from "@/features/applications/schemas/applicationSchemas";
+import { getApplicationUptimeByIdentifierOrThrow } from "@/features/uptime/server/uptimeService";
 
 export async function listApplications() {
   return db.query.applications.findMany({
@@ -10,6 +12,8 @@ export async function listApplications() {
       name: true,
       slug: true,
       description: true,
+      uptimeKumaIdentifier: true,
+      lastSyncedAt: true,
       createdAt: true,
       updatedAt: true,
     },
@@ -28,6 +32,8 @@ export async function listApplicationsWithServices() {
       name: true,
       slug: true,
       description: true,
+      uptimeKumaIdentifier: true,
+      lastSyncedAt: true,
     },
     with: {
       services: {
@@ -37,7 +43,10 @@ export async function listApplicationsWithServices() {
           name: true,
           slug: true,
           description: true,
-          uptimeKumaIdentifier: true,
+          kumaMonitorId: true,
+          kumaMonitorName: true,
+          isActive: true,
+          lastSyncedAt: true,
         },
       },
     },
@@ -69,7 +78,10 @@ export async function getApplicationBySlug(slug: string) {
           name: true,
           slug: true,
           description: true,
-          uptimeKumaIdentifier: true,
+          kumaMonitorId: true,
+          kumaMonitorName: true,
+          isActive: true,
+          lastSyncedAt: true,
         },
       },
       tickets: {
@@ -103,29 +115,45 @@ export async function getApplicationBySlugCached(slug: string) {
 }
 
 export async function createApplication(input: ApplicationInput) {
+  const snapshot = await getApplicationUptimeByIdentifierOrThrow(
+    input.uptimeKumaIdentifier,
+  );
+
   const [application] = await db
     .insert(applications)
     .values({
       name: input.name,
       slug: input.slug,
       description: input.description,
+      uptimeKumaIdentifier: input.uptimeKumaIdentifier,
     })
     .returning();
+
+  await syncApplicationServices(application.id, snapshot);
 
   return application;
 }
 
 export async function updateApplication(id: string, input: ApplicationInput) {
+  const snapshot = await getApplicationUptimeByIdentifierOrThrow(
+    input.uptimeKumaIdentifier,
+  );
+
   const [application] = await db
     .update(applications)
     .set({
       name: input.name,
       slug: input.slug,
       description: input.description,
+      uptimeKumaIdentifier: input.uptimeKumaIdentifier,
       updatedAt: new Date(),
     })
     .where(eq(applications.id, id))
     .returning();
+
+  if (application) {
+    await syncApplicationServices(application.id, snapshot);
+  }
 
   return application ?? null;
 }

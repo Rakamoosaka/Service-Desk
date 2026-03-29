@@ -15,88 +15,33 @@ export const seedUsers = [
   },
 ];
 
-export const seedApplications = [
-  {
-    name: "Atlas CRM",
-    slug: "atlas-crm",
-    description:
-      "Customer relationship workflows for sales and support handoffs.",
-  },
-  {
-    name: "Beacon Payroll",
-    slug: "beacon-payroll",
-    description: "Internal payroll approvals, reports, and export operations.",
-  },
-  {
-    name: "Relay Docs",
-    slug: "relay-docs",
-    description: "Knowledge publishing and controlled internal documentation.",
-  },
-];
+type SeedApplication = {
+  name: string;
+  slug: string;
+  description: string;
+  uptimeKumaIdentifier: string;
+};
 
-export const seedServices = [
-  {
-    applicationSlug: "atlas-crm",
-    name: "Handoff API",
-    slug: "handoff-api",
-    description: "Owns sales-to-support customer handoffs and attachment sync.",
-    uptimeKumaIdentifier: "test-task",
-  },
-  {
-    applicationSlug: "atlas-crm",
-    name: "Pipeline Worker",
-    slug: "pipeline-worker",
-    description:
-      "Processes background CRM enrichment and pipeline transitions.",
-    uptimeKumaIdentifier: "test-task",
-  },
-  {
-    applicationSlug: "beacon-payroll",
-    name: "Approvals API",
-    slug: "approvals-api",
-    description:
-      "Handles payroll approval flows, audit gates, and reporting triggers.",
-    uptimeKumaIdentifier: "test-task",
-  },
-  {
-    applicationSlug: "relay-docs",
-    name: "Publishing API",
-    slug: "publishing-api",
-    description:
-      "Publishes approved documents and serves internal content revisions.",
-    uptimeKumaIdentifier: "test-task",
-  },
-];
+type SeedService = {
+  applicationSlug: string;
+  name: string;
+  slug: string;
+  description: string;
+  uptimeKumaIdentifier: string;
+};
 
-export const seedTickets = [
-  {
-    applicationSlug: "atlas-crm",
-    serviceSlug: "handoff-api",
-    type: "bug" as const,
-    title: "Pipeline sync stalls on handoff",
-    description:
-      "The CRM handoff step freezes when a large customer record is attached.",
-    status: "new" as const,
-    priority: "high" as const,
-  },
-  {
-    applicationSlug: "beacon-payroll",
-    serviceSlug: "approvals-api",
-    type: "suggestion" as const,
-    title: "Add CSV preview before export",
-    description:
-      "Payroll exports would be safer if admins could preview row counts before confirming.",
-    status: "in_review" as const,
-    priority: "medium" as const,
-  },
-  {
-    applicationSlug: "relay-docs",
-    serviceSlug: "publishing-api",
-    type: "feedback" as const,
-    title: "Publishing flow is clear",
-    description:
-      "The new docs editor feels much faster and the section labels are easier to scan.",
-    status: "resolved" as const,
-    priority: "low" as const,
-  },
-];
+type SeedTicket = {
+  applicationSlug: string;
+  serviceSlug: string;
+  type: "feedback" | "suggestion" | "bug";
+  title: string;
+  description: string;
+  status: "new" | "in_review" | "resolved";
+  priority: "low" | "medium" | "high";
+};
+
+export const seedApplications: SeedApplication[] = [];
+
+export const seedServices: SeedService[] = [];
+
+export const seedTickets: SeedTicket[] = [];

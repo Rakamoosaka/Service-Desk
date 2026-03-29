@@ -31,6 +31,11 @@ async function main() {
       });
   }
 
+  if (!seedApplications.length) {
+    await sql.end();
+    return;
+  }
+
   const insertedApplications = [] as Array<{ id: string; slug: string }>;
 
   for (const application of seedApplications) {

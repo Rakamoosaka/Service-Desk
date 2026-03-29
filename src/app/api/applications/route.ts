@@ -3,7 +3,7 @@ import { revalidateTag } from "next/cache";
 import { applicationInputSchema } from "@/features/applications/schemas/applicationSchemas";
 import {
   createApplication,
-  listApplications,
+  listApplicationsWithServices,
 } from "@/features/applications/server/applicationService";
 import { errorResponse } from "@/lib/http";
 import { getSessionFromRequest } from "@/lib/auth/session";
@@ -15,7 +15,11 @@ export async function GET(request: NextRequest) {
     return errorResponse("UNAUTHORIZED", "Authentication required", 401);
   }
 
-  const applications = await listApplications();
+  if (session.user.role !== "admin") {
+    return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const applications = await listApplicationsWithServices();
   return NextResponse.json(applications);
 }
 
@@ -41,9 +45,19 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const application = await createApplication(parsed.data);
-  revalidateTag("applications", "max");
-  revalidateTag(`application-${application.slug}`, "max");
+  try {
+    const application = await createApplication(parsed.data);
+    revalidateTag("applications", "max");
+    revalidateTag(`application-${application.slug}`, "max");
 
-  return NextResponse.json(application, { status: 201 });
+    return NextResponse.json(application, { status: 201 });
+  } catch (error) {
+    return errorResponse(
+      "VALIDATION_ERROR",
+      error instanceof Error
+        ? error.message
+        : "Unable to validate the Uptime Kuma identifier",
+      400,
+    );
+  }
 }
