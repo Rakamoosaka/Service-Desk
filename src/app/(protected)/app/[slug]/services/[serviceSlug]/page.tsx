@@ -49,7 +49,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
   const initialUptime = await getServiceUptime(service.uptimeKumaIdentifier);
 
   return (
-    <>
+    <div className="mx-auto flex min-h-screen w-full max-w-400 flex-col gap-8 px-6 py-8 md:px-8 md:py-10 xl:px-10">
       <SectionIntro
         eyebrow="Service"
         title={service.name}
@@ -127,6 +127,6 @@ export default async function ServicePage({ params }: ServicePageProps) {
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

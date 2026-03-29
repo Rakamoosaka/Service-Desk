@@ -170,7 +170,7 @@ export default async function ApplicationPage({
   );
 
   return (
-    <>
+    <div className="mx-auto flex min-h-screen w-full max-w-400 flex-col gap-8 px-6 py-8 md:px-8 md:py-10 xl:px-10">
       <SectionIntro
         eyebrow="Application"
         title={application.name}
@@ -376,6 +376,6 @@ export default async function ApplicationPage({
           </Card>
         </div>
       </div>
-    </>
+    </div>
   );
 }

@@ -21,6 +21,34 @@ export async function listApplicationsCached() {
   return listApplications();
 }
 
+export async function listApplicationsWithServices() {
+  return db.query.applications.findMany({
+    columns: {
+      id: true,
+      name: true,
+      slug: true,
+      description: true,
+    },
+    with: {
+      services: {
+        orderBy: (service, helpers) => [helpers.asc(service.name)],
+        columns: {
+          id: true,
+          name: true,
+          slug: true,
+          description: true,
+          uptimeKumaIdentifier: true,
+        },
+      },
+    },
+    orderBy: [asc(applications.name)],
+  });
+}
+
+export async function listApplicationsWithServicesCached() {
+  return listApplicationsWithServices();
+}
+
 export async function getApplicationById(id: string) {
   const [application] = await db.query.applications.findMany({
     where: eq(applications.id, id),
