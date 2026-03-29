@@ -1,7 +1,6 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { ExternalLink } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { fetchJson } from "@/lib/query/fetchJson";
@@ -17,7 +16,6 @@ interface HomeServiceUptimeCardProps {
   applicationSlug: string;
   serviceSlug: string;
   serviceName: string;
-  serviceDescription: string;
   isActive: boolean;
   initialSnapshot: UptimeSnapshot;
 }
@@ -83,7 +81,6 @@ export function HomeServiceUptimeCard({
   applicationSlug,
   serviceSlug,
   serviceName,
-  serviceDescription,
   isActive,
   initialSnapshot,
 }: HomeServiceUptimeCardProps) {
@@ -105,9 +102,9 @@ export function HomeServiceUptimeCard({
 
   return (
     <Card className={isActive ? "" : "opacity-70 saturate-50"}>
-      <CardContent className="space-y-5">
+      <CardContent className="space-y-4 md:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div className="flex flex-wrap items-center gap-2">
               <p className="font-semibold text-white">{serviceName}</p>
               <Badge tone={statusTone(snapshot.status)}>
@@ -116,42 +113,20 @@ export function HomeServiceUptimeCard({
               <Badge tone="neutral">/{serviceSlug}</Badge>
               {!isActive ? <Badge tone="warning">inactive</Badge> : null}
             </div>
-
-            <p className="text-muted-foreground max-w-3xl text-sm leading-7">
-              {serviceDescription}
-            </p>
-
-            <p className="text-muted-foreground text-xs leading-6">
-              {snapshot.monitors.length
-                ? `Last refresh ${formatDate(snapshot.checkedAt)}`
-                : snapshot.summary}
-            </p>
           </div>
-
-          {snapshot.statusPageUrl ? (
-            <a
-              href={snapshot.statusPageUrl}
-              target="_blank"
-              rel="noreferrer"
-              className="text-accent inline-flex items-center gap-2 text-sm font-semibold tracking-[0.14em] uppercase"
-            >
-              Open monitor
-              <ExternalLink className="size-4" />
-            </a>
-          ) : null}
         </div>
 
         {snapshot.monitors.length ? (
-          <div className="space-y-4">
+          <div className="space-y-3">
             {snapshot.monitors.map((monitor) => (
               <div
                 key={monitor.id}
-                className="grid gap-4 rounded-[20px] bg-black/14 px-4 py-4 lg:grid-cols-[0.44fr_0.56fr] lg:items-center"
+                className="grid gap-3 rounded-[20px] bg-black/14 px-3.5 py-3.5 lg:grid-cols-[0.44fr_0.56fr] lg:items-center"
               >
                 <div className="flex items-start gap-3">
                   <div
                     className={cn(
-                      "rounded-full px-3 py-1 text-xl font-semibold",
+                      "rounded-full px-3 py-1 text-lg font-semibold",
                       isActive
                         ? "bg-emerald-400 text-black"
                         : "bg-white/12 text-white",
@@ -160,7 +135,7 @@ export function HomeServiceUptimeCard({
                     {formatPercent(monitor.uptimeRatio24h)}
                   </div>
                   <div>
-                    <p className="text-lg font-semibold text-white">
+                    <p className="text-base font-semibold text-white md:text-lg">
                       {monitor.name}
                     </p>
                     <p className="text-muted-foreground mt-1 text-sm">
@@ -188,7 +163,7 @@ export function HomeServiceUptimeCard({
                       <span
                         key={`${monitor.id}-${index}`}
                         className={cn(
-                          "h-5 min-w-0 rounded-full",
+                          "h-4 min-w-0 rounded-full",
                           historyClass(point.status),
                         )}
                       />
