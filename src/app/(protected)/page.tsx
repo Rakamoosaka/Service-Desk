@@ -1,6 +1,7 @@
 import type { Route } from "next";
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import { SignOutButton } from "@/components/navigation/SignOutButton";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -189,6 +190,10 @@ export default async function HomePage() {
                 >
                   {session.user.role}
                 </Badge>
+              </div>
+
+              <div className="mt-4">
+                <SignOutButton className="w-full justify-center border border-white/10 bg-white/6 px-4 text-white hover:border-white/20 hover:bg-white/10 hover:text-white" />
               </div>
             </div>
 

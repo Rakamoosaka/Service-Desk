@@ -4,8 +4,13 @@ import { useRouter } from "next/navigation";
 import { LogOut } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/Button";
+import { cn } from "@/lib/utils";
 
-export function SignOutButton() {
+interface SignOutButtonProps {
+  className?: string;
+}
+
+export function SignOutButton({ className }: SignOutButtonProps) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -17,7 +22,10 @@ export function SignOutButton() {
   return (
     <Button
       variant="ghost"
-      className="text-sidebar-foreground w-full justify-start border-transparent px-3 hover:bg-white/5 hover:text-white"
+      className={cn(
+        "text-sidebar-foreground w-full justify-start border-transparent px-3 hover:bg-white/5 hover:text-white",
+        className,
+      )}
       onClick={handleSignOut}
     >
       <LogOut className="size-4" />

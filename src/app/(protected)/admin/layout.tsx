@@ -52,9 +52,9 @@ export default async function AdminLayout({
 
   return (
     <div className="bg-background min-h-screen lg:grid lg:grid-cols-[296px_1fr]">
-      <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground relative border-b lg:border-r lg:border-b-0">
+      <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground relative border-b lg:sticky lg:top-0 lg:h-screen lg:self-start lg:border-r lg:border-b-0">
         <div className="panel-grid absolute inset-0 opacity-30" />
-        <div className="relative flex h-full flex-col gap-8 p-6">
+        <div className="relative flex h-full flex-col gap-8 overflow-y-auto p-6">
           <div className="space-y-5">
             <div className="flex items-start justify-between gap-4">
               <div>
@@ -109,7 +109,7 @@ export default async function AdminLayout({
             ))}
           </nav>
 
-          <div className="border-sidebar-border rounded-[20px] border bg-white/3 p-3">
+          <div className="border-sidebar-border sticky bottom-0 mt-auto rounded-[20px] border bg-white/3 p-3 backdrop-blur-sm">
             <SignOutButton />
           </div>
         </div>
