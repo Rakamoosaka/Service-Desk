@@ -2,7 +2,6 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/Badge";
-import { Card, CardContent } from "@/components/ui/Card";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
 import { cn, formatDate } from "@/lib/utils";
@@ -101,89 +100,98 @@ export function HomeServiceUptimeCard({
   const snapshot = uptimeQuery.data;
 
   return (
-    <Card className={isActive ? "" : "opacity-70 saturate-50"}>
-      <CardContent className="space-y-4 md:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="space-y-2.5">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-semibold text-white">{serviceName}</p>
-              <Badge tone={statusTone(snapshot.status)}>
-                {snapshot.status}
-              </Badge>
-              <Badge tone="neutral">/{serviceSlug}</Badge>
-              {!isActive ? <Badge tone="warning">inactive</Badge> : null}
-            </div>
-          </div>
-        </div>
-
-        {snapshot.monitors.length ? (
-          <div className="space-y-3">
-            {snapshot.monitors.map((monitor) => (
-              <div
-                key={monitor.id}
-                className="grid gap-3 rounded-[20px] bg-black/14 px-3.5 py-3.5 lg:grid-cols-[0.44fr_0.56fr] lg:items-center"
-              >
-                <div className="flex items-start gap-3">
-                  <div
-                    className={cn(
-                      "rounded-full px-3 py-1 text-lg font-semibold",
-                      isActive
-                        ? "bg-emerald-400 text-black"
-                        : "bg-white/12 text-white",
-                    )}
-                  >
-                    {formatPercent(monitor.uptimeRatio24h)}
-                  </div>
-                  <div>
-                    <p className="text-base font-semibold text-white md:text-lg">
-                      {monitor.name}
-                    </p>
-                    <p className="text-muted-foreground mt-1 text-sm">
-                      {monitor.checkedAt
-                        ? `Last heartbeat ${formatDate(monitor.checkedAt)}`
-                        : "No heartbeat received yet"}
-                    </p>
-                  </div>
+    <div
+      className={cn(
+        "relative border-b border-white/8 last:border-b-0",
+        isActive ? "" : "opacity-70 saturate-50",
+      )}
+    >
+      {snapshot.monitors.length ? (
+        <div>
+          {snapshot.monitors.map((monitor, index) => (
+            <div
+              key={monitor.id}
+              className={cn(
+                "relative grid gap-4 px-4 py-4 md:px-5 md:py-5 lg:grid-cols-[0.44fr_0.56fr] lg:items-center",
+                index > 0 ? "border-t border-white/8" : "",
+              )}
+            >
+              <div className="flex items-start gap-3">
+                <div
+                  className={cn(
+                    "rounded-full border border-white/10 px-3 py-1 text-xs font-semibold",
+                    isActive ? "text-white" : "text-white/72",
+                  )}
+                >
+                  {formatPercent(monitor.uptimeRatio24h)}
                 </div>
 
-                <div className="space-y-2">
-                  <div className="grid auto-cols-fr grid-flow-col gap-1">
-                    {(monitor.history.length
-                      ? monitor.history
-                      : [
-                          {
-                            status:
-                              monitor.status === "stale"
-                                ? "unknown"
-                                : monitor.status,
-                            checkedAt: monitor.checkedAt,
-                          },
-                        ]
-                    ).map((point, index) => (
-                      <span
-                        key={`${monitor.id}-${index}`}
-                        className={cn(
-                          "h-4 min-w-0 rounded-full",
-                          historyClass(point.status),
-                        )}
-                      />
-                    ))}
+                <div>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="text-[13px] font-semibold text-white md:text-sm">
+                      {serviceName}
+                    </p>
+                    <p
+                      className={cn(
+                        "text-[11px] font-semibold tracking-[0.24em] uppercase",
+                        snapshot.status === "operational"
+                          ? "text-accent"
+                          : snapshot.status === "degraded"
+                            ? "text-warning"
+                            : snapshot.status === "outage"
+                              ? "text-destructive"
+                              : "text-white/50",
+                      )}
+                    >
+                      {snapshot.status}
+                    </p>
+                    {!isActive ? <Badge tone="warning">inactive</Badge> : null}
                   </div>
-
-                  <div className="text-muted-foreground flex items-center justify-between text-xs">
-                    <span>{formatWindowStart(monitor)}</span>
-                    <span>now</span>
-                  </div>
+                  <p className="text-muted-foreground mt-1 text-[11px]">
+                    {monitor.checkedAt
+                      ? `Last heartbeat ${formatDate(monitor.checkedAt)}`
+                      : "No heartbeat received yet"}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="border-border bg-muted/40 text-muted-foreground rounded-[18px] border border-dashed p-5 text-sm">
-            No public monitors are available for this service yet.
-          </div>
-        )}
-      </CardContent>
-    </Card>
+
+              <div className="space-y-2">
+                <div className="grid auto-cols-fr grid-flow-col gap-1">
+                  {(monitor.history.length
+                    ? monitor.history
+                    : [
+                        {
+                          status:
+                            monitor.status === "stale"
+                              ? "unknown"
+                              : monitor.status,
+                          checkedAt: monitor.checkedAt,
+                        },
+                      ]
+                  ).map((point, pointIndex) => (
+                    <span
+                      key={`${monitor.id}-${pointIndex}`}
+                      className={cn(
+                        "h-4 min-w-0 rounded-full",
+                        historyClass(point.status),
+                      )}
+                    />
+                  ))}
+                </div>
+
+                <div className="text-muted-foreground flex items-center justify-between text-xs">
+                  <span>{formatWindowStart(monitor)}</span>
+                  <span>now</span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="border-border bg-muted/40 text-muted-foreground m-4 rounded-lg border border-dashed p-5 text-sm">
+          No public monitors are available for this service yet.
+        </div>
+      )}
+    </div>
   );
 }

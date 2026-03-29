@@ -2,7 +2,8 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
-import { startTransition, useState } from "react";
+import { Bug, Lightbulb, MessageSquare } from "lucide-react";
+import { type ReactNode, startTransition, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
@@ -67,7 +68,11 @@ interface TicketIntakeFormProps {
   descriptionPlaceholder?: string;
   serviceLabel?: string;
   serviceHelpText?: string;
+  submitButtonClassName?: string;
   className?: string;
+  compact?: boolean;
+  headerAddon?: ReactNode;
+  hideTypeBadge?: boolean;
 }
 
 function ticketTypeTone(type: TicketInput["type"]) {
@@ -84,11 +89,22 @@ function ticketTypeTone(type: TicketInput["type"]) {
 function ticketTypeCardClass(type: TicketInput["type"]) {
   switch (type) {
     case "bug":
-      return "border-destructive/35 shadow-[0_0_28px_rgb(from_var(--destructive)_r_g_b_/_0.08)]";
+      return "border-destructive/35";
     case "suggestion":
-      return "border-accent/35 shadow-[0_0_28px_rgb(from_var(--accent)_r_g_b_/_0.08)]";
+      return "border-accent/35";
     default:
-      return "border-info/30 shadow-[0_0_28px_rgb(from_var(--info)_r_g_b_/_0.08)]";
+      return "border-info/30";
+  }
+}
+
+function TicketTypeIcon({ type }: { type: TicketInput["type"] }) {
+  switch (type) {
+    case "bug":
+      return <Bug className="size-4" />;
+    case "suggestion":
+      return <Lightbulb className="size-4" />;
+    default:
+      return <MessageSquare className="size-4" />;
   }
 }
 
@@ -107,7 +123,11 @@ export function TicketIntakeForm({
   descriptionPlaceholder = "Include context, reproduction steps, or the impact on your work.",
   serviceLabel = "Service",
   serviceHelpText = "Select a specific service if the issue is isolated to one microservice.",
+  submitButtonClassName,
   className,
+  compact = false,
+  headerAddon,
+  hideTypeBadge = false,
 }: TicketIntakeFormProps) {
   const [selectedType, setSelectedType] = useState<TicketInput["type"]>(
     fixedType ?? "feedback",
@@ -150,53 +170,128 @@ export function TicketIntakeForm({
   return (
     <Card
       className={cn(
+        "rounded-[14px] shadow-none after:hidden",
         fixedType ? ticketTypeCardClass(fixedType) : undefined,
+        compact
+          ? "[&_input]:text-sm [&_label]:text-[13px] [&_label]:font-medium [&_label]:tracking-normal [&_label]:normal-case [&_textarea]:text-sm"
+          : undefined,
         className,
       )}
     >
-      <CardHeader>
+      <CardHeader className={compact ? "gap-1.5" : undefined}>
         <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="space-y-2">
-            <CardEyebrow>{eyebrow}</CardEyebrow>
-            <CardTitle>{title}</CardTitle>
-            <CardDescription>{description}</CardDescription>
+          <div
+            className={cn(
+              eyebrow || title || description ? "space-y-2" : "space-y-0",
+            )}
+          >
+            {eyebrow ? <CardEyebrow>{eyebrow}</CardEyebrow> : null}
+            {title ? (
+              <CardTitle className={compact ? "text-lg" : undefined}>
+                {title}
+              </CardTitle>
+            ) : null}
+            {description ? (
+              <CardDescription
+                className={compact ? "text-[13px] leading-6" : undefined}
+              >
+                {description}
+              </CardDescription>
+            ) : null}
+            {headerAddon ? <div className="pt-1">{headerAddon}</div> : null}
           </div>
-          <Badge tone={ticketTypeTone(activeType)}>{activeType}</Badge>
+          {hideTypeBadge ? null : (
+            <Badge
+              tone={ticketTypeTone(activeType)}
+              className={cn("shadow-none", compact ? "text-[11px]" : undefined)}
+            >
+              {activeType}
+            </Badge>
+          )}
         </div>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className={compact ? "space-y-4" : "space-y-5"}>
         {showTypePicker ? (
-          <div className="grid gap-3 md:grid-cols-3">
-            {typeOptions.map((option) => (
-              <button
-                key={option.value}
-                type="button"
-                className={cn(
-                  "rounded-[18px] border p-4 text-left transition duration-150 ease-out",
-                  selectedType === option.value
-                    ? "border-accent bg-accent/10 shadow-[0_0_24px_rgb(from_var(--accent)_r_g_b/0.14)]"
-                    : "border-border bg-muted/50 hover:border-accent/40 hover:bg-muted",
-                )}
-                onClick={() => {
-                  startTransition(() => {
-                    setSelectedType(option.value);
-                    form.setValue("type", option.value, {
-                      shouldValidate: true,
+          <div className="overflow-hidden rounded-xl border border-white/8 bg-black/15">
+            <div className="grid md:grid-cols-3">
+              {typeOptions.map((option) => (
+                <button
+                  key={option.value}
+                  type="button"
+                  aria-pressed={selectedType === option.value}
+                  className={cn(
+                    "focus-visible:ring-ring text-left transition duration-150 ease-out focus-visible:ring-2 focus-visible:outline-none",
+                    compact ? "px-4 py-4" : "px-5 py-5",
+                    compact
+                      ? "border-white/8 md:min-h-36"
+                      : "border-white/8 md:min-h-42",
+                    option.value !== typeOptions[0].value
+                      ? "border-t md:border-t-0 md:border-l"
+                      : undefined,
+                    selectedType === option.value
+                      ? "bg-white/4 ring-1 ring-white/10 ring-inset"
+                      : "bg-transparent hover:bg-white/3",
+                  )}
+                  onClick={() => {
+                    startTransition(() => {
+                      setSelectedType(option.value);
+                      form.setValue("type", option.value, {
+                        shouldValidate: true,
+                      });
                     });
-                  });
-                }}
-              >
-                <p className="font-semibold text-white">{option.label}</p>
-                <p className="text-muted-foreground mt-2 text-sm leading-7">
-                  {option.summary}
-                </p>
-              </button>
-            ))}
+                  }}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2.5">
+                      <span className="text-muted-foreground">
+                        <TicketTypeIcon type={option.value} />
+                      </span>
+                      <p
+                        className={cn(
+                          "font-semibold text-white",
+                          compact ? "text-sm" : undefined,
+                        )}
+                      >
+                        {option.label}
+                      </p>
+                    </div>
+                    {compact ? null : (
+                      <Badge
+                        tone={ticketTypeTone(option.value)}
+                        className={cn(
+                          "shadow-none",
+                          compact ? "text-[11px]" : undefined,
+                        )}
+                      >
+                        {option.value}
+                      </Badge>
+                    )}
+                  </div>
+                  <p
+                    className={cn(
+                      "text-muted-foreground mt-3 max-w-xs",
+                      compact ? "text-[13px] leading-6" : "text-sm leading-7",
+                    )}
+                  >
+                    {option.summary}
+                  </p>
+                  {compact ? null : (
+                    <p className="text-muted-foreground/80 mt-5 text-[11px] font-semibold tracking-[0.22em] uppercase">
+                      {option.value === "bug"
+                        ? "Fastest path for breakages"
+                        : option.value === "suggestion"
+                          ? "Use for improvements"
+                          : "Use for lighter observations"}
+                    </p>
+                  )}
+                </button>
+              ))}
+            </div>
           </div>
         ) : null}
 
         <form
-          className="space-y-4"
+          className={compact ? "space-y-0" : "space-y-4"}
           onSubmit={form.handleSubmit((values) =>
             createMutation.mutate({
               ...values,
@@ -205,52 +300,106 @@ export function TicketIntakeForm({
           )}
         >
           {services.length ? (
-            <div className="space-y-2">
-              <Label htmlFor="serviceId">{serviceLabel}</Label>
-              <Select id="serviceId" {...form.register("serviceId")}>
-                <option value="">Application-level ticket</option>
-                {services.map((service) => (
-                  <option key={service.id} value={service.id}>
-                    {service.name}
-                  </option>
-                ))}
-              </Select>
-              <p className="text-muted-foreground text-sm leading-6">
-                {serviceHelpText}
-              </p>
-              <p className="text-destructive text-sm">
-                {form.formState.errors.serviceId?.message}
-              </p>
+            <div
+              className={cn(
+                "rounded-[14px] border border-white/8 bg-black/15",
+                compact
+                  ? "px-4 py-4 md:px-5 md:py-5"
+                  : "px-5 py-5 md:px-6 md:py-6",
+              )}
+            >
+              <div className="space-y-2">
+                <Label htmlFor="serviceId">{serviceLabel}</Label>
+                <Select id="serviceId" {...form.register("serviceId")}>
+                  <option value="">Application-level ticket</option>
+                  {services.map((service) => (
+                    <option key={service.id} value={service.id}>
+                      {service.name}
+                    </option>
+                  ))}
+                </Select>
+                <p
+                  className={cn(
+                    "text-muted-foreground",
+                    compact ? "text-[13px] leading-5" : "text-sm leading-6",
+                  )}
+                >
+                  {serviceHelpText}
+                </p>
+                <p className="text-destructive text-sm">
+                  {form.formState.errors.serviceId?.message}
+                </p>
+              </div>
             </div>
           ) : null}
 
-          <div className="space-y-2">
-            <Label htmlFor="title">{titleLabel}</Label>
-            <Input
-              id="title"
-              {...form.register("title")}
-              placeholder={titlePlaceholder}
-            />
-            <p className="text-destructive text-sm">
-              {form.formState.errors.title?.message}
-            </p>
+          <div
+            className={cn(
+              compact ? "border-t-0" : "border-t border-white/8",
+              compact
+                ? "px-4 py-4 md:px-5 md:py-5"
+                : "px-5 py-5 md:px-6 md:py-6",
+            )}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="title">{titleLabel}</Label>
+              <Input
+                id="title"
+                {...form.register("title")}
+                placeholder={titlePlaceholder}
+              />
+              <p className="text-destructive text-sm">
+                {form.formState.errors.title?.message}
+              </p>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">{descriptionLabel}</Label>
-            <Textarea
-              id="description"
-              {...form.register("description")}
-              placeholder={descriptionPlaceholder}
-            />
-            <p className="text-destructive text-sm">
-              {form.formState.errors.description?.message}
-            </p>
+          <div
+            className={cn(
+              "border-t border-white/8",
+              compact
+                ? "px-4 py-4 md:px-5 md:py-5"
+                : "px-5 py-5 md:px-6 md:py-6",
+            )}
+          >
+            <div className="space-y-2">
+              <Label htmlFor="description">{descriptionLabel}</Label>
+              <Textarea
+                id="description"
+                {...form.register("description")}
+                placeholder={descriptionPlaceholder}
+              />
+              <p className="text-destructive text-sm">
+                {form.formState.errors.description?.message}
+              </p>
+            </div>
           </div>
 
-          <Button type="submit" disabled={createMutation.isPending}>
-            {submitLabel ?? `Submit ${activeType}`}
-          </Button>
+          <div
+            className={cn(
+              "flex flex-col gap-4 border-t border-white/8 md:flex-row md:items-center md:justify-between",
+              compact
+                ? "px-4 py-4 md:px-5 md:py-5"
+                : "px-5 py-5 md:px-6 md:py-6",
+            )}
+          >
+            <p
+              className={cn(
+                "text-muted-foreground max-w-2xl",
+                compact ? "text-[13px] leading-6" : "text-sm leading-7",
+              )}
+            >
+              Requests go straight into the service desk queue with the lane,
+              scope, and description you provide here.
+            </p>
+            <Button
+              type="submit"
+              disabled={createMutation.isPending}
+              className={submitButtonClassName}
+            >
+              {submitLabel ?? `Submit ${activeType}`}
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

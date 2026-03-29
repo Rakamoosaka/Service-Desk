@@ -8,9 +8,13 @@ import { cn } from "@/lib/utils";
 
 interface SignOutButtonProps {
   className?: string;
+  iconOnly?: boolean;
 }
 
-export function SignOutButton({ className }: SignOutButtonProps) {
+export function SignOutButton({
+  className,
+  iconOnly = false,
+}: SignOutButtonProps) {
   const router = useRouter();
 
   async function handleSignOut() {
@@ -23,13 +27,17 @@ export function SignOutButton({ className }: SignOutButtonProps) {
     <Button
       variant="ghost"
       className={cn(
-        "text-sidebar-muted w-full justify-start px-4 py-3 text-sm font-medium hover:bg-transparent hover:text-white",
+        iconOnly
+          ? "text-sidebar-muted h-8 w-8 justify-center rounded-full px-0 hover:bg-transparent hover:text-white"
+          : "text-sidebar-muted w-full justify-start px-4 py-3 text-sm font-medium hover:bg-transparent hover:text-white",
         className,
       )}
       onClick={handleSignOut}
+      aria-label="Sign out"
+      title="Sign out"
     >
       <LogOut className="text-sidebar-muted size-4 shrink-0" />
-      Sign out
+      {iconOnly ? null : "Sign out"}
     </Button>
   );
 }

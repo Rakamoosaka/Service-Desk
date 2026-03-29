@@ -3,12 +3,11 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useState } from "react";
-import { ArrowRight, ShieldCheck, Sparkles } from "lucide-react";
+import { ArrowRight, ShieldCheck } from "lucide-react";
 import { HomeServiceUptimeCard } from "@/app/(protected)/_components/HomeServiceUptimeCard";
 import { SignOutButton } from "@/components/navigation/SignOutButton";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import { Card, CardContent } from "@/components/ui/Card";
 import { RequestIntakeModal } from "@/features/tickets/components/RequestIntakeModal";
 import type { UptimeSnapshot } from "@/features/uptime/server/uptimeTypes";
 
@@ -77,6 +76,7 @@ export function HomePageExperience({
 }: HomePageExperienceProps) {
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
   const [selectedApplicationSlug, setSelectedApplicationSlug] = useState("");
+  const firstName = session.user.name.split(" ")[0] ?? session.user.name;
 
   function openIntake(applicationSlug?: string) {
     setSelectedApplicationSlug(applicationSlug ?? "");
@@ -107,249 +107,244 @@ export function HomePageExperience({
         onSelectedApplicationSlugChange={setSelectedApplicationSlug}
       />
 
-      <motion.div className="mx-auto flex min-h-screen w-full max-w-5xl flex-col gap-6 px-4 py-6 md:px-8 md:py-8 xl:px-6 xl:py-10">
-        <motion.section className="relative overflow-hidden rounded-4xl border border-white/10 bg-[linear-gradient(135deg,rgba(13,215,242,0.16),rgba(255,34,68,0.1)_46%,rgba(8,18,23,0.96))] px-5 py-6 shadow-[0_24px_80px_rgba(0,0,0,0.32)] md:px-6 md:py-7 xl:px-7 xl:py-8">
-          <div className="panel-grid absolute inset-0 opacity-25" />
-          <div className="absolute inset-x-0 top-0 h-px bg-white/30" />
-          <div className="relative grid gap-5 xl:grid-cols-[1fr_0.88fr] xl:items-end">
-            <div className="space-y-5">
-              <motion.div
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-                className="space-y-3"
-              >
-                <p className="text-[11px] font-semibold tracking-[0.36em] text-white/70 uppercase">
-                  Shared landing
-                </p>
-                <div className="space-y-3">
-                  <h1 className="display-face max-w-2xl text-4xl leading-[0.92] font-semibold tracking-[-0.05em] text-white md:text-6xl xl:text-[4rem]">
-                    Start the request, not the dashboard.
-                  </h1>
-                  <p className="max-w-xl text-sm leading-6 text-white/70 md:text-[15px]">
-                    Everyone lands in the same place now. Open the intake form
-                    in one step, then check live application status further down
-                    the page before you submit.
-                  </p>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.46,
-                  delay: 0.06,
-                  ease: [0.22, 1, 0.36, 1],
-                }}
-                className="flex flex-wrap items-center gap-3"
-              >
-                <Button size="lg" onClick={() => openIntake()}>
-                  <Sparkles className="size-4" />
-                  Start a form
-                </Button>
-
-                {session.user.role === "admin" ? (
-                  <Button asChild variant="secondary" size="lg">
-                    <Link href="/admin">
-                      <ShieldCheck className="size-4" />
-                      Open admin dashboard
-                    </Link>
-                  </Button>
-                ) : null}
-              </motion.div>
-            </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 22 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.5,
-                delay: 0.1,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="grid gap-3 sm:grid-cols-3 xl:grid-cols-2"
-            >
-              <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 backdrop-blur-sm sm:col-span-1 xl:col-span-2">
-                <p className="text-[11px] font-semibold tracking-[0.24em] text-white/60 uppercase">
-                  Signed in as
-                </p>
-                <p className="mt-2.5 text-lg font-semibold text-white md:text-xl">
-                  {session.user.name}
-                </p>
-                <div className="mt-2.5 flex flex-wrap items-center gap-2 text-sm text-white/65">
-                  <span>{session.user.email}</span>
-                  <Badge
-                    tone={session.user.role === "admin" ? "accent" : "neutral"}
-                  >
-                    {session.user.role}
-                  </Badge>
-                </div>
-
-                <div className="mt-3.5">
-                  <SignOutButton className="w-full justify-center border border-white/10 bg-white/6 px-4 text-white hover:border-white/20 hover:bg-white/10 hover:text-white" />
-                </div>
-              </div>
-
-              <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 backdrop-blur-sm">
-                <p className="text-[11px] font-semibold tracking-[0.24em] text-white/60 uppercase">
-                  Applications
-                </p>
-                <p className="display-face mt-2.5 text-3xl font-semibold tracking-[-0.04em] text-white md:text-[2rem]">
-                  {totals.applications}
-                </p>
-              </div>
-
-              <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 backdrop-blur-sm">
-                <p className="text-[11px] font-semibold tracking-[0.24em] text-white/60 uppercase">
-                  Services tracked
-                </p>
-                <p className="display-face mt-2.5 text-3xl font-semibold tracking-[-0.04em] text-white md:text-[2rem]">
-                  {totals.services}
-                </p>
-              </div>
-
-              <div className="rounded-[1.6rem] border border-white/10 bg-black/30 p-4 backdrop-blur-sm">
-                <p className="text-[11px] font-semibold tracking-[0.24em] text-white/60 uppercase">
-                  Attention needed
-                </p>
-                <p className="display-face mt-2.5 text-3xl font-semibold tracking-[-0.04em] text-white md:text-[2rem]">
-                  {totals.outages + totals.degraded}
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </motion.section>
-
-        <motion.section className="space-y-4">
-          <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
-            <div className="space-y-2.5">
-              <p className="text-accent text-[11px] font-semibold tracking-[0.32em] uppercase">
-                Uptime status
+      <motion.div className="mx-auto min-h-screen w-full max-w-5xl px-4 py-6 md:px-8 md:py-8 xl:px-6 xl:py-10">
+        <div className="grid gap-6 xl:grid-cols-[240px_minmax(0,1fr)] xl:items-start">
+          <motion.aside
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
+            className="border-b border-white/8 pb-5 xl:sticky xl:top-8 xl:border-r xl:border-b-0 xl:pr-6 xl:pb-0"
+          >
+            <div className="space-y-2">
+              <p className="text-[11px] font-semibold tracking-[0.28em] text-white/52 uppercase">
+                Service desk
               </p>
-              <h2 className="display-face max-w-3xl text-3xl font-semibold tracking-[-0.04em] text-white md:text-[2.35rem]">
-                Live application health at the bottom, exactly where it belongs.
-              </h2>
+              <h1 className="display-face text-[1.35rem] leading-none font-semibold tracking-[-0.03em] text-white">
+                Welcome back, {firstName}.
+              </h1>
+              <p className="text-xs leading-5 text-white/54">
+                Requests and live application status, in one place.
+              </p>
             </div>
-          </div>
 
-          <div className="grid gap-3.5">
-            {applicationsWithStatus.length ? (
-              applicationsWithStatus.map((application) => (
-                <motion.div
-                  key={application.id}
-                  layout
-                  transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+            <div className="mt-6 flex flex-col items-start gap-3">
+              <Button
+                className="h-10 w-full justify-center rounded-xl"
+                onClick={() => openIntake()}
+              >
+                Create ticket
+              </Button>
+
+              {session.user.role === "admin" ? (
+                <Button
+                  asChild
+                  variant="secondary"
+                  size="sm"
+                  className="h-9 rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
                 >
-                  <Card>
-                    <CardContent className="space-y-4 md:p-6">
-                      <div className="flex flex-wrap items-start justify-between gap-4">
-                        <div className="space-y-2.5">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge tone={statusTone(application.overallStatus)}>
-                              {application.overallLabel}
-                            </Badge>
-                            <Badge tone="neutral">/{application.slug}</Badge>
-                          </div>
+                  <Link href="/admin">
+                    <ShieldCheck className="size-4" />
+                    Open admin
+                  </Link>
+                </Button>
+              ) : null}
+            </div>
 
-                          <div>
-                            <h3 className="display-face text-2xl font-semibold tracking-[-0.03em] text-white md:text-[2rem]">
-                              {application.name}
-                            </h3>
-                            <p className="text-muted-foreground mt-2.5 max-w-2xl text-sm leading-6">
-                              {application.description}
-                            </p>
-                          </div>
-                        </div>
-
-                        <Button
-                          variant="secondary"
-                          size="sm"
-                          onClick={() => openIntake(application.slug)}
-                        >
-                          Open form
-                          <ArrowRight className="size-4" />
-                        </Button>
-                      </div>
-
-                      <div className="grid gap-3 md:grid-cols-4">
-                        <div className="border-border bg-muted/45 rounded-[18px] border p-3.5">
-                          <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                            Services
-                          </p>
-                          <p className="mt-2.5 text-xl font-semibold text-white md:text-2xl">
-                            {application.services.length}
-                          </p>
-                        </div>
-                        <div className="border-accent/30 bg-accent/10 rounded-[18px] border p-3.5">
-                          <p className="text-accent text-[11px] font-semibold tracking-[0.24em] uppercase">
-                            Operational
-                          </p>
-                          <p className="mt-2.5 text-xl font-semibold text-white md:text-2xl">
-                            {application.counts.operational}
-                          </p>
-                        </div>
-                        <div className="border-warning/30 bg-warning/10 rounded-[18px] border p-3.5">
-                          <p className="text-warning text-[11px] font-semibold tracking-[0.24em] uppercase">
-                            Degraded
-                          </p>
-                          <p className="mt-2.5 text-xl font-semibold text-white md:text-2xl">
-                            {application.counts.degraded}
-                          </p>
-                        </div>
-                        <div className="border-destructive/30 bg-destructive/10 rounded-[18px] border p-3.5">
-                          <p className="text-destructive text-[11px] font-semibold tracking-[0.24em] uppercase">
-                            Outage
-                          </p>
-                          <p className="mt-2.5 text-xl font-semibold text-white md:text-2xl">
-                            {application.counts.outage}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3">
-                        {application.services.length ? (
-                          application.services.map((service) => (
-                            <HomeServiceUptimeCard
-                              key={service.id}
-                              applicationSlug={service.applicationSlug}
-                              serviceSlug={service.slug}
-                              serviceName={service.name}
-                              isActive={service.isActive}
-                              initialSnapshot={service.initialSnapshot}
-                            />
-                          ))
-                        ) : (
-                          <div className="border-border bg-muted/40 text-muted-foreground rounded-[18px] border border-dashed p-5 text-sm">
-                            No services are mapped to this application yet.
-                          </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))
-            ) : (
-              <Card>
-                <CardContent className="space-y-3">
-                  <p className="text-accent text-[11px] font-semibold tracking-[0.28em] uppercase">
-                    No monitored services
+            <div className="mt-7 border-t border-white/8 pt-5">
+              <div className="overflow-hidden rounded-lg border border-white/8">
+                <div className="flex items-center justify-between gap-3 px-3 py-3">
+                  <p className="text-[11px] font-medium tracking-[0.18em] text-white/42 uppercase">
+                    Applications
                   </p>
-                  <h3 className="display-face text-3xl font-semibold tracking-[-0.03em] text-white">
-                    Add real applications and services to see live Kuma status
-                    here
-                  </h3>
-                  <p className="text-muted-foreground max-w-3xl text-sm leading-7">
-                    The seeded demo applications and services have been removed.
-                    Once you configure real services with Uptime Kuma
-                    identifiers, this homepage will start polling and render
-                    their monitor history strips automatically.
+                  <p className="text-accent text-lg font-semibold">
+                    {totals.applications}
                   </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </motion.section>
+                </div>
+                <div className="border-t border-white/8" />
+                <div className="flex items-center justify-between gap-3 px-3 py-3">
+                  <p className="text-[11px] font-medium tracking-[0.18em] text-white/42 uppercase">
+                    Services
+                  </p>
+                  <p className="text-accent text-lg font-semibold">
+                    {totals.services}
+                  </p>
+                </div>
+                <div className="border-t border-white/8" />
+                <div className="flex items-center justify-between gap-3 px-3 py-3">
+                  <p className="text-[11px] font-medium tracking-[0.18em] text-white/42 uppercase">
+                    Attention needed
+                  </p>
+                  <p
+                    className={
+                      totals.outages + totals.degraded > 0
+                        ? "text-warning text-lg font-semibold"
+                        : "text-accent text-lg font-semibold"
+                    }
+                  >
+                    {totals.outages + totals.degraded}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-7 border-t border-white/8 pt-5">
+              <div className="flex items-start gap-3">
+                <div className="bg-accent text-accent-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
+                  {session.user.name.charAt(0).toUpperCase()}
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-[13px] font-semibold text-white">
+                    {session.user.name}
+                  </p>
+                  <p className="truncate text-xs text-white/48">
+                    {session.user.email}
+                  </p>
+                </div>
+
+                <SignOutButton
+                  iconOnly
+                  className="text-white/64 hover:text-white"
+                />
+              </div>
+            </div>
+          </motion.aside>
+
+          <motion.section className="space-y-4">
+            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
+              <div className="space-y-2.5">
+                <p className="text-accent text-[11px] font-semibold tracking-[0.32em] uppercase">
+                  Uptime status
+                </p>
+                <h2 className="display-face max-w-3xl text-xl font-semibold tracking-[-0.03em] text-white md:text-[1.6rem]">
+                  Live application health.
+                </h2>
+              </div>
+            </div>
+
+            <div className="grid gap-3.5">
+              {applicationsWithStatus.length ? (
+                applicationsWithStatus.map((application) => (
+                  <motion.div
+                    key={application.id}
+                    layout
+                    transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    <div className="rounded-xl border border-white/8 p-6 md:p-7">
+                      <div className="space-y-5">
+                        <div className="flex flex-wrap items-start justify-between gap-4">
+                          <div className="space-y-2.5">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge
+                                tone={statusTone(application.overallStatus)}
+                              >
+                                {application.overallLabel}
+                              </Badge>
+                              <Badge tone="neutral">/{application.slug}</Badge>
+                            </div>
+
+                            <div>
+                              <h3 className="display-face text-lg font-semibold tracking-[-0.03em] text-white md:text-[1.25rem]">
+                                {application.name}
+                              </h3>
+                              <p className="text-muted-foreground mt-2 max-w-xl text-xs leading-6">
+                                {application.description}
+                              </p>
+                            </div>
+                          </div>
+
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
+                            onClick={() => openIntake(application.slug)}
+                          >
+                            Create ticket
+                            <ArrowRight className="size-4" />
+                          </Button>
+                        </div>
+
+                        <div className="overflow-hidden rounded-xl border border-white/8 bg-black/20">
+                          <div className="grid md:grid-cols-4">
+                            <div className="border-white/8 px-4 py-4 md:border-r md:px-5 md:py-5">
+                              <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                                Services
+                              </p>
+                              <p className="mt-3 text-2xl font-semibold text-white">
+                                {application.services.length}
+                              </p>
+                            </div>
+                            <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
+                              <p className="text-accent text-[11px] font-semibold tracking-[0.24em] uppercase">
+                                Operational
+                              </p>
+                              <p className="mt-3 text-2xl font-semibold text-white">
+                                {application.counts.operational}
+                              </p>
+                            </div>
+                            <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
+                              <p className="text-warning text-[11px] font-semibold tracking-[0.24em] uppercase">
+                                Degraded
+                              </p>
+                              <p className="mt-3 text-2xl font-semibold text-white">
+                                {application.counts.degraded}
+                              </p>
+                            </div>
+                            <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:px-5 md:py-5">
+                              <p className="text-destructive text-[11px] font-semibold tracking-[0.24em] uppercase">
+                                Outage
+                              </p>
+                              <p className="mt-3 text-2xl font-semibold text-white">
+                                {application.counts.outage}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="overflow-hidden rounded-2xl border border-white/8 bg-black/15">
+                          {application.services.length ? (
+                            application.services.map((service) => (
+                              <HomeServiceUptimeCard
+                                key={service.id}
+                                applicationSlug={service.applicationSlug}
+                                serviceSlug={service.slug}
+                                serviceName={service.name}
+                                isActive={service.isActive}
+                                initialSnapshot={service.initialSnapshot}
+                              />
+                            ))
+                          ) : (
+                            <div className="border-border bg-muted/40 text-muted-foreground m-4 rounded-lg border border-dashed p-5 text-sm">
+                              No services are mapped to this application yet.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                <div className="rounded-xl border border-white/8 p-6">
+                  <div className="space-y-3">
+                    <p className="text-accent text-[11px] font-semibold tracking-[0.28em] uppercase">
+                      No monitored services
+                    </p>
+                    <h3 className="display-face text-3xl font-semibold tracking-[-0.03em] text-white">
+                      Add real applications and services to see live Kuma status
+                      here
+                    </h3>
+                    <p className="text-muted-foreground max-w-3xl text-sm leading-7">
+                      The seeded demo applications and services have been
+                      removed. Once you configure real services with Uptime Kuma
+                      identifiers, this homepage will start polling and render
+                      their monitor history strips automatically.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          </motion.section>
+        </div>
       </motion.div>
     </>
   );

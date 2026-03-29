@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ArrowRight, Layers3, ListTree } from "lucide-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -63,36 +63,37 @@ export function RequestIntakeModal({
   const isComposeStep = Boolean(selectedApplication);
   const direction = isComposeStep ? 1 : -1;
   const activeApplicationName = selectedApplication?.name ?? "";
+  const placeholderCount = Math.max(0, 3 - applications.length);
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-h-[88vh] overflow-hidden p-0"
+        className="max-h-[88vh] w-[min(92vw,940px)] overflow-hidden rounded-[18px] border-white/12 bg-[linear-gradient(180deg,rgba(8,12,16,0.995),rgba(8,12,16,0.985))] p-0 shadow-none [&_.panel-grid]:hidden"
         onPointerDownOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
         <div className="flex max-h-[88vh] flex-col overflow-hidden">
-          <div className="border-border/70 flex items-start justify-between gap-4 border-b px-6 py-5 md:px-7">
+          <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
             <DialogHeader className="max-w-3xl">
               <p className="text-accent text-[11px] font-semibold tracking-[0.3em] uppercase">
                 Shared intake
               </p>
-              <DialogTitle>
+              <DialogTitle className="text-[1.9rem] md:text-[2.15rem]">
                 {isComposeStep
-                  ? `Request for ${activeApplicationName}`
-                  : "Start a form"}
+                  ? `Create ticket for ${activeApplicationName}`
+                  : "Select application"}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-[13px] leading-6 md:text-sm md:leading-6">
                 {isComposeStep
-                  ? "The application is locked in. Fill out the request and submit it directly into the service desk queue."
-                  : "Choose the application first. The form appears in the second modal state once the request has a destination."}
+                  ? "The destination is set. Add the request details and send it straight to the service desk queue."
+                  : "Choose the application you need help with to continue."}
               </DialogDescription>
             </DialogHeader>
 
             <DialogDismissButton onClick={onClose} />
           </div>
 
-          <div className="overflow-y-auto px-6 py-6 md:px-7 md:py-7">
+          <div className="overflow-y-auto px-5 py-5 md:px-6 md:py-6">
             <AnimatePresence mode="wait" initial={false}>
               {isComposeStep ? (
                 <motion.div
@@ -101,86 +102,54 @@ export function RequestIntakeModal({
                   animate={modalStepVariants(direction).animate}
                   exit={modalStepVariants(direction).exit}
                   transition={{ duration: 0.34, ease: [0.22, 1, 0.36, 1] }}
-                  className="grid gap-6 xl:grid-cols-[0.78fr_1.22fr]"
+                  className=""
                 >
-                  <Card>
-                    <CardContent className="space-y-6">
-                      <div className="space-y-3">
-                        <CardEyebrow>Selected application</CardEyebrow>
-                        <CardTitle className="text-white">
-                          {selectedApplication!.name}
-                        </CardTitle>
-                        <CardDescription className="leading-7">
-                          {selectedApplication!.description}
-                        </CardDescription>
-                      </div>
-
-                      <div className="border-accent/20 bg-accent/8 rounded-[20px] border p-5">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <Badge tone="accent">
-                            /{selectedApplication!.slug}
-                          </Badge>
-                          <Badge tone="neutral">
-                            {selectedApplication!.services.length} service
-                            {selectedApplication!.services.length === 1
-                              ? ""
-                              : "s"}
-                          </Badge>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3">
-                        <div className="border-border bg-muted/45 rounded-[18px] border p-4">
-                          <div className="text-muted-foreground flex items-center justify-between text-[11px] font-semibold tracking-[0.22em] uppercase">
-                            <span>Scope</span>
-                            <Layers3 className="size-4" />
-                          </div>
-                          <p className="mt-3 font-semibold text-white">
-                            Application-level intake with optional service
-                            selection.
-                          </p>
-                        </div>
-
-                        <div className="border-border bg-muted/45 rounded-[18px] border p-4">
-                          <div className="text-muted-foreground flex items-center justify-between text-[11px] font-semibold tracking-[0.22em] uppercase">
-                            <span>Services</span>
-                            <ListTree className="size-4" />
-                          </div>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {selectedApplication!.services.length ? (
-                              selectedApplication!.services.map((service) => (
-                                <Badge key={service.id} tone="neutral">
-                                  {service.name}
-                                </Badge>
-                              ))
-                            ) : (
-                              <p className="text-muted-foreground text-sm leading-7">
-                                No services mapped yet. You can still file an
-                                application-level request.
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                      <Button
-                        variant="secondary"
-                        onClick={() => onSelectedApplicationSlugChange("")}
-                      >
-                        <ArrowLeft className="size-4" />
-                        Change application
-                      </Button>
-                    </CardContent>
-                  </Card>
-
                   <TicketIntakeForm
                     key={selectedApplication!.id}
                     applicationId={selectedApplication!.id}
                     services={selectedApplication!.services}
-                    eyebrow="Shared intake"
-                    title="Start a request"
-                    description="Choose the request type, describe the problem or idea clearly, and submit it directly into the service desk queue."
-                    submitLabel="Send request"
+                    compact
+                    hideTypeBadge
+                    eyebrow=""
+                    title=""
+                    description=""
+                    headerAddon={
+                      <div className="border-t border-white/8 pt-4">
+                        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+                          <div className="min-w-0 space-y-2">
+                            <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold tracking-[0.18em] text-white/48 uppercase">
+                              <span>Selected application</span>
+                              <span
+                                aria-hidden="true"
+                                className="size-1 rounded-full bg-white/18"
+                              />
+                              <span>
+                                {selectedApplication!.services.length} service
+                                {selectedApplication!.services.length === 1
+                                  ? ""
+                                  : "s"}
+                              </span>
+                            </div>
+
+                            <p className="display-face truncate text-[1.5rem] font-semibold tracking-[-0.045em] text-white md:text-[1.8rem]">
+                              {selectedApplication!.name}
+                            </p>
+                          </div>
+
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            className="w-full shrink-0 rounded-full border-white/8 bg-black/20 px-4 text-[11px] tracking-[0.14em] text-white/82 hover:border-white/14 hover:bg-black/28 hover:text-white sm:w-auto"
+                            onClick={() => onSelectedApplicationSlugChange("")}
+                          >
+                            <ArrowLeft className="size-4" />
+                            Change application
+                          </Button>
+                        </div>
+                      </div>
+                    }
+                    submitButtonClassName="!shadow-none hover:!shadow-none"
+                    submitLabel="Create ticket"
                   />
                 </motion.div>
               ) : (
@@ -190,7 +159,7 @@ export function RequestIntakeModal({
                   animate={modalStepVariants(direction).animate}
                   exit={modalStepVariants(direction).exit}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-                  className="space-y-5"
+                  className="space-y-4"
                 >
                   {applications.length ? (
                     <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -205,41 +174,64 @@ export function RequestIntakeModal({
                             delay: 0.03 * index,
                             ease: [0.22, 1, 0.36, 1],
                           }}
-                          className="border-border bg-muted/35 hover:border-accent/40 hover:bg-muted/55 group rounded-3xl border p-5 text-left transition duration-200"
+                          className="group overflow-hidden rounded-2xl border border-white/8 bg-black/16 text-left transition duration-200 hover:border-white/14 hover:bg-black/22"
                           onClick={() =>
                             onSelectedApplicationSlugChange(application.slug)
                           }
                         >
-                          <div className="flex flex-wrap items-center gap-2">
-                            <Badge tone="accent">/{application.slug}</Badge>
-                            <Badge tone="neutral">
+                          <div className="flex flex-wrap items-center gap-2 border-b border-white/8 px-4 py-3.5">
+                            <Badge
+                              tone="accent"
+                              className="text-accent border-white/10 bg-white/4.5 text-[11px] shadow-none"
+                            >
+                              /{application.slug}
+                            </Badge>
+                            <Badge
+                              tone="neutral"
+                              className="border-white/10 bg-white/3 text-[11px]"
+                            >
                               {application.services.length} service
                               {application.services.length === 1 ? "" : "s"}
                             </Badge>
                           </div>
 
-                          <h3 className="display-face mt-4 text-3xl font-semibold tracking-[-0.04em] text-white">
-                            {application.name}
-                          </h3>
-                          <p className="text-muted-foreground mt-3 text-sm leading-7">
-                            {application.description}
-                          </p>
+                          <div className="space-y-3 px-4 py-4">
+                            <div>
+                              <h3 className="display-face text-[1.7rem] font-semibold tracking-[-0.04em] text-white md:text-[1.85rem]">
+                                {application.name}
+                              </h3>
+                              <p className="text-muted-foreground mt-2.5 text-[13px] leading-6">
+                                {application.description}
+                              </p>
+                            </div>
 
-                          <div className="text-accent mt-5 inline-flex items-center gap-2 text-sm font-semibold tracking-[0.14em] uppercase transition group-hover:translate-x-1">
-                            Continue
-                            <ArrowRight className="size-4" />
+                            <div className="text-accent inline-flex items-center gap-2 text-[11px] font-semibold tracking-[0.14em] uppercase transition group-hover:translate-x-1">
+                              Continue
+                              <ArrowRight className="size-4" />
+                            </div>
                           </div>
                         </motion.button>
                       ))}
+
+                      {Array.from({ length: placeholderCount }).map(
+                        (_, index) => (
+                          <div
+                            key={`placeholder-${index}`}
+                            className="rounded-2xl border border-dashed border-white/10 bg-transparent p-4 opacity-60"
+                          >
+                            <div aria-hidden="true" className="min-h-55" />
+                          </div>
+                        ),
+                      )}
                     </div>
                   ) : (
                     <Card>
-                      <CardContent className="space-y-3">
+                      <CardContent className="space-y-2.5 p-5 md:p-6">
                         <CardEyebrow>No applications configured</CardEyebrow>
-                        <CardTitle className="text-white">
+                        <CardTitle className="text-lg text-white">
                           There is nothing to submit a request against yet
                         </CardTitle>
-                        <CardDescription className="leading-7">
+                        <CardDescription className="text-[13px] leading-6">
                           Add a real application with a valid Uptime Kuma
                           identifier from the admin area before opening the
                           shared intake flow.
