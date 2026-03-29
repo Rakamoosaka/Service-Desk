@@ -30,6 +30,7 @@ export async function createTicket(
 
 export async function listTickets(filters: TicketFilters = {}) {
   const predicates = [
+    filters.appId ? eq(tickets.appId, filters.appId) : undefined,
     filters.status ? eq(tickets.status, filters.status) : undefined,
     filters.type ? eq(tickets.type, filters.type) : undefined,
     filters.search

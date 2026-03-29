@@ -110,25 +110,25 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
         <SummaryCard
           label="Tickets in window"
           value={data.summary.totals.ticketsInRange.toString()}
-          supporting={`${data.summary.totals.averageTicketsPerDay} tickets per day across the selected ${data.summary.days}-day window.`}
+          supporting={`Average of ${data.summary.totals.averageTicketsPerDay} new tickets per day in the last ${data.summary.days} days.`}
           icon={BarChart3}
         />
         <SummaryCard
           label="Open backlog"
           value={data.summary.totals.backlogTickets.toString()}
-          supporting="Current tickets still waiting on review or closure across the full desk."
+          supporting="Tickets that are still open and need review, action, or closure."
           icon={Waves}
         />
         <SummaryCard
           label="Applications touched"
           value={data.summary.totals.applicationsWithActivity.toString()}
-          supporting={`${data.summary.totals.totalApplications} tracked applications exist in the catalog.`}
+          supporting={`${data.summary.totals.totalApplications} applications are tracked in total.`}
           icon={Radar}
         />
         <SummaryCard
-          label="Total footprint"
+          label="Total tickets"
           value={data.summary.totals.totalTickets.toString()}
-          supporting={`${data.summary.totals.totalUsers} authenticated users have access to the workspace.`}
+          supporting="All tickets recorded in this workspace."
           icon={ArrowRight}
         />
       </div>

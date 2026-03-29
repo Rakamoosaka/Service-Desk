@@ -25,6 +25,7 @@ export async function GET(request: NextRequest) {
   }
 
   const filters = ticketFiltersSchema.safeParse({
+    appId: request.nextUrl.searchParams.get("appId") ?? undefined,
     status: request.nextUrl.searchParams.get("status") ?? undefined,
     type: request.nextUrl.searchParams.get("type") ?? undefined,
     search: request.nextUrl.searchParams.get("search") ?? undefined,

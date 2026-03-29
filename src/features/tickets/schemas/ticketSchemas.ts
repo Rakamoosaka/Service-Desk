@@ -9,6 +9,7 @@ export const ticketInputSchema = z.object({
 });
 
 export const ticketFiltersSchema = z.object({
+  appId: z.string().uuid().optional(),
   status: z.enum(["new", "in_review", "resolved", "closed"]).optional(),
   type: z.enum(["feedback", "suggestion", "bug"]).optional(),
   search: z.string().trim().max(120).optional(),

@@ -27,7 +27,7 @@ export default async function AdminOverviewPage({
       <SectionIntro
         eyebrow="Admin"
         title="Operational overview"
-        description="Phase 5 is now live here: real analytics for intake volume, queue composition, and service-level load across the desk."
+        description="Use this dashboard to track ticket volume, review backlog, and see where support work is building up."
       />
 
       <AnalyticsDashboard range={range} data={analytics} />

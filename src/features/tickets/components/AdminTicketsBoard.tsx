@@ -34,6 +34,10 @@ type TicketRecord = {
 
 interface AdminTicketsBoardProps {
   initialTickets: TicketRecord[];
+  applications: Array<{
+    id: string;
+    name: string;
+  }>;
 }
 
 function toTone(status: TicketRecord["status"]) {
@@ -49,7 +53,10 @@ function toTone(status: TicketRecord["status"]) {
   }
 }
 
-export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
+export function AdminTicketsBoard({
+  initialTickets,
+  applications,
+}: AdminTicketsBoardProps) {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<TicketFilters>({});
   const deferredSearch = useDeferredValue(filters.search);
@@ -60,6 +67,7 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
     queryFn: async () => {
       const params = new URLSearchParams();
 
+      if (activeFilters.appId) params.set("appId", activeFilters.appId);
       if (activeFilters.status) params.set("status", activeFilters.status);
       if (activeFilters.type) params.set("type", activeFilters.type);
       if (activeFilters.search) params.set("search", activeFilters.search);
@@ -67,7 +75,10 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
       return fetchJson<TicketRecord[]>(`/api/tickets?${params.toString()}`);
     },
     initialData:
-      !activeFilters.status && !activeFilters.type && !activeFilters.search
+      !activeFilters.appId &&
+      !activeFilters.status &&
+      !activeFilters.type &&
+      !activeFilters.search
         ? initialTickets
         : undefined,
   });
@@ -119,7 +130,7 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
   return (
     <Card>
       <CardContent className="space-y-6">
-        <div className="grid gap-3 lg:grid-cols-[1.3fr_0.4fr_0.4fr]">
+        <div className="grid gap-3 lg:grid-cols-[1.2fr_0.6fr_0.4fr_0.4fr]">
           <Input
             placeholder="Search title or description"
             value={filters.search ?? ""}
@@ -130,6 +141,22 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
               }))
             }
           />
+          <Select
+            value={filters.appId ?? ""}
+            onChange={(event) =>
+              setFilters((current) => ({
+                ...current,
+                appId: event.target.value || undefined,
+              }))
+            }
+          >
+            <option value="">All applications</option>
+            {applications.map((application) => (
+              <option key={application.id} value={application.id}>
+                {application.name}
+              </option>
+            ))}
+          </Select>
           <Select
             value={filters.status ?? ""}
             onChange={(event) =>
@@ -186,7 +213,7 @@ export function AdminTicketsBoard({ initialTickets }: AdminTicketsBoardProps) {
             </thead>
             <tbody className="divide-border bg-panel divide-y">
               {ticketsQuery.data?.map((ticket) => (
-                <tr key={ticket.id} className="hover:bg-white/[0.02]">
+                <tr key={ticket.id} className="hover:bg-white/2">
                   <td className="px-4 py-4 align-top">
                     <div className="space-y-2">
                       <div className="flex flex-wrap items-center gap-2">
