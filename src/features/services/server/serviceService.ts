@@ -90,6 +90,7 @@ export async function getServiceBySlugs(
           type: true,
           status: true,
           priority: true,
+          suspectedDuplicateTicketId: true,
           createdAt: true,
         },
       },

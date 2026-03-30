@@ -1,6 +1,8 @@
-import { relations } from "drizzle-orm";
+import { relations, sql } from "drizzle-orm";
 import {
+  AnyPgColumn,
   index,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -10,6 +12,7 @@ import {
 import { applications } from "@/db/schema/applications";
 import { users } from "@/db/schema/auth";
 import { services } from "@/db/schema/services";
+import type { StoredTicketAiTriage } from "@/features/tickets/ticketAi";
 
 export const ticketTypeEnum = pgEnum("ticket_type", [
   "feedback",
@@ -35,6 +38,12 @@ export const analysisStateEnum = pgEnum("analysis_state", [
   "completed",
   "failed",
 ]);
+export const aiSuggestionStatusEnum = pgEnum("ai_suggestion_status", [
+  "none",
+  "pending_review",
+  "accepted",
+  "dismissed",
+]);
 
 export const tickets = pgTable(
   "tickets",
@@ -51,6 +60,18 @@ export const tickets = pgTable(
     description: text("description").notNull(),
     status: ticketStatusEnum("status").notNull().default("new"),
     priority: ticketPriorityEnum("priority").notNull().default("unknown"),
+    aiSuggestionStatus: aiSuggestionStatusEnum("ai_suggestion_status")
+      .notNull()
+      .default("none"),
+    aiTriage: jsonb("ai_triage")
+      .$type<StoredTicketAiTriage>()
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    suspectedDuplicateTicketId: uuid(
+      "suspected_duplicate_ticket_id",
+    ).references((): AnyPgColumn => tickets.id, {
+      onDelete: "set null",
+    }),
     submittedByUserId: text("submitted_by_user_id")
       .notNull()
       .references(() => users.id, { onDelete: "restrict" }),
@@ -71,6 +92,10 @@ export const tickets = pgTable(
     index("tickets_type_idx").on(table.type),
     index("tickets_app_status_idx").on(table.appId, table.status),
     index("tickets_app_created_idx").on(table.appId, table.createdAt),
+    index("tickets_ai_suggestion_status_idx").on(table.aiSuggestionStatus),
+    index("tickets_suspected_duplicate_idx").on(
+      table.suspectedDuplicateTicketId,
+    ),
   ],
 );
 

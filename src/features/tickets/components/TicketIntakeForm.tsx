@@ -115,7 +115,7 @@ export function TicketIntakeForm({
   fixedType,
   eyebrow = "Intake",
   title = "Submit a ticket",
-  description = "Every submission is accepted immediately. AI triage is planned later, so priority stays manual for now.",
+  description = "Every submission is accepted immediately. Priority is scored automatically on create, while AI lane changes stay in admin review.",
   submitLabel,
   titleLabel = "Title",
   titlePlaceholder = "Summarize the issue or request",
@@ -390,7 +390,8 @@ export function TicketIntakeForm({
               )}
             >
               Requests go straight into the service desk queue with the lane,
-              scope, and description you provide here.
+              scope, and description you provide here. Priority is assigned
+              automatically from the ticket content after submission.
             </p>
             <Button
               type="submit"

@@ -92,6 +92,7 @@ export async function getApplicationBySlug(slug: string) {
           type: true,
           status: true,
           priority: true,
+          suspectedDuplicateTicketId: true,
           createdAt: true,
         },
         with: {

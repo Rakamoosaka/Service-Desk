@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { ticketAiReviewSchema } from "@/features/tickets/ticketAi";
 
 export const ticketInputSchema = z.object({
   appId: z.string().uuid(),
@@ -32,5 +33,10 @@ export const ticketStatusParamsSchema = z.object({
   id: z.string().uuid(),
 });
 
+export const ticketAiReviewParamsSchema = z.object({
+  id: z.string().uuid(),
+});
+
 export type TicketInput = z.infer<typeof ticketInputSchema>;
 export type TicketFilters = z.infer<typeof ticketFiltersSchema>;
+export type TicketAiReviewInput = z.infer<typeof ticketAiReviewSchema>;

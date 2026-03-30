@@ -6,8 +6,10 @@ import {
 } from "@/features/tickets/schemas/ticketSchemas";
 import {
   createTicket,
+  getTicketById,
   listTickets,
 } from "@/features/tickets/server/ticketService";
+import { analyzeTicketAutomation } from "@/features/tickets/server/ticketAiService";
 import { sendNewTicketAdminNotification } from "@/features/tickets/server/sendNewTicketAdminNotification";
 import { getApplicationById } from "@/features/applications/server/applicationService";
 import { getServiceById } from "@/features/services/server/serviceService";
@@ -73,7 +75,12 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const ticket = await createTicket(parsed.data, session.user.id);
+  const createdTicket = await createTicket(parsed.data, session.user.id);
+  const ticket =
+    (await analyzeTicketAutomation(createdTicket.id)) ??
+    (await getTicketById(createdTicket.id)) ??
+    createdTicket;
+
   await sendNewTicketAdminNotification({
     ticket,
     application,

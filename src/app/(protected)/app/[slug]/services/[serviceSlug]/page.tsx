@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardEyebrow } from "@/components/ui/Card";
 import { TicketIntakeForm } from "@/features/tickets/components/TicketIntakeForm";
+import { TicketDuplicateIndicator } from "@/features/tickets/components/TicketDuplicateIndicator";
 import { ServiceUptimePanel } from "@/features/uptime/components/ApplicationUptimePanel";
 import { getApplicationBySlugCached } from "@/features/applications/server/applicationService";
 import { getServiceBySlugs } from "@/features/services/server/serviceService";
@@ -111,9 +112,14 @@ export default async function ServicePage({ params }: ServicePageProps) {
                       className="border-border bg-muted/50 rounded-[18px] border p-4"
                     >
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-white">
-                          {ticket.title}
-                        </p>
+                        <div className="relative inline-flex max-w-full items-start">
+                          {ticket.suspectedDuplicateTicketId ? (
+                            <TicketDuplicateIndicator className="absolute -top-2.5 -left-2.5" />
+                          ) : null}
+                          <p className="font-semibold text-white">
+                            {ticket.title}
+                          </p>
+                        </div>
                         <Badge tone={ticketTone(ticket.status)}>
                           {ticket.status.replace("_", " ")}
                         </Badge>

@@ -11,6 +11,7 @@ Users sign in with GitLab, browse application and service status, and submit sup
 - Application and service status pages with Uptime Kuma data when configured
 - Service-level ticket intake
 - Admin dashboard for analytics, tickets, applications, and user access
+- Mastra-powered ticket priority scoring, category review, and duplicate detection
 
 ## Stack
 
@@ -20,6 +21,7 @@ Users sign in with GitLab, browse application and service status, and submit sup
 - better-auth with GitLab OAuth
 - PostgreSQL + Drizzle ORM
 - TanStack Query + React Hook Form
+- Mastra + OpenAI for ticket triage
 
 ## Local setup
 
@@ -58,6 +60,10 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 Optional values:
 
 ```env
+OPENAI_API_KEY=sk-xxxxxxxxx
+OPENROUTER_API_KEY=sk-or-xxxxxxxxx
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+OPENROUTER_MODEL=qwen/qwen3.5-flash-02-23
 UPTIME_KUMA_BASE_URL=https://status.example.com
 RESEND_API_KEY=re_xxxxxxxxx
 RESEND_FROM_EMAIL=Service Desk <notifications@example.com>
@@ -68,6 +74,8 @@ Notes:
 - `BETTER_AUTH_SECRET` must be at least 32 characters.
 - `GITLAB_ADMIN_ALLOWLIST` accepts GitLab emails and GitLab numeric user IDs.
 - If your account should become an admin on first sign-in, include it in `GITLAB_ADMIN_ALLOWLIST` before logging in.
+- `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, and `OPENROUTER_MODEL` let the Mastra ticket triage agent run against OpenRouter.
+- `OPENAI_API_KEY` remains available as a direct fallback if you prefer OpenAI instead of OpenRouter.
 - `UPTIME_KUMA_BASE_URL` is only needed if you want live uptime data.
 - `RESEND_API_KEY` and `RESEND_FROM_EMAIL` are only needed for email notifications.
 
