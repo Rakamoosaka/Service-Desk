@@ -67,6 +67,7 @@ OPENROUTER_MODEL=qwen/qwen3.5-flash-02-23
 UPTIME_KUMA_BASE_URL=https://status.example.com
 RESEND_API_KEY=re_xxxxxxxxx
 RESEND_FROM_EMAIL=Service Desk <notifications@example.com>
+RESEND_TEST_EMAIL=you@example.com
 ```
 
 Notes:
@@ -78,6 +79,7 @@ Notes:
 - `OPENAI_API_KEY` remains available as a direct fallback if you prefer OpenAI instead of OpenRouter.
 - `UPTIME_KUMA_BASE_URL` is only needed if you want live uptime data.
 - `RESEND_API_KEY` and `RESEND_FROM_EMAIL` are only needed for email notifications.
+- `RESEND_TEST_EMAIL` is optional and useful with an unverified Resend setup. When set, all admin notification emails are routed to that single address.
 
 ### 3. Configure GitLab OAuth
 

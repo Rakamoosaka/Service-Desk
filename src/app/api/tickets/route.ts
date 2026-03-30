@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
 import {
   parseTicketFilters,
@@ -76,21 +76,28 @@ export async function POST(request: NextRequest) {
   }
 
   const createdTicket = await createTicket(parsed.data, session.user.id);
-  const ticket =
-    (await analyzeTicketAutomation(createdTicket.id)) ??
-    (await getTicketById(createdTicket.id)) ??
-    createdTicket;
+  const ticket = (await getTicketById(createdTicket.id)) ?? createdTicket;
 
-  await sendNewTicketAdminNotification({
-    ticket,
-    application,
-    service,
-    submittedBy: {
-      id: session.user.id,
-      name: session.user.name,
-      email: session.user.email,
-      role: session.user.role,
-    },
+  after(async () => {
+    try {
+      await analyzeTicketAutomation(createdTicket.id);
+      await sendNewTicketAdminNotification({
+        ticket,
+        application,
+        service,
+        submittedBy: {
+          id: session.user.id,
+          name: session.user.name,
+          email: session.user.email,
+          role: session.user.role,
+        },
+      });
+
+      revalidateTag("tickets", "max");
+      revalidateTag(`application-${application.slug}`, "max");
+    } catch (error) {
+      console.error("Ticket post-create processing failed", error);
+    }
   });
 
   revalidateTag("tickets", "max");

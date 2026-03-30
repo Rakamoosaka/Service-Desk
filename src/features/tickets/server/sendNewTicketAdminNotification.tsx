@@ -54,6 +54,14 @@ function getAdminTicketBoardUrl() {
   return new URL("/admin/tickets", env.NEXT_PUBLIC_APP_URL).toString();
 }
 
+function getNotificationRecipients(recipientEmails: string[]) {
+  if (env.RESEND_TEST_EMAIL) {
+    return [env.RESEND_TEST_EMAIL];
+  }
+
+  return recipientEmails;
+}
+
 export async function sendNewTicketAdminNotification({
   ticket,
   application,
@@ -70,14 +78,17 @@ export async function sendNewTicketAdminNotification({
   const recipientEmails = recipients
     .map((recipient) => recipient.email.trim())
     .filter(Boolean);
+  const deliverTo = Array.from(
+    new Set(getNotificationRecipients(recipientEmails)),
+  );
 
-  if (!recipientEmails.length) {
+  if (!deliverTo.length) {
     return;
   }
 
   const { error } = await resend.emails.send({
     from: env.RESEND_FROM_EMAIL,
-    to: recipientEmails,
+    to: deliverTo,
     subject: `[${application.name}] New ${ticket.type} ticket`,
     react: (
       <NewTicketAdminNotificationEmail

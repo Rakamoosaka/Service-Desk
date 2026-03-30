@@ -21,6 +21,7 @@ const envSchema = z.object({
   UPTIME_KUMA_BASE_URL: z.string().url().optional(),
   RESEND_API_KEY: z.string().min(1).optional(),
   RESEND_FROM_EMAIL: z.string().min(1).optional(),
+  RESEND_TEST_EMAIL: z.string().email().optional(),
 });
 
 const parsedEnv = envSchema.safeParse(process.env);
