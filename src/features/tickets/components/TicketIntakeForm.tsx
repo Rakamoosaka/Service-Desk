@@ -73,6 +73,7 @@ interface TicketIntakeFormProps {
   compact?: boolean;
   headerAddon?: ReactNode;
   hideTypeBadge?: boolean;
+  onSuccess?: () => void;
 }
 
 function ticketTypeTone(type: TicketInput["type"]) {
@@ -128,6 +129,7 @@ export function TicketIntakeForm({
   compact = false,
   headerAddon,
   hideTypeBadge = false,
+  onSuccess,
 }: TicketIntakeFormProps) {
   const [selectedType, setSelectedType] = useState<TicketInput["type"]>(
     fixedType ?? "feedback",
@@ -161,6 +163,7 @@ export function TicketIntakeForm({
         title: "",
         description: "",
       });
+      onSuccess?.();
     },
     onError: (error) => {
       toast.error(error.message);

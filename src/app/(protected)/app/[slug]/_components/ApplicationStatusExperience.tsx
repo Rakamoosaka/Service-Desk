@@ -106,6 +106,7 @@ export function ApplicationStatusExperience({
                 eyebrow=""
                 title=""
                 description=""
+                onSuccess={() => setIsIntakeOpen(false)}
                 headerAddon={
                   <div className="border-t border-white/8 pt-4">
                     <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">

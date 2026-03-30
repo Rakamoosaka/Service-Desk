@@ -113,6 +113,7 @@ export function RequestIntakeModal({
                     eyebrow=""
                     title=""
                     description=""
+                    onSuccess={onClose}
                     headerAddon={
                       <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-4 md:px-5 md:py-4.5">
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
