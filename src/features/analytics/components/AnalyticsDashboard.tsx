@@ -397,50 +397,58 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
                   key={application.applicationId}
                   className="border-border bg-muted/35 rounded-[18px] border p-3.5"
                 >
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="space-y-2">
-                      <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.2em] uppercase">
-                        Rank {index + 1}
-                      </p>
-                      <div>
-                        <p className="text-[13px] font-semibold text-white">
-                          {application.name}
+                  <div className="flex flex-col gap-4">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="min-w-0 space-y-3">
+                        <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.2em] uppercase">
+                          Rank {index + 1}
                         </p>
-                        <p className="text-muted-foreground mt-1 text-[13px]">
-                          /{application.slug}
+                        <div className="space-y-1">
+                          <p className="text-lg leading-tight font-semibold text-white sm:text-xl">
+                            {application.name}
+                          </p>
+                          <p className="text-muted-foreground/80 text-xs sm:text-sm">
+                            /{application.slug}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="text-left sm:text-right">
+                        <p className="data-face text-3xl leading-none font-semibold text-white sm:text-4xl">
+                          {application.ticketCount}
+                        </p>
+                        <p className="text-muted-foreground mt-2 text-[10px] tracking-[0.16em] uppercase">
+                          {application.share}% of window
                         </p>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <div className="text-right">
-                        <p className="data-face text-xl font-semibold text-white">
-                          {application.ticketCount}
-                        </p>
-                        <p className="text-muted-foreground text-[10px] tracking-[0.16em] uppercase">
-                          {application.share}% of window
-                        </p>
+                    <div className="flex flex-wrap items-end justify-between gap-3">
+                      <div className="flex flex-wrap gap-2">
+                        {application.statuses
+                          .filter((statusEntry) => statusEntry.value > 0)
+                          .map((statusEntry) => (
+                            <Badge
+                              key={statusEntry.status}
+                              tone={statusTone(statusEntry.status)}
+                            >
+                              {formatStatusLabel(statusEntry.status)}:{" "}
+                              {statusEntry.value}
+                            </Badge>
+                          ))}
                       </div>
-                      <Button asChild variant="secondary" size="sm">
+
+                      <Button
+                        asChild
+                        variant="secondary"
+                        size="sm"
+                        className="ml-auto"
+                      >
                         <Link href={`/app/${application.slug}` as Route}>
                           Open application
                         </Link>
                       </Button>
                     </div>
-                  </div>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    {application.statuses
-                      .filter((statusEntry) => statusEntry.value > 0)
-                      .map((statusEntry) => (
-                        <Badge
-                          key={statusEntry.status}
-                          tone={statusTone(statusEntry.status)}
-                        >
-                          {formatStatusLabel(statusEntry.status)}:{" "}
-                          {statusEntry.value}
-                        </Badge>
-                      ))}
                   </div>
                 </div>
               ))}
