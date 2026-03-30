@@ -47,6 +47,54 @@ function historyClass(status: UptimeState) {
   }
 }
 
+function historyLabel(status: UptimeState) {
+  switch (status) {
+    case "operational":
+      return "UP";
+    case "degraded":
+      return "DEGRADED";
+    case "outage":
+      return "OUTAGE";
+    case "stale":
+      return "STALE";
+    default:
+      return "UNKNOWN";
+  }
+}
+
+function historyLabelClass(status: UptimeState) {
+  switch (status) {
+    case "operational":
+      return "text-emerald-400";
+    case "degraded":
+      return "text-amber-400";
+    case "outage":
+      return "text-rose-500";
+    case "stale":
+      return "text-slate-400";
+    default:
+      return "text-white/72";
+  }
+}
+
+function formatHistoryTimestamp(value: string | null) {
+  if (!value) {
+    return "No timestamp";
+  }
+
+  return new Intl.DateTimeFormat("sv-SE", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })
+    .format(new Date(value))
+    .replace(" ", " ");
+}
+
 function formatPercent(value: number | null) {
   if (value === null) {
     return "--";
@@ -155,7 +203,7 @@ export function HomeServiceUptimeCard({
                 </div>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-3 pb-14">
                 <div className="grid auto-cols-fr grid-flow-col gap-1">
                   {(monitor.history.length
                     ? monitor.history
@@ -171,11 +219,34 @@ export function HomeServiceUptimeCard({
                   ).map((point, pointIndex) => (
                     <span
                       key={`${monitor.id}-${pointIndex}`}
-                      className={cn(
-                        "h-4 min-w-0 rounded-full",
-                        historyClass(point.status),
-                      )}
-                    />
+                      className="group relative block min-w-0 cursor-default"
+                      tabIndex={0}
+                      aria-label={`${historyLabel(point.status)} at ${formatHistoryTimestamp(point.checkedAt)}`}
+                    >
+                      <span
+                        className="pointer-events-none absolute top-[calc(100%+10px)] left-1/2 z-10 w-max -translate-x-1/2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-center opacity-0 shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+                        aria-hidden="true"
+                      >
+                        <span
+                          className={cn(
+                            "block text-[11px] font-semibold tracking-[0.16em] uppercase",
+                            historyLabelClass(point.status),
+                          )}
+                        >
+                          {historyLabel(point.status)}
+                        </span>
+                        <span className="mt-1 block text-[11px] text-white/78">
+                          {formatHistoryTimestamp(point.checkedAt)}
+                        </span>
+                      </span>
+
+                      <span
+                        className={cn(
+                          "block h-4 min-w-0 rounded-full transition duration-150 group-hover:scale-125 group-focus-visible:scale-125",
+                          historyClass(point.status),
+                        )}
+                      />
+                    </span>
                   ))}
                 </div>
 

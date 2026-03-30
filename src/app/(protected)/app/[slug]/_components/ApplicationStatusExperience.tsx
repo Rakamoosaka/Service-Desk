@@ -231,7 +231,7 @@ export function ApplicationStatusExperience({
                 </div>
               </div>
 
-              <div className="overflow-hidden rounded-2xl border border-white/8 bg-black/15">
+              <div className="rounded-2xl border border-white/8 bg-black/15">
                 {application.services.length ? (
                   application.services.map((service) => (
                     <HomeServiceUptimeCard
