@@ -49,34 +49,36 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
   return (
     <Card>
       <CardContent className="overflow-hidden p-0">
-        <table className="divide-border min-w-full divide-y text-left text-sm">
+        <table className="divide-border min-w-full divide-y text-left text-[13px]">
           <thead className="bg-muted/70 text-muted-foreground">
             <tr>
-              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+              <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                 User
               </th>
-              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+              <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                 GitLab
               </th>
-              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+              <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                 Role
               </th>
-              <th className="px-5 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+              <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                 Joined
               </th>
             </tr>
           </thead>
           <tbody className="divide-border bg-panel divide-y">
             {usersQuery.data.map((user) => (
-              <tr key={user.id} className="hover:bg-white/[0.02]">
-                <td className="px-5 py-4">
-                  <p className="font-semibold text-white">{user.name}</p>
+              <tr key={user.id} className="hover:bg-white/2">
+                <td className="px-4 py-3.5">
+                  <p className="text-[13px] font-semibold text-white">
+                    {user.name}
+                  </p>
                   <p className="text-muted-foreground text-xs">{user.email}</p>
                 </td>
-                <td className="text-muted-foreground px-5 py-4">
+                <td className="text-muted-foreground px-4 py-3.5">
                   {user.gitlabUserId ?? "Not linked"}
                 </td>
-                <td className="px-5 py-4">
+                <td className="px-4 py-3.5">
                   <div className="flex items-center gap-3">
                     <Badge tone={user.role === "admin" ? "accent" : "neutral"}>
                       {user.role}
@@ -96,7 +98,7 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
                     </Select>
                   </div>
                 </td>
-                <td className="text-muted-foreground px-5 py-4">
+                <td className="text-muted-foreground px-4 py-3.5">
                   {formatDate(user.createdAt)}
                 </td>
               </tr>

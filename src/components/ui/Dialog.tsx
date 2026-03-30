@@ -18,7 +18,7 @@ export const DialogOverlay = forwardRef<
     <DialogPrimitive.Overlay
       ref={ref}
       className={cn(
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/26 backdrop-blur-[2px]",
+        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/52",
         className,
       )}
       {...props}
@@ -36,12 +36,11 @@ export const DialogContent = forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 fixed top-1/2 left-1/2 z-50 w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 rounded-[30px] border border-white/10 bg-[linear-gradient(180deg,rgba(10,16,20,0.98),rgba(10,16,20,0.94))] shadow-[0_28px_120px_rgba(0,0,0,0.42)] outline-none",
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 border-border bg-panel fixed top-1/2 left-1/2 z-50 w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 rounded-[24px] border shadow-[0_24px_64px_rgba(0,0,0,0.35)] outline-none",
           className,
         )}
         {...props}
       >
-        <div className="panel-grid pointer-events-none absolute inset-0 rounded-[30px] opacity-20" />
         <div className="relative">{children}</div>
       </DialogPrimitive.Content>
     </DialogPortal>
@@ -91,7 +90,7 @@ export function DialogDismissButton({
   return (
     <DialogPrimitive.Close
       className={cn(
-        "border-border bg-muted/45 text-foreground hover:border-accent hover:text-accent focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-full border transition focus-visible:ring-2 focus-visible:outline-none",
+        "border-border bg-muted/45 text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-full border transition hover:border-white/18 focus-visible:ring-2 focus-visible:outline-none",
         className,
       )}
       {...props}

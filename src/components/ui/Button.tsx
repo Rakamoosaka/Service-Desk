@@ -9,13 +9,13 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "border-accent bg-accent px-5 py-2.5 text-accent-foreground shadow-[0_0_24px_rgb(from_var(--accent)_r_g_b_/_0.22)] hover:-translate-y-px hover:shadow-[0_0_30px_rgb(from_var(--accent)_r_g_b_/_0.3)]",
+          "border-accent bg-accent px-5 py-2.5 text-accent-foreground hover:-translate-y-px hover:brightness-[1.03]",
         secondary:
-          "border-border bg-panel px-5 py-2.5 text-panel-foreground hover:-translate-y-px hover:border-accent hover:text-accent",
+          "border-border bg-panel px-5 py-2.5 text-panel-foreground hover:-translate-y-px hover:border-white/18 hover:bg-white/[0.02] hover:text-foreground",
         ghost:
           "border-transparent px-4 py-2 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
         danger:
-          "border-destructive bg-destructive px-5 py-2.5 text-destructive-foreground shadow-[0_0_20px_rgb(from_var(--destructive)_r_g_b_/_0.16)] hover:-translate-y-px hover:shadow-[0_0_28px_rgb(from_var(--destructive)_r_g_b_/_0.22)]",
+          "border-destructive bg-destructive px-5 py-2.5 text-destructive-foreground hover:-translate-y-px hover:brightness-[1.03]",
       },
       size: {
         sm: "h-9 px-3 text-[11px]",

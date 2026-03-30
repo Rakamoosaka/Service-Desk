@@ -1,7 +1,6 @@
 "use client";
 
 import { useDeferredValue, useState } from "react";
-import { BrainCircuit, Sparkles } from "lucide-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { TicketFilters } from "@/features/tickets/schemas/ticketSchemas";
@@ -106,19 +105,19 @@ function aiStatusTone(ticket: TicketRecord) {
 
 function aiStatusLabel(ticket: TicketRecord) {
   if (ticket.aiSuggestionStatus === "pending_review") {
-    return "review pending";
+    return "needs review";
   }
 
   if (ticket.aiSuggestionStatus === "accepted") {
-    return "accepted";
+    return "reviewed";
   }
 
   if (ticket.aiSuggestionStatus === "dismissed") {
-    return "dismissed";
+    return "kept current";
   }
 
   if (ticket.analysisState === "pending") {
-    return "analyzing";
+    return "analysis pending";
   }
 
   if (ticket.analysisState === "failed") {
@@ -230,8 +229,8 @@ export function AdminTicketsBoard({
     onSuccess: (_, variables) => {
       toast.success(
         variables.action === "accept"
-          ? "AI suggestions accepted"
-          : "AI suggestions dismissed",
+          ? "Suggestions applied"
+          : "Suggestions dismissed",
       );
       setSelectedTicketId(null);
     },
@@ -245,7 +244,7 @@ export function AdminTicketsBoard({
   return (
     <>
       <Card>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5">
           <div className="space-y-3">
             <div className="grid gap-3 lg:grid-cols-[1.2fr_0.6fr_0.4fr_0.4fr]">
               <Input
@@ -316,26 +315,26 @@ export function AdminTicketsBoard({
             </div>
           </div>
 
-          <div className="border-border overflow-hidden rounded-[20px] border">
-            <table className="divide-border min-w-full divide-y text-left text-sm">
+          <div className="border-border overflow-hidden rounded-[18px] border">
+            <table className="divide-border min-w-full divide-y text-left text-[13px]">
               <thead className="bg-muted/70 text-muted-foreground">
                 <tr>
-                  <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Ticket
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Application
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Submitted by
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Status
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Operations
                   </th>
-                  <th className="px-4 py-3 text-[11px] font-semibold tracking-[0.2em] uppercase">
+                  <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                     Created
                   </th>
                 </tr>
@@ -343,7 +342,7 @@ export function AdminTicketsBoard({
               <tbody className="divide-border bg-panel divide-y">
                 {ticketsQuery.data?.map((ticket) => (
                   <tr key={ticket.id} className="hover:bg-white/2">
-                    <td className="px-4 py-4 align-top">
+                    <td className="px-3.5 py-3.5 align-top">
                       <div className="space-y-2">
                         <div className="flex flex-wrap items-center gap-2">
                           <div className="relative inline-flex max-w-full items-start">
@@ -362,22 +361,22 @@ export function AdminTicketsBoard({
                         </div>
                       </div>
                     </td>
-                    <td className="text-muted-foreground px-4 py-4 align-top">
+                    <td className="text-muted-foreground px-3.5 py-3.5 align-top">
                       {ticket.application.name}
                     </td>
-                    <td className="px-4 py-4 align-top">
+                    <td className="px-3.5 py-3.5 align-top">
                       <p>{ticket.submittedBy.name}</p>
                       <p className="text-muted-foreground text-xs">
                         {ticket.submittedBy.email}
                       </p>
                     </td>
-                    <td className="px-4 py-4 align-top">
+                    <td className="px-3.5 py-3.5 align-top">
                       <div className="flex items-center gap-3">
                         <Badge tone={toTone(ticket.status)}>
                           {ticket.status.replace("_", " ")}
                         </Badge>
                         <Select
-                          className="min-w-36"
+                          className="min-w-32"
                           value={ticket.status}
                           onChange={(event) =>
                             updateStatusMutation.mutate({
@@ -404,11 +403,10 @@ export function AdminTicketsBoard({
                         }
                         onClick={() => setSelectedTicketId(ticket.id)}
                       >
-                        <BrainCircuit className="size-4" />
-                        AI triage
+                        Review triage
                       </Button>
                     </td>
-                    <td className="text-muted-foreground px-4 py-4 align-top">
+                    <td className="text-muted-foreground px-3.5 py-3.5 align-top">
                       {formatDate(ticket.createdAt)}
                     </td>
                   </tr>
@@ -427,20 +425,20 @@ export function AdminTicketsBoard({
           }
         }}
       >
-        <DialogContent className="max-h-[88vh] w-[min(92vw,760px)] overflow-y-auto rounded-[18px] border-white/12 bg-[linear-gradient(180deg,rgba(8,12,16,0.995),rgba(8,12,16,0.985))] p-0 shadow-none [&_.panel-grid]:hidden">
+        <DialogContent className="max-h-[88vh] w-[min(92vw,760px)] overflow-y-auto rounded-[18px] p-0 shadow-none">
           {selectedTicket ? (
             <div className="flex flex-col">
               <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
                 <DialogHeader className="max-w-3xl">
-                  <p className="text-accent text-[11px] font-semibold tracking-[0.3em] uppercase">
-                    Ticket operations
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
+                    Ticket review
                   </p>
-                  <DialogTitle className="text-[1.9rem] md:text-[2.15rem]">
-                    AI triage review
+                  <DialogTitle className="text-[1.65rem] md:text-[1.9rem]">
+                    Triage review
                   </DialogTitle>
                   <DialogDescription className="text-[13px] leading-6 md:text-sm md:leading-6">
-                    Review the suggested category changes and duplicate signals
-                    before applying them to the queue.
+                    Review the suggested lane changes and duplicate flags before
+                    updating the queue.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -450,7 +448,7 @@ export function AdminTicketsBoard({
               </div>
 
               <div className="space-y-5 px-5 py-5 md:px-6 md:py-6">
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
+                <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone="neutral">{selectedTicket.priority}</Badge>
                     <Badge tone={aiStatusTone(selectedTicket)}>
@@ -460,17 +458,17 @@ export function AdminTicketsBoard({
                       <Badge tone="warning">duplicate flag</Badge>
                     ) : null}
                   </div>
-                  <p className="mt-4 font-semibold text-white">
+                  <p className="text-foreground mt-4 font-semibold">
                     {selectedTicket.title}
                   </p>
                   <p className="text-muted-foreground mt-2 text-sm leading-7">
                     {selectedTicket.aiTriage.priorityReason ??
-                      "Priority could not be scored because AI triage has not completed yet."}
+                      "Priority could not be scored because analysis has not completed yet."}
                   </p>
                 </div>
 
                 <div className="grid gap-4 md:grid-cols-2">
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
+                  <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
                     <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
                       Lane recommendation
                     </p>
@@ -499,9 +497,9 @@ export function AdminTicketsBoard({
                     ) : null}
                   </div>
 
-                  <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
+                  <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
                     <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                      Technical read
+                      Analysis summary
                     </p>
                     <div className="mt-4 flex flex-wrap items-center gap-2">
                       <Badge tone="neutral">
@@ -519,13 +517,10 @@ export function AdminTicketsBoard({
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-4 md:p-5">
-                  <div className="flex items-center gap-2">
-                    <Sparkles className="text-warning size-4" />
-                    <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                      Duplicate analysis
-                    </p>
-                  </div>
+                <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                    Duplicate review
+                  </p>
 
                   {selectedTicket.suspectedDuplicateTicket ? (
                     <div className="mt-4 space-y-3">
@@ -541,12 +536,12 @@ export function AdminTicketsBoard({
                           )}
                         </Badge>
                       </div>
-                      <p className="font-semibold text-white">
+                      <p className="text-foreground font-semibold">
                         {selectedTicket.suspectedDuplicateTicket.title}
                       </p>
                       <p className="text-muted-foreground text-sm leading-7">
                         {selectedTicket.aiTriage.duplicateReason ??
-                          "AI linked this ticket to an earlier item in the queue."}
+                          "This ticket appears related to an earlier item in the queue."}
                       </p>
                       {selectedTicket.aiTriage.duplicateSignals?.length ? (
                         <div className="flex flex-wrap gap-2">
@@ -570,8 +565,8 @@ export function AdminTicketsBoard({
                 <div className="flex flex-col gap-3 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-muted-foreground text-sm leading-7">
                     {selectedTicket.aiSuggestionStatus === "pending_review"
-                      ? "Accept to apply the suggested lane and keep the duplicate reminder. Dismiss to keep the current lane and remove the duplicate reminder."
-                      : "No pending AI changes are waiting for review on this ticket."}
+                      ? "Apply the suggested lane to keep the duplicate reminder, or dismiss the suggestion and leave the current lane unchanged."
+                      : "No pending suggestion changes are waiting for review on this ticket."}
                   </p>
 
                   <div className="flex flex-col gap-3 sm:flex-row">

@@ -113,16 +113,16 @@ export function HomePageExperience({
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-            className="border-b border-white/8 pb-5 xl:sticky xl:top-8 xl:border-r xl:border-b-0 xl:pr-6 xl:pb-0"
+            className="border-border/80 pb-5 xl:sticky xl:top-8 xl:border-r xl:pr-6 xl:pb-0"
           >
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold tracking-[0.28em] text-white/52 uppercase">
+              <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.2em] uppercase">
                 Service desk
               </p>
-              <h1 className="display-face text-[1.35rem] leading-none font-semibold tracking-[-0.03em] text-white">
+              <h1 className="display-face text-foreground text-[1.35rem] leading-tight font-semibold tracking-[-0.03em]">
                 Welcome back, {firstName}.
               </h1>
-              <p className="text-xs leading-5 text-white/54">
+              <p className="text-muted-foreground text-sm leading-6">
                 Requests and live application status, in one place.
               </p>
             </div>
@@ -140,7 +140,7 @@ export function HomePageExperience({
                   asChild
                   variant="secondary"
                   size="sm"
-                  className="h-9 rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
+                  className="h-9 rounded-xl bg-transparent px-3.5"
                 >
                   <Link href="/admin">
                     <ShieldCheck className="size-4" />
@@ -150,35 +150,35 @@ export function HomePageExperience({
               ) : null}
             </div>
 
-            <div className="mt-7 border-t border-white/8 pt-5">
-              <div className="overflow-hidden rounded-lg border border-white/8">
+            <div className="border-border/80 mt-7 border-t pt-5">
+              <div className="border-border bg-panel overflow-hidden rounded-lg border">
                 <div className="flex items-center justify-between gap-3 px-3 py-3">
-                  <p className="text-[11px] font-medium tracking-[0.18em] text-white/42 uppercase">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-[0.16em] uppercase">
                     Applications
                   </p>
-                  <p className="text-accent text-lg font-semibold">
+                  <p className="text-foreground text-lg font-semibold">
                     {totals.applications}
                   </p>
                 </div>
-                <div className="border-t border-white/8" />
+                <div className="border-border border-t" />
                 <div className="flex items-center justify-between gap-3 px-3 py-3">
-                  <p className="text-[11px] font-medium tracking-[0.18em] text-white/42 uppercase">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-[0.16em] uppercase">
                     Services
                   </p>
-                  <p className="text-accent text-lg font-semibold">
+                  <p className="text-foreground text-lg font-semibold">
                     {totals.services}
                   </p>
                 </div>
-                <div className="border-t border-white/8" />
+                <div className="border-border border-t" />
                 <div className="flex items-center justify-between gap-3 px-3 py-3">
-                  <p className="text-[11px] font-medium tracking-[0.18em] text-white/42 uppercase">
+                  <p className="text-muted-foreground text-[11px] font-medium tracking-[0.16em] uppercase">
                     Attention needed
                   </p>
                   <p
                     className={
                       totals.outages + totals.degraded > 0
                         ? "text-warning text-lg font-semibold"
-                        : "text-accent text-lg font-semibold"
+                        : "text-foreground text-lg font-semibold"
                     }
                   >
                     {totals.outages + totals.degraded}
@@ -187,36 +187,33 @@ export function HomePageExperience({
               </div>
             </div>
 
-            <div className="mt-7 border-t border-white/8 pt-5">
+            <div className="border-border/80 mt-7 border-t pt-5">
               <div className="flex items-start gap-3">
                 <div className="bg-accent text-accent-foreground flex size-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold">
                   {session.user.name.charAt(0).toUpperCase()}
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-[13px] font-semibold text-white">
+                  <p className="text-foreground truncate text-[13px] font-semibold">
                     {session.user.name}
                   </p>
-                  <p className="truncate text-xs text-white/48">
+                  <p className="text-muted-foreground truncate text-xs">
                     {session.user.email}
                   </p>
                 </div>
 
-                <SignOutButton
-                  iconOnly
-                  className="text-white/64 hover:text-white"
-                />
+                <SignOutButton iconOnly className="text-muted-foreground" />
               </div>
             </div>
           </motion.aside>
 
           <motion.section className="space-y-4">
-            <div className="flex flex-wrap items-end justify-between gap-4 border-b border-white/10 pb-4">
+            <div className="border-border/80 flex flex-wrap items-end justify-between gap-4 border-b pb-4">
               <div className="space-y-2.5">
-                <p className="text-accent text-[11px] font-semibold tracking-[0.32em] uppercase">
+                <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.2em] uppercase">
                   Applications
                 </p>
-                <h2 className="display-face max-w-3xl text-xl font-semibold tracking-[-0.03em] text-white md:text-[1.6rem]">
+                <h2 className="display-face text-foreground max-w-3xl text-xl font-semibold tracking-[-0.03em] md:text-[1.5rem]">
                   Open an application for full status and ticket intake.
                 </h2>
               </div>
@@ -230,7 +227,7 @@ export function HomePageExperience({
                     layout
                     transition={{ duration: 0.36, ease: [0.22, 1, 0.36, 1] }}
                   >
-                    <div className="rounded-xl border border-white/8 p-6 md:p-7">
+                    <div className="border-border bg-panel rounded-xl border p-6 md:p-7">
                       <div className="space-y-5">
                         <div className="flex flex-wrap items-start justify-between gap-4">
                           <div className="space-y-2.5">
@@ -244,7 +241,7 @@ export function HomePageExperience({
                             </div>
 
                             <div>
-                              <h3 className="display-face text-lg font-semibold tracking-[-0.03em] text-white md:text-[1.25rem]">
+                              <h3 className="display-face text-foreground text-lg font-semibold tracking-[-0.03em] md:text-[1.2rem]">
                                 {application.name}
                               </h3>
                               <p className="text-muted-foreground mt-2 max-w-xl text-xs leading-6">
@@ -257,7 +254,7 @@ export function HomePageExperience({
                             asChild
                             variant="secondary"
                             size="sm"
-                            className="rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
+                            className="rounded-xl bg-transparent px-3.5"
                           >
                             <Link href={`/app/${application.slug}` as Route}>
                               Open app
@@ -266,37 +263,37 @@ export function HomePageExperience({
                           </Button>
                         </div>
 
-                        <div className="overflow-hidden rounded-xl border border-white/8 bg-black/20">
+                        <div className="border-border bg-muted/30 overflow-hidden rounded-xl border">
                           <div className="grid md:grid-cols-4">
-                            <div className="border-white/8 px-4 py-4 md:border-r md:px-5 md:py-5">
+                            <div className="border-border px-4 py-4 md:border-r md:px-5 md:py-5">
                               <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
                                 Services
                               </p>
-                              <p className="mt-3 text-2xl font-semibold text-white">
+                              <p className="text-foreground mt-3 text-2xl font-semibold">
                                 {application.services.length}
                               </p>
                             </div>
-                            <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
-                              <p className="text-accent text-[11px] font-semibold tracking-[0.24em] uppercase">
+                            <div className="border-border border-t px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
+                              <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.2em] uppercase">
                                 Operational
                               </p>
-                              <p className="mt-3 text-2xl font-semibold text-white">
+                              <p className="text-foreground mt-3 text-2xl font-semibold">
                                 {application.counts.operational}
                               </p>
                             </div>
-                            <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
-                              <p className="text-warning text-[11px] font-semibold tracking-[0.24em] uppercase">
+                            <div className="border-border border-t px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
+                              <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.2em] uppercase">
                                 Degraded
                               </p>
-                              <p className="mt-3 text-2xl font-semibold text-white">
+                              <p className="text-foreground mt-3 text-2xl font-semibold">
                                 {application.counts.degraded}
                               </p>
                             </div>
-                            <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:px-5 md:py-5">
-                              <p className="text-destructive text-[11px] font-semibold tracking-[0.24em] uppercase">
+                            <div className="border-border border-t px-4 py-4 md:border-t-0 md:px-5 md:py-5">
+                              <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.2em] uppercase">
                                 Outage
                               </p>
-                              <p className="mt-3 text-2xl font-semibold text-white">
+                              <p className="text-foreground mt-3 text-2xl font-semibold">
                                 {application.counts.outage}
                               </p>
                             </div>
@@ -307,12 +304,12 @@ export function HomePageExperience({
                   </motion.div>
                 ))
               ) : (
-                <div className="rounded-xl border border-white/8 p-6">
+                <div className="border-border bg-panel rounded-xl border p-6">
                   <div className="space-y-3">
-                    <p className="text-accent text-[11px] font-semibold tracking-[0.28em] uppercase">
+                    <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.2em] uppercase">
                       No monitored services
                     </p>
-                    <h3 className="display-face text-3xl font-semibold tracking-[-0.03em] text-white">
+                    <h3 className="display-face text-foreground text-3xl font-semibold tracking-[-0.03em]">
                       Add real applications to build out the app directory
                     </h3>
                     <p className="text-muted-foreground max-w-3xl text-sm leading-7">

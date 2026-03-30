@@ -25,12 +25,12 @@ export function SectionIntro({
     >
       <div className="max-w-3xl space-y-4">
         {eyebrow ? (
-          <p className="text-accent text-[11px] font-semibold tracking-[0.34em] uppercase">
+          <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
             {eyebrow}
           </p>
         ) : null}
         <div className="space-y-3">
-          <h1 className="display-face text-foreground max-w-4xl text-4xl leading-[0.95] font-semibold tracking-[-0.03em] md:text-6xl">
+          <h1 className="display-face text-foreground max-w-4xl text-3xl leading-tight font-semibold tracking-[-0.03em] md:text-5xl">
             {title}
           </h1>
           <p className="text-muted-foreground max-w-2xl text-sm leading-7 md:text-base">

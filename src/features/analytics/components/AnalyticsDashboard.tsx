@@ -1,3 +1,6 @@
+"use client";
+
+import { useRef, useState } from "react";
 import type { Route } from "next";
 import Link from "next/link";
 import {
@@ -32,6 +35,30 @@ function formatStatusLabel(status: string) {
   return status.replace("_", " ");
 }
 
+function formatTrendDate(value: string) {
+  return new Intl.DateTimeFormat("en", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function formatTicketCount(value: number) {
+  return `${value} ticket${value === 1 ? "" : "s"}`;
+}
+
+function getTrendScale(maxValue: number) {
+  const roughStep = maxValue <= 10 ? 10 : Math.ceil(maxValue / 4 / 10) * 10;
+  const step = Math.max(10, roughStep);
+  const axisMax = Math.max(step * 3, Math.ceil(maxValue / step) * step);
+  const ticks = Array.from(
+    { length: Math.floor(axisMax / step) + 1 },
+    (_, index) => index * step,
+  );
+
+  return { axisMax, ticks };
+}
+
 function statusTone(status: AnalyticsStatusDistributionEntry["status"]) {
   switch (status) {
     case "new":
@@ -50,6 +77,19 @@ interface AnalyticsDashboardProps {
   data: AnalyticsDashboardData;
 }
 
+interface TrendChartProps {
+  trend: AnalyticsDashboardData["trend"];
+  axisMax: number;
+  ticks: number[];
+}
+
+interface TrendTooltipState {
+  date: string;
+  value: number;
+  x: number;
+  y: number;
+}
+
 function SummaryCard({
   label,
   value,
@@ -63,18 +103,18 @@ function SummaryCard({
 }) {
   return (
     <Card>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-5">
         <div className="text-muted-foreground flex items-center justify-between">
-          <span className="text-[11px] font-semibold tracking-[0.24em] uppercase">
+          <span className="text-[10px] font-semibold tracking-[0.2em] uppercase">
             {label}
           </span>
-          <Icon className="size-5" />
+          <Icon className="size-4.5" />
         </div>
         <div className="space-y-2">
-          <p className="display-face data-face text-5xl leading-none font-semibold text-white md:text-6xl">
+          <p className="display-face data-face text-4xl leading-none font-semibold text-white md:text-5xl">
             {value}
           </p>
-          <p className="text-muted-foreground text-sm leading-6">
+          <p className="text-muted-foreground text-[13px] leading-5.5">
             {supporting}
           </p>
         </div>
@@ -83,15 +123,128 @@ function SummaryCard({
   );
 }
 
+function TrendChart({ trend, axisMax, ticks }: TrendChartProps) {
+  const plotRef = useRef<HTMLDivElement | null>(null);
+  const [tooltip, setTooltip] = useState<TrendTooltipState | null>(null);
+
+  function showTooltip(
+    event: React.MouseEvent<HTMLDivElement> | React.FocusEvent<HTMLDivElement>,
+    date: string,
+    value: number,
+  ) {
+    const bounds = plotRef.current?.getBoundingClientRect();
+
+    if (!bounds) {
+      return;
+    }
+
+    const isMouseEvent = "clientX" in event;
+    const pointX = isMouseEvent
+      ? event.clientX - bounds.left
+      : event.currentTarget.getBoundingClientRect().left -
+        bounds.left +
+        event.currentTarget.getBoundingClientRect().width / 2;
+    const pointY = isMouseEvent
+      ? event.clientY - bounds.top
+      : event.currentTarget.getBoundingClientRect().top - bounds.top;
+
+    const tooltipWidth = 156;
+    const tooltipHeight = 56;
+    const nextX = Math.min(
+      Math.max(pointX + 14, 12),
+      bounds.width - tooltipWidth - 12,
+    );
+    const nextY = Math.max(pointY - tooltipHeight - 12, 10);
+
+    setTooltip({ date, value, x: nextX, y: nextY });
+  }
+
+  return (
+    <div className="grid grid-cols-[32px_minmax(0,1fr)] gap-3">
+      <div className="relative h-56">
+        {ticks.map((tick) => (
+          <div
+            key={tick}
+            className="text-muted-foreground absolute left-0 text-[10px] font-medium tabular-nums"
+            style={{
+              bottom: `${(tick / axisMax) * 100}%`,
+              transform: "translateY(50%)",
+            }}
+          >
+            {tick}
+          </div>
+        ))}
+      </div>
+
+      <div className="border-border/70 bg-muted/35 rounded-[18px] border px-4 py-4">
+        <div ref={plotRef} className="relative h-56">
+          {ticks.map((tick) => (
+            <div
+              key={tick}
+              className="border-border/60 pointer-events-none absolute inset-x-0 border-t"
+              style={{ bottom: `${(tick / axisMax) * 100}%` }}
+            />
+          ))}
+
+          {tooltip ? (
+            <div
+              className="pointer-events-none absolute z-10 w-max rounded-lg border border-white/10 bg-[#111111] px-2.5 py-2 text-left shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
+              style={{ left: tooltip.x, top: tooltip.y }}
+              aria-hidden="true"
+            >
+              <p className="text-[11px] font-semibold text-white">
+                {formatTrendDate(tooltip.date)}
+              </p>
+              <p className="text-muted-foreground mt-1 text-[10px] font-medium tracking-[0.14em] uppercase">
+                {formatTicketCount(tooltip.value)}
+              </p>
+            </div>
+          ) : null}
+
+          <div
+            className="relative grid h-full items-end gap-px md:gap-1"
+            style={{
+              gridTemplateColumns: `repeat(${trend.length}, minmax(0, 1fr))`,
+            }}
+            onMouseLeave={() => setTooltip(null)}
+          >
+            {trend.map((point) => (
+              <div
+                key={point.date}
+                className="group relative flex h-full min-w-0 items-end"
+                tabIndex={0}
+                onMouseMove={(event) =>
+                  showTooltip(event, point.date, point.value)
+                }
+                onFocus={(event) => showTooltip(event, point.date, point.value)}
+                onBlur={() => setTooltip(null)}
+                aria-label={`${formatTrendDate(point.date)}: ${formatTicketCount(point.value)}`}
+              >
+                <div
+                  className="from-accent/30 via-accent to-accent/75 group-hover:via-accent group-hover:to-accent group-focus-visible:via-accent group-focus-visible:to-accent w-full rounded-t-lg border border-white/8 bg-linear-to-t transition duration-200 group-hover:from-white/40 group-focus-visible:from-white/40"
+                  style={{
+                    height: `${Math.max((point.value / axisMax) * 100, 6)}%`,
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
   const maxTrendValue = Math.max(...data.trend.map((point) => point.value), 1);
+  const { axisMax, ticks } = getTrendScale(maxTrendValue);
   const windowStartLabel = data.trend[0]?.label ?? "Start";
   const windowMidLabel =
     data.trend[Math.floor((data.trend.length - 1) / 2)]?.label ?? "Mid";
   const windowEndLabel = data.trend[data.trend.length - 1]?.label ?? "Today";
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div className="flex flex-wrap items-center gap-3">
         {RANGE_OPTIONS.map((option) => (
           <Button
@@ -106,7 +259,7 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
         <Badge tone="accent">Live DB aggregates</Badge>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
           label="Tickets in window"
           value={data.summary.totals.ticketsInRange.toString()}
@@ -133,14 +286,14 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
         />
       </div>
 
-      <div className="grid gap-6 xl:grid-cols-[1.35fr_0.85fr]">
+      <div className="grid gap-5 xl:grid-cols-[1.35fr_0.85fr]">
         <Card>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-5">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-3">
                 <CardEyebrow>Ticket trend</CardEyebrow>
                 <CardTitle className="text-white">Daily intake curve</CardTitle>
-                <p className="text-muted-foreground max-w-2xl text-sm leading-7">
+                <p className="text-muted-foreground max-w-2xl text-[13px] leading-6">
                   Each column represents tickets created on a given day. The
                   view is read directly from the database for the selected
                   period.
@@ -151,26 +304,13 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
 
             {data.trend.some((point) => point.value > 0) ? (
               <>
-                <div className="border-border/70 bg-muted/35 rounded-[22px] border px-4 py-5">
-                  <div className="flex h-64 items-end gap-2">
-                    {data.trend.map((point) => (
-                      <div
-                        key={point.date}
-                        className="group flex h-full flex-1 items-end"
-                      >
-                        <div
-                          className="from-accent/30 via-accent to-accent/75 group-hover:via-accent group-hover:to-accent w-full rounded-t-xl border border-white/8 bg-linear-to-t transition duration-200 group-hover:from-white/40"
-                          style={{
-                            height: `${Math.max((point.value / maxTrendValue) * 100, 6)}%`,
-                          }}
-                          title={`${point.label}: ${point.value} tickets`}
-                        />
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <TrendChart
+                  trend={data.trend}
+                  axisMax={axisMax}
+                  ticks={ticks}
+                />
 
-                <div className="text-muted-foreground grid grid-cols-3 text-[11px] font-semibold tracking-[0.24em] uppercase">
+                <div className="text-muted-foreground grid grid-cols-3 text-[10px] font-semibold tracking-[0.2em] uppercase">
                   <span>{windowStartLabel}</span>
                   <span className="text-center">{windowMidLabel}</span>
                   <span className="text-right">{windowEndLabel}</span>
@@ -185,11 +325,11 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
         </Card>
 
         <Card>
-          <CardContent className="space-y-6">
+          <CardContent className="space-y-5">
             <div className="space-y-3">
               <CardEyebrow>Status split</CardEyebrow>
               <CardTitle className="text-white">Queue composition</CardTitle>
-              <p className="text-muted-foreground text-sm leading-7">
+              <p className="text-muted-foreground text-[13px] leading-6">
                 Distribution of created tickets in the selected window by
                 current status.
               </p>
@@ -233,14 +373,14 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
       </div>
 
       <Card>
-        <CardContent className="space-y-6">
+        <CardContent className="space-y-5">
           <div className="flex flex-wrap items-start justify-between gap-4">
             <div className="space-y-3">
               <CardEyebrow>Applications</CardEyebrow>
               <CardTitle className="text-white">
                 Tickets per application
               </CardTitle>
-              <p className="text-muted-foreground max-w-2xl text-sm leading-7">
+              <p className="text-muted-foreground max-w-2xl text-[13px] leading-6">
                 Applications are ranked by ticket volume within the current
                 window so you can spot where support load is clustering.
               </p>
@@ -255,18 +395,18 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
               {data.summary.ticketsPerApplication.map((application, index) => (
                 <div
                   key={application.applicationId}
-                  className="border-border bg-muted/35 rounded-[20px] border p-4"
+                  className="border-border bg-muted/35 rounded-[18px] border p-3.5"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="space-y-2">
-                      <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                      <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.2em] uppercase">
                         Rank {index + 1}
                       </p>
                       <div>
-                        <p className="font-semibold text-white">
+                        <p className="text-[13px] font-semibold text-white">
                           {application.name}
                         </p>
-                        <p className="text-muted-foreground mt-1 text-sm">
+                        <p className="text-muted-foreground mt-1 text-[13px]">
                           /{application.slug}
                         </p>
                       </div>
@@ -274,10 +414,10 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
 
                     <div className="flex items-center gap-3">
                       <div className="text-right">
-                        <p className="data-face text-2xl font-semibold text-white">
+                        <p className="data-face text-xl font-semibold text-white">
                           {application.ticketCount}
                         </p>
-                        <p className="text-muted-foreground text-xs tracking-[0.18em] uppercase">
+                        <p className="text-muted-foreground text-[10px] tracking-[0.16em] uppercase">
                           {application.share}% of window
                         </p>
                       </div>

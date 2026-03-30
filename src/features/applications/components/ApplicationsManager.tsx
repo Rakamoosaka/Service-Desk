@@ -221,7 +221,7 @@ export function ApplicationsManager({
   const applications = applicationsQuery.data;
 
   return (
-    <div className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
+    <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
       <Card>
         <CardHeader>
           <CardEyebrow>Catalog</CardEyebrow>
@@ -231,13 +231,13 @@ export function ApplicationsManager({
             monitors are synced into services automatically.
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3.5">
           {applications.length === 0 ? (
-            <div className="border-border bg-muted/50 rounded-[18px] border border-dashed p-6">
-              <p className="text-sm font-medium text-white">
+            <div className="border-border bg-muted/50 rounded-2xl border border-dashed p-5">
+              <p className="text-[13px] font-medium text-white">
                 No applications configured yet.
               </p>
-              <p className="text-muted-foreground mt-2 text-sm leading-7">
+              <p className="text-muted-foreground mt-2 text-[13px] leading-6">
                 Create an application with a valid Uptime Kuma identifier to
                 sync its services immediately.
               </p>
@@ -247,15 +247,15 @@ export function ApplicationsManager({
           {applications.map((application) => (
             <div
               key={application.id}
-              className="border-border bg-muted/50 rounded-[18px] border p-5"
+              className="border-border bg-muted/50 rounded-2xl border p-4"
             >
               <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
                 <div className="space-y-2">
                   <div>
-                    <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
+                    <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                       /{application.slug}
                     </p>
-                    <h3 className="display-face mt-2 text-2xl font-semibold tracking-[-0.03em] text-white">
+                    <h3 className="display-face mt-1.5 text-xl font-semibold tracking-[-0.03em] text-white">
                       {application.name}
                     </h3>
                   </div>
@@ -287,35 +287,35 @@ export function ApplicationsManager({
                       </Badge>
                     ) : null}
                   </div>
-                  <p className="text-muted-foreground max-w-xl text-sm leading-7">
+                  <p className="text-muted-foreground max-w-xl text-[13px] leading-6">
                     {application.description}
                   </p>
-                  <div className="space-y-3 pt-2">
+                  <div className="space-y-2.5 pt-1.5">
                     <div className="flex items-center justify-between gap-3">
-                      <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
+                      <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                         Synced services
                       </p>
-                      <p className="text-muted-foreground text-xs">
+                      <p className="text-muted-foreground text-[11px]">
                         Missing Kuma monitors are preserved as inactive records.
                       </p>
                     </div>
 
                     {application.services.length === 0 ? (
-                      <div className="border-border text-muted-foreground rounded-2xl border border-dashed px-4 py-3 text-sm">
+                      <div className="border-border text-muted-foreground rounded-2xl border border-dashed px-3.5 py-3 text-[13px]">
                         No monitors were discovered for this identifier.
                       </div>
                     ) : (
-                      <div className="space-y-2">
+                      <div className="space-y-1.5">
                         {application.services.map((service) => (
                           <div
                             key={service.id}
-                            className="border-border/70 bg-background/35 flex flex-col gap-3 rounded-2xl border px-4 py-3 md:flex-row md:items-start md:justify-between"
+                            className="border-border/70 bg-background/35 flex flex-col gap-2.5 rounded-2xl border px-3.5 py-3 md:flex-row md:items-start md:justify-between"
                           >
                             <div
                               className={service.isActive ? "" : "opacity-60"}
                             >
                               <div className="flex flex-wrap items-center gap-2">
-                                <p className="font-semibold text-white">
+                                <p className="text-[13px] font-semibold text-white">
                                   {service.name}
                                 </p>
                                 <Badge
@@ -332,10 +332,10 @@ export function ApplicationsManager({
                                   </Badge>
                                 ) : null}
                               </div>
-                              <p className="text-muted-foreground mt-2 text-sm leading-6">
+                              <p className="text-muted-foreground mt-1.5 text-[13px] leading-5.5">
                                 {service.description}
                               </p>
-                              <p className="text-muted-foreground mt-2 text-xs">
+                              <p className="text-muted-foreground mt-1.5 text-[11px]">
                                 /{service.slug} ·{" "}
                                 {formatTimestamp(service.lastSyncedAt)}
                               </p>
@@ -380,7 +380,7 @@ export function ApplicationsManager({
         </CardContent>
       </Card>
 
-      <div className="space-y-6">
+      <div className="space-y-5">
         <Card>
           <CardHeader>
             <CardEyebrow>{editingApplication ? "Edit" : "Create"}</CardEyebrow>
@@ -394,7 +394,7 @@ export function ApplicationsManager({
           </CardHeader>
           <CardContent>
             <form
-              className="space-y-5"
+              className="space-y-4"
               onSubmit={applicationForm.handleSubmit((values) =>
                 saveMutation.mutate(values),
               )}
@@ -417,7 +417,7 @@ export function ApplicationsManager({
                     }
                   }}
                 />
-                <p className="text-destructive text-sm">
+                <p className="text-destructive text-[13px]">
                   {applicationForm.formState.errors.name?.message}
                 </p>
               </div>
@@ -425,7 +425,7 @@ export function ApplicationsManager({
               <div className="space-y-2">
                 <Label htmlFor="slug">Slug</Label>
                 <Input id="slug" {...applicationForm.register("slug")} />
-                <p className="text-destructive text-sm">
+                <p className="text-destructive text-[13px]">
                   {applicationForm.formState.errors.slug?.message}
                 </p>
               </div>
@@ -437,11 +437,11 @@ export function ApplicationsManager({
                   placeholder="example-status-page"
                   {...applicationForm.register("uptimeKumaIdentifier")}
                 />
-                <p className="text-muted-foreground text-sm leading-6">
+                <p className="text-muted-foreground text-[13px] leading-5.5">
                   Use the public status page slug that appears after /status/ in
                   Uptime Kuma.
                 </p>
-                <p className="text-destructive text-sm">
+                <p className="text-destructive text-[13px]">
                   {
                     applicationForm.formState.errors.uptimeKumaIdentifier
                       ?.message
@@ -455,7 +455,7 @@ export function ApplicationsManager({
                   id="description"
                   {...applicationForm.register("description")}
                 />
-                <p className="text-destructive text-sm">
+                <p className="text-destructive text-[13px]">
                   {applicationForm.formState.errors.description?.message}
                 </p>
               </div>
@@ -501,7 +501,7 @@ export function ApplicationsManager({
           <CardContent>
             {editingService ? (
               <form
-                className="space-y-5"
+                className="space-y-4"
                 onSubmit={serviceForm.handleSubmit((values) =>
                   saveServiceMutation.mutate({
                     id: editingService.service.id,
@@ -509,11 +509,11 @@ export function ApplicationsManager({
                   }),
                 )}
               >
-                <div className="border-border bg-muted/40 rounded-2xl border px-4 py-3">
-                  <p className="text-sm font-semibold text-white">
+                <div className="border-border bg-muted/40 rounded-2xl border px-3.5 py-3">
+                  <p className="text-[13px] font-semibold text-white">
                     {editingService.applicationName}
                   </p>
-                  <p className="text-muted-foreground mt-1 text-sm">
+                  <p className="text-muted-foreground mt-1 text-[13px]">
                     /{editingService.applicationSlug} · Kuma monitor{" "}
                     {editingService.service.kumaMonitorName ?? "unknown"}
                   </p>
@@ -522,7 +522,7 @@ export function ApplicationsManager({
                 <div className="space-y-2">
                   <Label htmlFor="service-name">Display name</Label>
                   <Input id="service-name" {...serviceForm.register("name")} />
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive text-[13px]">
                     {serviceForm.formState.errors.name?.message}
                   </p>
                 </div>
@@ -533,7 +533,7 @@ export function ApplicationsManager({
                     id="service-description"
                     {...serviceForm.register("description")}
                   />
-                  <p className="text-destructive text-sm">
+                  <p className="text-destructive text-[13px]">
                     {serviceForm.formState.errors.description?.message}
                   </p>
                 </div>
@@ -560,11 +560,11 @@ export function ApplicationsManager({
                 </div>
               </form>
             ) : (
-              <div className="border-border rounded-[18px] border border-dashed px-5 py-6">
-                <p className="text-sm font-medium text-white">
+              <div className="border-border rounded-2xl border border-dashed px-4 py-5">
+                <p className="text-[13px] font-medium text-white">
                   No service selected.
                 </p>
-                <p className="text-muted-foreground mt-2 text-sm leading-7">
+                <p className="text-muted-foreground mt-2 text-[13px] leading-6">
                   Choose the Edit label action on any synced service to override
                   its local name or description.
                 </p>
