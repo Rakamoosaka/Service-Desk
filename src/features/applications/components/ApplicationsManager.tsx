@@ -16,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Textarea } from "@/components/ui/Textarea";
@@ -65,6 +66,16 @@ function formatTimestamp(value: string | Date | null) {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(value instanceof Date ? value : new Date(value));
+}
+
+function getServiceSummary(services: ServiceRecord[]) {
+  const activeCount = services.filter((service) => service.isActive).length;
+
+  return {
+    totalCount: services.length,
+    activeCount,
+    inactiveCount: services.length - activeCount,
+  };
 }
 
 export function ApplicationsManager({
@@ -219,19 +230,59 @@ export function ApplicationsManager({
   }
 
   const applications = applicationsQuery.data;
+  const totalServices = applications.reduce(
+    (count, application) => count + application.services.length,
+    0,
+  );
+  const totalInactiveServices = applications.reduce(
+    (count, application) =>
+      count +
+      application.services.filter((service) => !service.isActive).length,
+    0,
+  );
 
   return (
     <div className="grid gap-5 xl:grid-cols-[1.1fr_0.9fr]">
       <Card>
         <CardHeader>
           <CardEyebrow>Catalog</CardEyebrow>
-          <CardTitle>Application catalog</CardTitle>
-          <CardDescription>
-            Each application maps to one public Uptime Kuma status page. Its
-            monitors are synced into services automatically.
-          </CardDescription>
+          <div className="flex items-center gap-2">
+            <CardTitle>Application catalog</CardTitle>
+            <InfoTooltip
+              content="Each application maps to one public Uptime Kuma status page. Its monitors are synced into services automatically."
+              label="About the application catalog"
+            />
+          </div>
+          {applications.length > 0 ? (
+            <div className="grid gap-2 pt-3 sm:grid-cols-3">
+              <div className="border-border bg-muted/35 rounded-2xl border px-4 py-3">
+                <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
+                  Applications
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-white">
+                  {applications.length}
+                </p>
+              </div>
+              <div className="border-border bg-muted/35 rounded-2xl border px-4 py-3">
+                <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
+                  Synced services
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-white">
+                  {totalServices}
+                </p>
+              </div>
+              <div className="border-border bg-muted/35 rounded-2xl border px-4 py-3">
+                <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
+                  Needs attention
+                </p>
+                <p className="mt-2 text-2xl font-semibold text-white">
+                  {totalInactiveServices}
+                </p>
+              </div>
+            </div>
+          ) : null}
         </CardHeader>
-        <CardContent className="space-y-3.5">
+        <CardContent className="space-y-4">
           {applications.length === 0 ? (
             <div className="border-border bg-muted/50 rounded-2xl border border-dashed p-5">
               <p className="text-[13px] font-medium text-white">
@@ -244,75 +295,127 @@ export function ApplicationsManager({
             </div>
           ) : null}
 
-          {applications.map((application) => (
-            <div
-              key={application.id}
-              className="border-border bg-muted/50 rounded-2xl border p-4"
-            >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
-                      /{application.slug}
-                    </p>
-                    <h3 className="display-face mt-1.5 text-xl font-semibold tracking-[-0.03em] text-white">
-                      {application.name}
-                    </h3>
+          {applications.map((application) => {
+            const serviceSummary = getServiceSummary(application.services);
+
+            return (
+              <div
+                key={application.id}
+                className="border-border rounded-3xl border"
+              >
+                <div className="space-y-4 p-5">
+                  <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+                    <div className="min-w-0 flex-1 space-y-2">
+                      <div className="flex items-start gap-2">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
+                            /{application.slug}
+                          </p>
+                          <h3 className="display-face mt-1.5 text-xl font-semibold tracking-[-0.03em] text-white">
+                            {application.name}
+                          </h3>
+                        </div>
+                        {application.description ? (
+                          <InfoTooltip
+                            content={application.description}
+                            label={`About ${application.name}`}
+                            align="right"
+                            className="mt-0.5 shrink-0"
+                          />
+                        ) : null}
+                      </div>
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone="info">
+                          Kuma: {application.uptimeKumaIdentifier}
+                        </Badge>
+                        <Badge
+                          tone={
+                            serviceSummary.inactiveCount > 0
+                              ? "warning"
+                              : "success"
+                          }
+                        >
+                          {serviceSummary.activeCount}/
+                          {serviceSummary.totalCount} active
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-2 xl:shrink-0">
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => editApplication(application)}
+                      >
+                        <Pencil className="size-4" />
+                        Edit & sync
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-destructive hover:bg-destructive/10 hover:text-destructive"
+                        onClick={() => deleteMutation.mutate(application.id)}
+                      >
+                        <Trash2 className="size-4" />
+                        Delete
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="info">
-                      {application.uptimeKumaIdentifier}
-                    </Badge>
-                    <Badge tone="neutral">
-                      Synced {formatTimestamp(application.lastSyncedAt)}
-                    </Badge>
-                    <Badge tone="success">
-                      {
-                        application.services.filter(
-                          (service) => service.isActive,
-                        ).length
-                      }{" "}
-                      active
-                    </Badge>
-                    {application.services.some(
-                      (service) => !service.isActive,
-                    ) ? (
-                      <Badge tone="warning">
-                        {
-                          application.services.filter(
-                            (service) => !service.isActive,
-                          ).length
-                        }{" "}
-                        inactive
-                      </Badge>
-                    ) : null}
-                  </div>
-                  <p className="text-muted-foreground max-w-xl text-[13px] leading-6">
-                    {application.description}
-                  </p>
-                  <div className="space-y-2.5 pt-1.5">
-                    <div className="flex items-center justify-between gap-3">
+
+                  <div className="grid gap-2 text-sm md:grid-cols-2">
+                    <div className="bg-muted/30 rounded-2xl px-3.5 py-3">
                       <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
-                        Synced services
+                        Last sync
                       </p>
-                      <p className="text-muted-foreground text-[11px]">
-                        Missing Kuma monitors are preserved as inactive records.
+                      <p className="mt-1.5 text-[13px] font-medium text-white">
+                        {formatTimestamp(application.lastSyncedAt)}
+                      </p>
+                    </div>
+                    <div className="bg-muted/30 rounded-2xl px-3.5 py-3">
+                      <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
+                        Coverage
+                      </p>
+                      <p className="mt-1.5 text-[13px] font-medium text-white">
+                        {serviceSummary.totalCount} services
+                        {serviceSummary.inactiveCount > 0
+                          ? `, ${serviceSummary.inactiveCount} inactive`
+                          : ", all live"}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="border-border bg-muted/25 rounded-2xl border">
+                    <div className="flex flex-col gap-1 border-b border-white/6 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                      <div className="flex items-center gap-2">
+                        <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
+                          Synced services
+                        </p>
+                        <InfoTooltip
+                          content="Missing Kuma monitors stay in the list as inactive records."
+                          label={`About synced services for ${application.name}`}
+                        />
+                      </div>
+                      <p className="text-muted-foreground text-[12px]">
+                        {serviceSummary.totalCount} total
                       </p>
                     </div>
 
                     {application.services.length === 0 ? (
-                      <div className="border-border text-muted-foreground rounded-2xl border border-dashed px-3.5 py-3 text-[13px]">
+                      <div className="text-muted-foreground px-4 py-4 text-[13px]">
                         No monitors were discovered for this identifier.
                       </div>
                     ) : (
-                      <div className="space-y-1.5">
+                      <div className="divide-y divide-white/6">
                         {application.services.map((service) => (
                           <div
                             key={service.id}
-                            className="border-border/70 bg-background/35 flex flex-col gap-2.5 rounded-2xl border px-3.5 py-3 md:flex-row md:items-start md:justify-between"
+                            className="flex flex-col gap-3 px-4 py-3 md:flex-row md:items-start md:justify-between"
                           >
                             <div
-                              className={service.isActive ? "" : "opacity-60"}
+                              className={
+                                service.isActive
+                                  ? "min-w-0 flex-1"
+                                  : "min-w-0 flex-1 opacity-65"
+                              }
                             >
                               <div className="flex flex-wrap items-center gap-2">
                                 <p className="text-[13px] font-semibold text-white">
@@ -325,25 +428,26 @@ export function ApplicationsManager({
                                 >
                                   {service.isActive ? "active" : "inactive"}
                                 </Badge>
-                                {service.kumaMonitorName &&
-                                service.kumaMonitorName !== service.name ? (
-                                  <Badge tone="neutral">
-                                    Kuma: {service.kumaMonitorName}
-                                  </Badge>
-                                ) : null}
                               </div>
-                              <p className="text-muted-foreground mt-1.5 text-[13px] leading-5.5">
-                                {service.description}
-                              </p>
-                              <p className="text-muted-foreground mt-1.5 text-[11px]">
-                                /{service.slug} ·{" "}
+                              <p className="text-muted-foreground mt-1 text-[12px] leading-5.5">
+                                /{service.slug} · Synced{" "}
                                 {formatTimestamp(service.lastSyncedAt)}
+                                {service.kumaMonitorName &&
+                                service.kumaMonitorName !== service.name
+                                  ? ` · Kuma ${service.kumaMonitorName}`
+                                  : ""}
                               </p>
+                              {service.description ? (
+                                <p className="text-muted-foreground mt-1.5 text-[13px] leading-5.5">
+                                  {service.description}
+                                </p>
+                              ) : null}
                             </div>
 
                             <Button
                               variant="secondary"
                               size="sm"
+                              className="shrink-0"
                               onClick={() => editService(application, service)}
                             >
                               <Pencil className="size-4" />
@@ -355,28 +459,9 @@ export function ApplicationsManager({
                     )}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <Button
-                    variant="secondary"
-                    size="sm"
-                    onClick={() => editApplication(application)}
-                  >
-                    <Pencil className="size-4" />
-                    Edit & sync
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-destructive hover:bg-destructive/10 hover:text-destructive"
-                    onClick={() => deleteMutation.mutate(application.id)}
-                  >
-                    <Trash2 className="size-4" />
-                    Delete
-                  </Button>
-                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </CardContent>
       </Card>
 

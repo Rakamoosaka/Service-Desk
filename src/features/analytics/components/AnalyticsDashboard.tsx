@@ -256,7 +256,6 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
             <Link href={`/admin?range=${option.value}`}>{option.label}</Link>
           </Button>
         ))}
-        <Badge tone="accent">Live DB aggregates</Badge>
       </div>
 
       <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-4">
