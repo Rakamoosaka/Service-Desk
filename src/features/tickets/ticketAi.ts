@@ -26,7 +26,14 @@ export const ticketAiTriageSchema = z.object({
 export const storedTicketAiTriageSchema = ticketAiTriageSchema.partial();
 
 export const ticketAiReviewSchema = z.object({
-  action: z.enum(["accept", "dismiss"]),
+  action: z.enum([
+    "accept",
+    "dismiss",
+    "accept_type",
+    "dismiss_type",
+    "clear_duplicate",
+    "clear_all_duplicates",
+  ]),
 });
 
 export type TicketAiSuggestionStatus = z.infer<

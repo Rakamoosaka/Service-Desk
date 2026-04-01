@@ -12,6 +12,41 @@ import type {
 
 type TicketStatus = "new" | "in_review" | "resolved" | "closed";
 type TicketPriority = "low" | "medium" | "high" | "critical" | "unknown";
+type TicketAiReviewAction =
+  | "accept"
+  | "dismiss"
+  | "accept_type"
+  | "dismiss_type"
+  | "clear_duplicate"
+  | "clear_all_duplicates";
+
+function removeLaneRecommendation(aiTriage: StoredTicketAiTriage) {
+  const { recommendedType, recommendedTypeConfidence, typeReason, ...rest } =
+    aiTriage;
+
+  return rest;
+}
+
+function resolveTicketAiSuggestionStatus(
+  recommendedType: StoredTicketAiTriage["recommendedType"],
+  nextType: string,
+  nextDuplicateTicketId: string | null,
+): TicketAiSuggestionStatus {
+  const hasPendingTypeSuggestion = Boolean(
+    recommendedType && recommendedType !== nextType,
+  );
+  const hasPendingDuplicateSuggestion = Boolean(nextDuplicateTicketId);
+
+  if (hasPendingTypeSuggestion || hasPendingDuplicateSuggestion) {
+    return "pending_review";
+  }
+
+  if (recommendedType && nextType === recommendedType) {
+    return "accepted";
+  }
+
+  return "dismissed";
+}
 
 async function attachDuplicateCandidates<
   TTicket extends {
@@ -313,7 +348,7 @@ export async function setTicketAnalysisState(
 
 export async function reviewTicketAiSuggestions(
   id: string,
-  action: "accept" | "dismiss",
+  action: TicketAiReviewAction,
 ) {
   const ticket = await getTicketById(id);
 
@@ -323,14 +358,48 @@ export async function reviewTicketAiSuggestions(
 
   const recommendedType = ticket.aiTriage?.recommendedType;
 
+  if (action === "accept" || action === "dismiss") {
+    const [updatedTicket] = await db
+      .update(tickets)
+      .set({
+        type:
+          action === "accept" && recommendedType
+            ? recommendedType
+            : ticket.type,
+        suspectedDuplicateTicketId:
+          action === "dismiss" ? null : ticket.suspectedDuplicateTicketId,
+        aiSuggestionStatus: action === "accept" ? "accepted" : "dismissed",
+        updatedAt: new Date(),
+      })
+      .where(eq(tickets.id, id))
+      .returning();
+
+    return updatedTicket ?? null;
+  }
+
+  const nextType =
+    action === "accept_type" && recommendedType ? recommendedType : ticket.type;
+  const nextDuplicateTicketId =
+    action === "clear_duplicate" || action === "clear_all_duplicates"
+      ? null
+      : ticket.suspectedDuplicateTicketId;
+  const nextAiTriage =
+    action === "dismiss_type"
+      ? removeLaneRecommendation(ticket.aiTriage)
+      : ticket.aiTriage;
+  const nextSuggestionStatus = resolveTicketAiSuggestionStatus(
+    nextAiTriage.recommendedType,
+    nextType,
+    nextDuplicateTicketId,
+  );
+
   const [updatedTicket] = await db
     .update(tickets)
     .set({
-      type:
-        action === "accept" && recommendedType ? recommendedType : ticket.type,
-      suspectedDuplicateTicketId:
-        action === "dismiss" ? null : ticket.suspectedDuplicateTicketId,
-      aiSuggestionStatus: action === "accept" ? "accepted" : "dismissed",
+      type: nextType,
+      aiTriage: nextAiTriage,
+      suspectedDuplicateTicketId: nextDuplicateTicketId,
+      aiSuggestionStatus: nextSuggestionStatus,
       updatedAt: new Date(),
     })
     .where(eq(tickets.id, id))
