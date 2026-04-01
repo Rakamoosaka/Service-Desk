@@ -6,6 +6,7 @@ import type {
   TicketAiSuggestionStatus,
 } from "@/features/tickets/ticketAi";
 import type {
+  BulkTicketUpdateInput,
   TicketFilters,
   TicketInput,
 } from "@/features/tickets/schemas/ticketSchemas";
@@ -21,8 +22,11 @@ type TicketAiReviewAction =
   | "clear_all_duplicates";
 
 function removeLaneRecommendation(aiTriage: StoredTicketAiTriage) {
-  const { recommendedType, recommendedTypeConfidence, typeReason, ...rest } =
-    aiTriage;
+  const rest = { ...aiTriage };
+
+  delete rest.recommendedType;
+  delete rest.recommendedTypeConfidence;
+  delete rest.typeReason;
 
   return rest;
 }
@@ -520,6 +524,42 @@ export async function updateTicketStatus(id: string, status: TicketStatus) {
     .returning();
 
   return ticket ?? null;
+}
+
+export async function updateTicketPriority(
+  id: string,
+  priority: TicketPriority,
+) {
+  const [ticket] = await db
+    .update(tickets)
+    .set({
+      priority,
+      updatedAt: new Date(),
+    })
+    .where(eq(tickets.id, id))
+    .returning();
+
+  return ticket ?? null;
+}
+
+export async function bulkUpdateTickets(input: BulkTicketUpdateInput) {
+  const [field, value] = input.status
+    ? (["status", input.status] as const)
+    : (["priority", input.priority] as const);
+
+  return db
+    .update(tickets)
+    .set({
+      [field]: value,
+      updatedAt: new Date(),
+    })
+    .where(inArray(tickets.id, input.ids))
+    .returning({
+      id: tickets.id,
+      appId: tickets.appId,
+      status: tickets.status,
+      priority: tickets.priority,
+    });
 }
 
 export async function getDashboardMetrics() {

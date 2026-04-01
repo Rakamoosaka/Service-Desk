@@ -4,11 +4,14 @@ import { useDeferredValue, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Download, Search } from "lucide-react";
 import { toast } from "sonner";
-import type { TicketFilters } from "@/features/tickets/schemas/ticketSchemas";
+import type {
+  BulkTicketUpdateInput,
+  TicketFilters,
+} from "@/features/tickets/schemas/ticketSchemas";
 import type { StoredTicketAiTriage } from "@/features/tickets/ticketAi";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -66,6 +69,27 @@ interface AdminTicketsBoardProps {
   }>;
 }
 
+const ticketStatusOptions: Array<{
+  value: TicketRecord["status"];
+  label: string;
+}> = [
+  { value: "new", label: "New" },
+  { value: "in_review", label: "In review" },
+  { value: "resolved", label: "Resolved" },
+  { value: "closed", label: "Closed" },
+];
+
+const ticketPriorityOptions: Array<{
+  value: TicketRecord["priority"];
+  label: string;
+}> = [
+  { value: "low", label: "Low" },
+  { value: "medium", label: "Medium" },
+  { value: "high", label: "High" },
+  { value: "critical", label: "Critical" },
+  { value: "unknown", label: "Unknown" },
+];
+
 function statusSelectClassName(status: TicketRecord["status"]) {
   switch (status) {
     case "new":
@@ -74,6 +98,21 @@ function statusSelectClassName(status: TicketRecord["status"]) {
       return "border-warning/40 bg-warning/10 text-warning";
     case "resolved":
       return "border-accent/40 bg-accent/10 text-accent";
+    default:
+      return "border-border bg-input text-muted-foreground";
+  }
+}
+
+function prioritySelectClassName(priority: TicketRecord["priority"]) {
+  switch (priority) {
+    case "critical":
+      return "border-[#ff2244]/30 bg-[#2a1118] text-[#ffb8c3]";
+    case "high":
+      return "border-[#ff8a3d]/30 bg-[#2b1b10] text-[#ffc296]";
+    case "medium":
+      return "border-white/12 bg-white/[0.03] text-[#d5dde1]";
+    case "low":
+      return "border-[#6fd9c4]/25 bg-[#0f201d] text-[#9fe9db]";
     default:
       return "border-border bg-input text-muted-foreground";
   }
@@ -138,13 +177,48 @@ function sentenceCase(value: string) {
   return value.replace(/_/g, " ");
 }
 
+function typeTagClassName(type: TicketRecord["type"]) {
+  switch (type) {
+    case "bug":
+      return "border-[#ff2244]/20 bg-[#ff2244]/10 text-[#ff9aaa]";
+    case "suggestion":
+      return "border-[#43b5ff]/22 bg-[#102638] text-[#8fd8ff]";
+    default:
+      return "border-[#4fcf8d]/22 bg-[#11261b] text-[#9ce8c1]";
+  }
+}
+
+function typeTagDotClassName(type: TicketRecord["type"]) {
+  switch (type) {
+    case "bug":
+      return "bg-[#ff5a72]";
+    case "suggestion":
+      return "bg-[#61c5ff]";
+    default:
+      return "bg-[#61d89d]";
+  }
+}
+
+function formatTypeLabel(type: TicketRecord["type"]) {
+  return type.charAt(0).toUpperCase() + type.slice(1);
+}
+
+function formatBulkUpdateToastLabel(value: string) {
+  return sentenceCase(value);
+}
+
 export function AdminTicketsBoard({
   initialTickets,
   applications,
 }: AdminTicketsBoardProps) {
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<TicketFilters>({});
+  const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [bulkStatus, setBulkStatus] = useState<"" | TicketRecord["status"]>("");
+  const [bulkPriority, setBulkPriority] = useState<
+    "" | TicketRecord["priority"]
+  >("");
   const deferredSearch = useDeferredValue(filters.search);
   const activeFilters = { ...filters, search: deferredSearch };
   const exportParams = buildTicketSearchParams(activeFilters).toString();
@@ -169,6 +243,31 @@ export function AdminTicketsBoard({
   });
   const selectedTicket =
     ticketsQuery.data?.find((ticket) => ticket.id === selectedTicketId) ?? null;
+  const visibleTicketIds = ticketsQuery.data?.map((ticket) => ticket.id) ?? [];
+  const visibleTicketIdSet = new Set(visibleTicketIds);
+  const selectedVisibleTicketIds = selectedTicketIds.filter((ticketId) =>
+    visibleTicketIdSet.has(ticketId),
+  );
+  const selectedTicketIdSet = new Set(selectedVisibleTicketIds);
+  const selectedCount = selectedVisibleTicketIds.length;
+  const hasVisibleTickets = visibleTicketIds.length > 0;
+  const allVisibleSelected =
+    hasVisibleTickets &&
+    visibleTicketIds.every((ticketId) => selectedTicketIdSet.has(ticketId));
+
+  function toggleTicketSelection(ticketId: string, checked: boolean) {
+    setSelectedTicketIds((current) => {
+      if (checked) {
+        return current.includes(ticketId) ? current : [...current, ticketId];
+      }
+
+      return current.filter((value) => value !== ticketId);
+    });
+  }
+
+  function toggleAllVisibleTickets(checked: boolean) {
+    setSelectedTicketIds(checked ? visibleTicketIds : []);
+  }
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: Pick<TicketRecord, "id" | "status">) =>
@@ -254,6 +353,122 @@ export function AdminTicketsBoard({
     },
   });
 
+  const updatePriorityMutation = useMutation({
+    mutationFn: async ({
+      id,
+      priority,
+    }: Pick<TicketRecord, "id" | "priority">) =>
+      fetchJson(`/api/tickets/${id}/priority`, {
+        method: "PATCH",
+        body: JSON.stringify({ priority }),
+      }),
+    onMutate: async ({ id, priority }) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.tickets(activeFilters),
+      });
+      const previous = queryClient.getQueryData<TicketRecord[]>(
+        queryKeys.tickets(activeFilters),
+      );
+
+      queryClient.setQueryData<TicketRecord[]>(
+        queryKeys.tickets(activeFilters),
+        (current) =>
+          current?.map((ticket) =>
+            ticket.id === id ? { ...ticket, priority } : ticket,
+          ) ?? [],
+      );
+
+      return { previous };
+    },
+    onError: (error, _, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          queryKeys.tickets(activeFilters),
+          context.previous,
+        );
+      }
+
+      toast.error(error.message);
+    },
+    onSuccess: () => {
+      toast.success("Ticket priority updated");
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.tickets(activeFilters),
+      });
+    },
+  });
+
+  const bulkUpdateMutation = useMutation({
+    mutationFn: async (payload: BulkTicketUpdateInput) =>
+      fetchJson<{ updatedCount: number }>("/api/tickets/bulk", {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      }),
+    onMutate: async (payload) => {
+      await queryClient.cancelQueries({
+        queryKey: queryKeys.tickets(activeFilters),
+      });
+      const previous = queryClient.getQueryData<TicketRecord[]>(
+        queryKeys.tickets(activeFilters),
+      );
+
+      queryClient.setQueryData<TicketRecord[]>(
+        queryKeys.tickets(activeFilters),
+        (current) =>
+          current?.map((ticket) => {
+            if (!payload.ids.includes(ticket.id)) {
+              return ticket;
+            }
+
+            return {
+              ...ticket,
+              ...(payload.status ? { status: payload.status } : null),
+              ...(payload.priority ? { priority: payload.priority } : null),
+            };
+          }) ?? [],
+      );
+
+      return { previous };
+    },
+    onError: (error, _, context) => {
+      if (context?.previous) {
+        queryClient.setQueryData(
+          queryKeys.tickets(activeFilters),
+          context.previous,
+        );
+      }
+
+      toast.error(error.message);
+    },
+    onSuccess: (response, variables) => {
+      setSelectedTicketIds([]);
+
+      if (variables.status) {
+        setBulkStatus("");
+        toast.success(
+          `${response.updatedCount} ticket${response.updatedCount === 1 ? "" : "s"} moved to ${formatBulkUpdateToastLabel(variables.status)}`,
+        );
+        return;
+      }
+
+      setBulkPriority("");
+      toast.success(
+        `${response.updatedCount} ticket${response.updatedCount === 1 ? "" : "s"} set to ${formatBulkUpdateToastLabel(variables.priority ?? "unknown")} priority`,
+      );
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["tickets"],
+      });
+    },
+  });
+
+  const isMutatingBulkTickets = bulkUpdateMutation.isPending;
+  const isMutatingSingleTicket =
+    updateStatusMutation.isPending || updatePriorityMutation.isPending;
+
   return (
     <>
       <Card>
@@ -334,6 +549,114 @@ export function AdminTicketsBoard({
                 </a>
               </Button>
             </div>
+
+            <div
+              className={cn(
+                "overflow-hidden transition-all duration-200 ease-out",
+                selectedCount
+                  ? "max-h-48 opacity-100"
+                  : "pointer-events-none max-h-0 opacity-0",
+              )}
+              aria-hidden={!selectedCount}
+            >
+              <div className="border-border bg-muted/30 flex flex-col gap-3 rounded-[18px] border px-4 py-4 lg:flex-row lg:items-center lg:justify-between">
+                <div className="flex flex-wrap items-center gap-2.5">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
+                    Bulk actions
+                  </p>
+                  <Badge tone="accent">{selectedCount} selected</Badge>
+                </div>
+
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center">
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Select
+                      className="min-w-40"
+                      value={bulkStatus}
+                      disabled={!selectedCount || isMutatingBulkTickets}
+                      onChange={(event) =>
+                        setBulkStatus(
+                          event.target.value as TicketRecord["status"] | "",
+                        )
+                      }
+                    >
+                      <option value="">Change status</option>
+                      {ticketStatusOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={
+                        !selectedCount || !bulkStatus || isMutatingBulkTickets
+                      }
+                      onClick={() => {
+                        if (!bulkStatus) {
+                          return;
+                        }
+
+                        bulkUpdateMutation.mutate({
+                          ids: selectedVisibleTicketIds,
+                          status: bulkStatus,
+                        });
+                      }}
+                    >
+                      Apply status
+                    </Button>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row">
+                    <Select
+                      className="min-w-40"
+                      value={bulkPriority}
+                      disabled={!selectedCount || isMutatingBulkTickets}
+                      onChange={(event) =>
+                        setBulkPriority(
+                          event.target.value as TicketRecord["priority"] | "",
+                        )
+                      }
+                    >
+                      <option value="">Change priority</option>
+                      {ticketPriorityOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      disabled={
+                        !selectedCount || !bulkPriority || isMutatingBulkTickets
+                      }
+                      onClick={() => {
+                        if (!bulkPriority) {
+                          return;
+                        }
+
+                        bulkUpdateMutation.mutate({
+                          ids: selectedVisibleTicketIds,
+                          priority: bulkPriority,
+                        });
+                      }}
+                    >
+                      Apply priority
+                    </Button>
+                  </div>
+
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    disabled={!selectedCount}
+                    onClick={() => setSelectedTicketIds([])}
+                  >
+                    Clear selection
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="border-border overflow-x-auto overflow-y-hidden rounded-[18px] border">
@@ -341,6 +664,18 @@ export function AdminTicketsBoard({
               <table className="divide-border w-full min-w-245 divide-y text-left text-[13px]">
                 <thead className="bg-muted/70 text-muted-foreground">
                   <tr>
+                    <th className="w-12 px-3.5 py-2.5">
+                      <input
+                        type="checkbox"
+                        className="border-border bg-input text-accent h-4 w-4 rounded border align-middle"
+                        aria-label="Select all visible tickets"
+                        checked={allVisibleSelected}
+                        disabled={!hasVisibleTickets}
+                        onChange={(event) =>
+                          toggleAllVisibleTickets(event.target.checked)
+                        }
+                      />
+                    </th>
                     <th className="px-3.5 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
                       Ticket
                     </th>
@@ -373,6 +708,21 @@ export function AdminTicketsBoard({
                       onClick={() => setSelectedTicketId(ticket.id)}
                     >
                       <td className="px-3.5 py-3.5 align-top">
+                        <input
+                          type="checkbox"
+                          className="border-border bg-input text-accent h-4 w-4 rounded border align-middle"
+                          aria-label={`Select ticket ${ticket.title}`}
+                          checked={selectedTicketIdSet.has(ticket.id)}
+                          onClick={(event) => event.stopPropagation()}
+                          onChange={(event) =>
+                            toggleTicketSelection(
+                              ticket.id,
+                              event.target.checked,
+                            )
+                          }
+                        />
+                      </td>
+                      <td className="px-3.5 py-3.5 align-top">
                         <div className="relative inline-flex max-w-[19ch] min-w-0 items-start sm:max-w-[24ch] lg:max-w-[29ch]">
                           {ticket.suspectedDuplicateTicketId ? (
                             <TicketDuplicateIndicator className="absolute -top-2.5 -left-2.5" />
@@ -392,10 +742,36 @@ export function AdminTicketsBoard({
                         </p>
                       </td>
                       <td className="px-3.5 py-3.5 align-top">
-                        <Badge tone="accent">{ticket.type}</Badge>
+                        <span
+                          className={`inline-flex items-center gap-2 rounded-full border px-2.5 py-1 text-[12px] font-semibold ${typeTagClassName(ticket.type)}`}
+                        >
+                          <span
+                            className={`h-1.5 w-1.5 rounded-full ${typeTagDotClassName(ticket.type)}`}
+                            aria-hidden="true"
+                          />
+                          {formatTypeLabel(ticket.type)}
+                        </span>
                       </td>
                       <td className="px-3.5 py-3.5 align-top">
-                        <Badge tone="neutral">{ticket.priority}</Badge>
+                        <Select
+                          className={`min-w-32 font-medium ${prioritySelectClassName(ticket.priority)}`}
+                          value={ticket.priority}
+                          onClick={(event) => event.stopPropagation()}
+                          onChange={(event) =>
+                            updatePriorityMutation.mutate({
+                              id: ticket.id,
+                              priority: event.target
+                                .value as TicketRecord["priority"],
+                            })
+                          }
+                          disabled={isMutatingBulkTickets}
+                        >
+                          {ticketPriorityOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </Select>
                       </td>
                       <td className="px-3.5 py-3.5 align-top">
                         <Select
@@ -409,11 +785,13 @@ export function AdminTicketsBoard({
                                 .value as TicketRecord["status"],
                             })
                           }
+                          disabled={isMutatingBulkTickets}
                         >
-                          <option value="new">New</option>
-                          <option value="in_review">In review</option>
-                          <option value="resolved">Resolved</option>
-                          <option value="closed">Closed</option>
+                          {ticketStatusOptions.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
                         </Select>
                       </td>
                       <td className="text-muted-foreground px-3.5 py-3.5 align-top">
@@ -489,7 +867,24 @@ export function AdminTicketsBoard({
 
                 <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
                   <div className="flex flex-wrap items-center gap-2">
-                    <Badge tone="neutral">{selectedTicket.priority}</Badge>
+                    <Select
+                      className={`min-w-36 font-medium ${prioritySelectClassName(selectedTicket.priority)}`}
+                      value={selectedTicket.priority}
+                      onChange={(event) =>
+                        updatePriorityMutation.mutate({
+                          id: selectedTicket.id,
+                          priority: event.target
+                            .value as TicketRecord["priority"],
+                        })
+                      }
+                      disabled={isMutatingBulkTickets || isMutatingSingleTicket}
+                    >
+                      {ticketPriorityOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </Select>
                     <Badge tone={aiStatusTone(selectedTicket)}>
                       {aiStatusLabel(selectedTicket)}
                     </Badge>
