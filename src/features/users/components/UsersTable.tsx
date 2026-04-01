@@ -2,7 +2,6 @@
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Badge } from "@/components/ui/Badge";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { fetchJson } from "@/lib/query/fetchJson";
@@ -79,24 +78,19 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
                   {user.gitlabUserId ?? "Not linked"}
                 </td>
                 <td className="px-4 py-3.5">
-                  <div className="flex items-center gap-3">
-                    <Badge tone={user.role === "admin" ? "accent" : "neutral"}>
-                      {user.role}
-                    </Badge>
-                    <Select
-                      className="min-w-32"
-                      value={user.role}
-                      onChange={(event) =>
-                        roleMutation.mutate({
-                          id: user.id,
-                          role: event.target.value as UserRecord["role"],
-                        })
-                      }
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </Select>
-                  </div>
+                  <Select
+                    className="min-w-32"
+                    value={user.role}
+                    onChange={(event) =>
+                      roleMutation.mutate({
+                        id: user.id,
+                        role: event.target.value as UserRecord["role"],
+                      })
+                    }
+                  >
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                  </Select>
                 </td>
                 <td className="text-muted-foreground px-4 py-3.5">
                   {formatDate(user.createdAt)}
