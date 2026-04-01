@@ -1,4 +1,4 @@
-import { and, count, desc, eq, ilike, inArray, ne, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, inArray, ne, or, sql } from "drizzle-orm";
 import { db } from "@/db";
 import { applications, tickets, users } from "@/db/schema";
 import type {
@@ -117,22 +117,43 @@ export async function createTicket(
   return ticket;
 }
 
-export async function listTickets(filters: TicketFilters = {}) {
-  const predicates = [
+function normalizeSearchTerm(search: TicketFilters["search"]) {
+  const value = search?.trim();
+  return value ? value : undefined;
+}
+
+function buildBaseTicketPredicates(filters: TicketFilters) {
+  return [
     filters.appId ? eq(tickets.appId, filters.appId) : undefined,
     filters.status ? eq(tickets.status, filters.status) : undefined,
     filters.type ? eq(tickets.type, filters.type) : undefined,
-    filters.search
-      ? or(
-          ilike(tickets.title, `%${filters.search}%`),
-          ilike(tickets.description, `%${filters.search}%`),
-        )
-      : undefined,
   ].filter(Boolean);
+}
 
+function buildFullTextQuery(search: string) {
+  return sql`websearch_to_tsquery('english', ${search})`;
+}
+
+function buildTicketSearchPredicate(search: string) {
+  const searchQuery = buildFullTextQuery(search);
+  const searchPattern = `%${search}%`;
+
+  return or(
+    sql`${tickets.searchVector} @@ ${searchQuery}`,
+    ilike(tickets.title, searchPattern),
+    ilike(tickets.description, searchPattern),
+  );
+}
+
+function buildTicketSearchRank(search: string) {
+  const searchQuery = buildFullTextQuery(search);
+
+  return sql<number>`ts_rank_cd(${tickets.searchVector}, ${searchQuery})`;
+}
+
+async function fetchTicketRowsByIds(ticketIds: string[]) {
   const ticketRows = await db.query.tickets.findMany({
-    where: predicates.length ? and(...predicates) : undefined,
-    orderBy: [desc(tickets.createdAt)],
+    where: inArray(tickets.id, ticketIds),
     columns: {
       id: true,
       appId: true,
@@ -174,6 +195,86 @@ export async function listTickets(filters: TicketFilters = {}) {
       },
     },
   });
+
+  const ticketById = new Map(ticketRows.map((ticket) => [ticket.id, ticket]));
+
+  return ticketIds.flatMap((ticketId) => {
+    const ticket = ticketById.get(ticketId);
+    return ticket ? [ticket] : [];
+  });
+}
+
+export async function listTickets(filters: TicketFilters = {}) {
+  const normalizedSearch = normalizeSearchTerm(filters.search);
+  const predicates = buildBaseTicketPredicates(filters);
+
+  if (!normalizedSearch) {
+    const ticketRows = await db.query.tickets.findMany({
+      where: predicates.length ? and(...predicates) : undefined,
+      orderBy: [desc(tickets.createdAt)],
+      columns: {
+        id: true,
+        appId: true,
+        serviceId: true,
+        type: true,
+        title: true,
+        description: true,
+        status: true,
+        priority: true,
+        aiSuggestionStatus: true,
+        aiTriage: true,
+        suspectedDuplicateTicketId: true,
+        analysisState: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      with: {
+        application: {
+          columns: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        service: {
+          columns: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+        submittedBy: {
+          columns: {
+            id: true,
+            name: true,
+            email: true,
+            role: true,
+          },
+        },
+      },
+    });
+
+    return attachDuplicateCandidates(ticketRows);
+  }
+
+  const searchPredicate = buildTicketSearchPredicate(normalizedSearch);
+  const searchRank = buildTicketSearchRank(normalizedSearch);
+  const rankedTicketIds = await db
+    .select({
+      id: tickets.id,
+      rank: searchRank,
+    })
+    .from(tickets)
+    .where(and(...[...predicates, searchPredicate].filter(Boolean)))
+    .orderBy(desc(searchRank), desc(tickets.createdAt));
+
+  if (!rankedTicketIds.length) {
+    return [];
+  }
+
+  const ticketRows = await fetchTicketRowsByIds(
+    rankedTicketIds.map((ticket) => ticket.id),
+  );
 
   return attachDuplicateCandidates(ticketRows);
 }

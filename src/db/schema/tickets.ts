@@ -1,6 +1,7 @@
-import { relations, sql } from "drizzle-orm";
+import { type SQL, relations, sql } from "drizzle-orm";
 import {
   AnyPgColumn,
+  customType,
   index,
   jsonb,
   pgEnum,
@@ -13,6 +14,12 @@ import { applications } from "@/db/schema/applications";
 import { users } from "@/db/schema/auth";
 import { services } from "@/db/schema/services";
 import type { StoredTicketAiTriage } from "@/features/tickets/ticketAi";
+
+const tsvector = customType<{ data: string }>({
+  dataType() {
+    return "tsvector";
+  },
+});
 
 export const ticketTypeEnum = pgEnum("ticket_type", [
   "feedback",
@@ -58,6 +65,13 @@ export const tickets = pgTable(
     type: ticketTypeEnum("type").notNull(),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    searchVector: tsvector("search_vector").generatedAlwaysAs(
+      (): SQL =>
+        sql`(
+          setweight(to_tsvector('english', coalesce(${tickets.title}, '')), 'A') ||
+          setweight(to_tsvector('english', coalesce(${tickets.description}, '')), 'B')
+        )`,
+    ),
     status: ticketStatusEnum("status").notNull().default("new"),
     priority: ticketPriorityEnum("priority").notNull().default("unknown"),
     aiSuggestionStatus: aiSuggestionStatusEnum("ai_suggestion_status")
@@ -92,6 +106,7 @@ export const tickets = pgTable(
     index("tickets_type_idx").on(table.type),
     index("tickets_app_status_idx").on(table.appId, table.status),
     index("tickets_app_created_idx").on(table.appId, table.createdAt),
+    index("tickets_search_vector_idx").using("gin", table.searchVector),
     index("tickets_ai_suggestion_status_idx").on(table.aiSuggestionStatus),
     index("tickets_suspected_duplicate_idx").on(
       table.suspectedDuplicateTicketId,

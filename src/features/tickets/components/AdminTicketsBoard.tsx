@@ -28,6 +28,7 @@ import { TicketDuplicateIndicator } from "@/features/tickets/components/TicketDu
 type TicketRecord = {
   id: string;
   title: string;
+  description: string;
   type: "feedback" | "suggestion" | "bug";
   status: "new" | "in_review" | "resolved" | "closed";
   priority: "low" | "medium" | "high" | "critical" | "unknown";
@@ -366,7 +367,11 @@ export function AdminTicketsBoard({
                 </thead>
                 <tbody className="divide-border bg-panel divide-y">
                   {ticketsQuery.data?.map((ticket) => (
-                    <tr key={ticket.id} className="hover:bg-white/2">
+                    <tr
+                      key={ticket.id}
+                      className="cursor-pointer hover:bg-white/2"
+                      onClick={() => setSelectedTicketId(ticket.id)}
+                    >
                       <td className="px-3.5 py-3.5 align-top">
                         <div className="relative inline-flex max-w-[19ch] min-w-0 items-start sm:max-w-[24ch] lg:max-w-[29ch]">
                           {ticket.suspectedDuplicateTicketId ? (
@@ -396,6 +401,7 @@ export function AdminTicketsBoard({
                         <Select
                           className={`min-w-32 font-medium ${statusSelectClassName(ticket.status)}`}
                           value={ticket.status}
+                          onClick={(event) => event.stopPropagation()}
                           onChange={(event) =>
                             updateStatusMutation.mutate({
                               id: ticket.id,
@@ -424,7 +430,10 @@ export function AdminTicketsBoard({
                           className="h-9 w-9 rounded-full px-0"
                           aria-label="Review ticket triage"
                           title="Review ticket triage"
-                          onClick={() => setSelectedTicketId(ticket.id)}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            setSelectedTicketId(ticket.id);
+                          }}
                         >
                           <Search className="size-4" aria-hidden="true" />
                         </Button>
@@ -452,14 +461,14 @@ export function AdminTicketsBoard({
               <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
                 <DialogHeader className="max-w-3xl">
                   <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
-                    Ticket review
+                    Ticket details
                   </p>
                   <DialogTitle className="text-[1.65rem] md:text-[1.9rem]">
-                    Triage review
+                    {selectedTicket.title}
                   </DialogTitle>
                   <DialogDescription className="text-[13px] leading-6 md:text-sm md:leading-6">
-                    Review the suggested lane changes and duplicate flags before
-                    updating the queue.
+                    Review the ticket contents, then handle triage suggestions
+                    and duplicate flags if needed.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -469,6 +478,15 @@ export function AdminTicketsBoard({
               </div>
 
               <div className="space-y-5 px-5 py-5 md:px-6 md:py-6">
+                <div className="border-border bg-panel/55 rounded-[18px] border p-4 md:p-5">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                    Ticket contents
+                  </p>
+                  <p className="text-foreground mt-3 text-sm leading-7 whitespace-pre-wrap md:text-[15px]">
+                    {selectedTicket.description}
+                  </p>
+                </div>
+
                 <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge tone="neutral">{selectedTicket.priority}</Badge>
