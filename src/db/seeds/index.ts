@@ -1,9 +1,13 @@
 import { eq } from "drizzle-orm";
 import { db, sql } from "@/db";
 import { applications, services, tickets, users } from "@/db/schema";
-import { createApplication } from "@/features/applications/server/applicationService";
 import type { StoredTicketAiTriage } from "@/features/tickets/ticketAi";
-import { seedApplications, seedTickets, seedUsers } from "@/db/seeds/data";
+import {
+  seedApplications,
+  seedServices,
+  seedTickets,
+  seedUsers,
+} from "@/db/seeds/data";
 
 type SeedAnalysisState = "not_requested" | "pending" | "completed" | "failed";
 
@@ -23,6 +27,11 @@ function buildPriorityReason(priority: "low" | "medium" | "high" | "critical") {
 function buildBaseAiTriage(
   ticket: (typeof seedTickets)[number],
   priority: "low" | "medium" | "high" | "critical",
+  duplicateContext?: {
+    reason: string;
+    score: number;
+    signals: string[];
+  },
 ): StoredTicketAiTriage {
   return {
     recommendedType: ticket.type,
@@ -43,9 +52,20 @@ function buildBaseAiTriage(
           : priority === "medium"
             ? "medium"
             : "low",
-    duplicateReason: null,
-    duplicateScore: null,
-    duplicateSignals: [],
+    duplicateReason: duplicateContext?.reason ?? null,
+    duplicateScore: duplicateContext?.score ?? null,
+    duplicateSignals: duplicateContext?.signals ?? [],
+  };
+}
+
+function buildDerivedDuplicateContext(
+  ticket: (typeof seedTickets)[number],
+  sourceTicket: (typeof seedTickets)[number],
+) {
+  return {
+    reason: `This ticket matches an earlier ${ticket.serviceSlug} report with nearly identical symptoms and should appear as a suspected duplicate.`,
+    score: 91,
+    signals: [ticket.serviceSlug, ticket.type, sourceTicket.title.slice(0, 48)],
   };
 }
 
@@ -95,7 +115,18 @@ async function main() {
   const insertedApplications = [] as Array<{ id: string; slug: string }>;
 
   for (const application of seedApplications) {
-    const createdApplication = await createApplication(application);
+    const [createdApplication] = await db
+      .insert(applications)
+      .values({
+        name: application.name,
+        slug: application.slug,
+        description: application.description,
+        uptimeKumaIdentifier: application.uptimeKumaIdentifier,
+      })
+      .returning({
+        id: applications.id,
+        slug: applications.slug,
+      });
 
     insertedApplications.push({
       id: createdApplication.id,
@@ -116,24 +147,35 @@ async function main() {
     slug: string;
   }>;
 
-  for (const application of insertedApplications) {
-    const syncedServices = await db.query.services.findMany({
-      where: eq(services.applicationId, application.id),
-      columns: {
-        id: true,
-        applicationId: true,
-        slug: true,
-      },
-      orderBy: (service, helpers) => [helpers.asc(service.name)],
-    });
+  for (const service of seedServices) {
+    const applicationId = applicationIdBySlug.get(service.applicationSlug);
 
-    if (syncedServices.length !== 2) {
+    if (!applicationId) {
       throw new Error(
-        `Expected exactly 2 imported services for ${application.slug}, received ${syncedServices.length}`,
+        `Service application not found for ${service.applicationSlug}`,
       );
     }
 
-    insertedServices.push(...syncedServices);
+    const [createdService] = await db
+      .insert(services)
+      .values({
+        applicationId,
+        name: service.name,
+        slug: service.slug,
+        description: service.description,
+        uptimeKumaIdentifier: service.uptimeKumaIdentifier ?? null,
+        kumaMonitorId: service.kumaMonitorId ?? null,
+        kumaMonitorName: service.kumaMonitorName ?? null,
+        isActive: true,
+        lastSyncedAt: new Date(),
+      })
+      .returning({
+        id: services.id,
+        applicationId: services.applicationId,
+        slug: services.slug,
+      });
+
+    insertedServices.push(createdService);
   }
 
   const serviceIdByKey = new Map(
@@ -169,6 +211,8 @@ async function main() {
           priority: ticket.priority,
           submittedByUserId: index % 4 === 0 ? adminUser.id : standardUser.id,
           analysisState: "not_requested" as SeedAnalysisState,
+          createdAt: ticket.createdAt,
+          updatedAt: ticket.createdAt,
         };
       }),
     )
@@ -423,25 +467,52 @@ async function main() {
     ],
   ]);
 
+  const firstTicketIndexByDuplicateGroup = new Map<string, number>();
+
   for (const [index, insertedTicket] of insertedTickets.entries()) {
     const ticket = seedTickets[index];
     const override = aiOverrides.get(index);
     const priority = override?.priority ?? ticket.priority;
+    const explicitDuplicateOfIndex =
+      override && "duplicateOfIndex" in override
+        ? override.duplicateOfIndex
+        : undefined;
+    const derivedDuplicateOfIndex =
+      explicitDuplicateOfIndex ??
+      (ticket.duplicateGroup
+        ? firstTicketIndexByDuplicateGroup.get(ticket.duplicateGroup)
+        : undefined);
+    const duplicateContext =
+      derivedDuplicateOfIndex !== undefined
+        ? buildDerivedDuplicateContext(
+            ticket,
+            seedTickets[derivedDuplicateOfIndex],
+          )
+        : undefined;
+
+    if (
+      ticket.duplicateGroup &&
+      !firstTicketIndexByDuplicateGroup.has(ticket.duplicateGroup)
+    ) {
+      firstTicketIndexByDuplicateGroup.set(ticket.duplicateGroup, index);
+    }
 
     await db
       .update(tickets)
       .set({
         priority,
-        aiSuggestionStatus: override?.aiSuggestionStatus ?? "none",
-        aiTriage: override?.aiTriage ?? buildBaseAiTriage(ticket, priority),
+        aiSuggestionStatus:
+          override?.aiSuggestionStatus ??
+          (derivedDuplicateOfIndex !== undefined ? "pending_review" : "none"),
+        aiTriage:
+          override?.aiTriage ??
+          buildBaseAiTriage(ticket, priority, duplicateContext),
         suspectedDuplicateTicketId:
-          override &&
-          "duplicateOfIndex" in override &&
-          override.duplicateOfIndex !== undefined
-            ? (insertedTickets[override.duplicateOfIndex]?.id ?? null)
+          derivedDuplicateOfIndex !== undefined
+            ? (insertedTickets[derivedDuplicateOfIndex]?.id ?? null)
             : null,
         analysisState: "completed",
-        updatedAt: new Date(),
+        updatedAt: new Date(ticket.createdAt.getTime() + 2 * 60 * 60 * 1000),
       })
       .where(eq(tickets.id, insertedTicket.id));
   }

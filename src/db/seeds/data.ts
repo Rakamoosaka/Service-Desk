@@ -22,6 +22,16 @@ type SeedApplication = {
   uptimeKumaIdentifier: string;
 };
 
+type SeedService = {
+  applicationSlug: string;
+  name: string;
+  slug: string;
+  description: string;
+  uptimeKumaIdentifier?: string | null;
+  kumaMonitorId?: string | null;
+  kumaMonitorName?: string | null;
+};
+
 type SeedTicket = {
   applicationSlug: string;
   serviceSlug: string;
@@ -30,7 +40,11 @@ type SeedTicket = {
   description: string;
   status: "new" | "in_review" | "resolved";
   priority: "low" | "medium" | "high";
+  createdAt: Date;
+  duplicateGroup?: string;
 };
+
+type SeedTicketTemplate = Omit<SeedTicket, "createdAt">;
 
 export const seedApplications: SeedApplication[] = [
   {
@@ -42,7 +56,100 @@ export const seedApplications: SeedApplication[] = [
   },
 ];
 
-export const seedTickets: SeedTicket[] = [
+export const seedServices: SeedService[] = [
+  {
+    applicationSlug: "test-task",
+    name: "Test Monitor 1",
+    slug: "test-monitor-1",
+    description:
+      "Seeded uptime-backed monitor used for incident and duplicate triage demos.",
+    uptimeKumaIdentifier: "test-task",
+    kumaMonitorId: "seed-monitor-1",
+    kumaMonitorName: "Test Monitor 1",
+  },
+  {
+    applicationSlug: "test-task",
+    name: "Test Monitor 2",
+    slug: "test-monitor-2",
+    description:
+      "Seeded monitor used to exercise alert noise, maintenance, and duplicate reporting flows.",
+    uptimeKumaIdentifier: "test-task",
+    kumaMonitorId: "seed-monitor-2",
+    kumaMonitorName: "Test Monitor 2",
+  },
+];
+
+const seedReferenceDate = new Date("2026-04-01T12:00:00.000Z");
+
+const ticketVolumeByDay = [
+  { daysAgo: 69, count: 1 },
+  { daysAgo: 67, count: 2 },
+  { daysAgo: 66, count: 1 },
+  { daysAgo: 63, count: 3 },
+  { daysAgo: 61, count: 2 },
+  { daysAgo: 60, count: 1 },
+  { daysAgo: 58, count: 4 },
+  { daysAgo: 57, count: 3 },
+  { daysAgo: 55, count: 1 },
+  { daysAgo: 54, count: 5 },
+  { daysAgo: 53, count: 4 },
+  { daysAgo: 51, count: 3 },
+  { daysAgo: 50, count: 2 },
+  { daysAgo: 49, count: 5 },
+  { daysAgo: 47, count: 4 },
+  { daysAgo: 44, count: 1 },
+  { daysAgo: 42, count: 2 },
+  { daysAgo: 41, count: 1 },
+  { daysAgo: 39, count: 2 },
+  { daysAgo: 38, count: 1 },
+  { daysAgo: 33, count: 6 },
+  { daysAgo: 32, count: 4 },
+  { daysAgo: 31, count: 5 },
+  { daysAgo: 29, count: 3 },
+  { daysAgo: 28, count: 4 },
+  { daysAgo: 27, count: 6 },
+  { daysAgo: 21, count: 2 },
+  { daysAgo: 19, count: 3 },
+  { daysAgo: 18, count: 2 },
+  { daysAgo: 16, count: 3 },
+  { daysAgo: 10, count: 4 },
+  { daysAgo: 9, count: 3 },
+  { daysAgo: 8, count: 2 },
+  { daysAgo: 6, count: 3 },
+  { daysAgo: 5, count: 1 },
+  { daysAgo: 4, count: 1 },
+];
+
+const duplicateTitlePrefixes = [
+  "Follow-up:",
+  "Another report:",
+  "Customer escalation:",
+  "Duplicate alert:",
+];
+
+const duplicateDescriptionAdditions = [
+  "This is surfacing again from a separate reporter and matches earlier symptoms closely.",
+  "Support linked this to the same behavior pattern already seen in the queue.",
+  "A different team described the same issue in slightly different words during triage.",
+  "This looks materially identical to an earlier report and should help exercise duplicate detection.",
+];
+
+function buildSeedTimestamp(daysAgo: number, ticketIndex: number) {
+  const createdAt = new Date(seedReferenceDate);
+
+  createdAt.setUTCDate(createdAt.getUTCDate() - daysAgo);
+  createdAt.setUTCHours(8 + (ticketIndex % 9), (ticketIndex * 17) % 60, 0, 0);
+
+  return createdAt;
+}
+
+function expandTicketDays() {
+  return ticketVolumeByDay.flatMap(({ daysAgo, count }) =>
+    Array.from({ length: count }, () => daysAgo),
+  );
+}
+
+const seedTicketTemplates: SeedTicketTemplate[] = [
   {
     applicationSlug: "test-task",
     serviceSlug: "test-monitor-1",
@@ -53,6 +160,7 @@ export const seedTickets: SeedTicket[] = [
       "The status page still shows Test Monitor 1 as operational, but users are reporting repeated request timeouts against the service. This mismatch is causing confusion during incident response because the public signal looks healthy while real traffic is failing.",
     status: "new",
     priority: "high",
+    duplicateGroup: "false-green-monitor-1",
   },
   {
     applicationSlug: "test-task",
@@ -96,6 +204,7 @@ export const seedTickets: SeedTicket[] = [
       "When we export incidents tied to Test Monitor 1, the detailed outage note is truncated before the recovery summary. That makes the exported timeline incomplete during postmortems.",
     status: "new",
     priority: "medium",
+    duplicateGroup: "incident-export-monitor-1",
   },
   {
     applicationSlug: "test-task",
@@ -140,6 +249,7 @@ export const seedTickets: SeedTicket[] = [
       "Every time Test Monitor 2 recovers, the same recovery alert is delivered twice within a few seconds. This is happening consistently and creating noise in the incident channel.",
     status: "new",
     priority: "high",
+    duplicateGroup: "duplicate-recovery-monitor-2",
   },
   {
     applicationSlug: "test-task",
@@ -172,6 +282,7 @@ export const seedTickets: SeedTicket[] = [
       "If Test Monitor 1 has a long history of incidents, the timeline view hangs for several seconds and eventually fails to render. This blocks incident review and makes the monitor history hard to use.",
     status: "new",
     priority: "high",
+    duplicateGroup: "history-timeout-monitor-1",
   },
   {
     applicationSlug: "test-task",
@@ -183,6 +294,7 @@ export const seedTickets: SeedTicket[] = [
       "I was halfway through writing an incident note for Test Monitor 2 and accidentally hit escape. The modal closed immediately and the draft disappeared, so I had to retype the whole update.",
     status: "new",
     priority: "medium",
+    duplicateGroup: "draft-loss-monitor-2",
   },
   {
     applicationSlug: "test-task",
@@ -226,6 +338,7 @@ export const seedTickets: SeedTicket[] = [
       "When responders change Test Monitor 1 from investigating to resolved and immediately touch another entry, the first incident sometimes snaps back to investigating after the update settles. This causes real confusion during triage.",
     status: "new",
     priority: "high",
+    duplicateGroup: "state-revert-monitor-1",
   },
   {
     applicationSlug: "test-task",
@@ -248,6 +361,7 @@ export const seedTickets: SeedTicket[] = [
       "If the public status page is slow or unavailable, the Test task application page can render a blank section instead of a fallback message. People think the app itself is down when this happens.",
     status: "new",
     priority: "high",
+    duplicateGroup: "blank-fallback-test-task",
   },
   {
     applicationSlug: "test-task",
@@ -260,3 +374,33 @@ export const seedTickets: SeedTicket[] = [
     priority: "low",
   },
 ];
+
+const expandedTicketDays = expandTicketDays();
+
+if (expandedTicketDays.length !== 100) {
+  throw new Error(
+    `Expected 100 ticket timestamps, received ${expandedTicketDays.length}`,
+  );
+}
+
+export const seedTickets: SeedTicket[] = expandedTicketDays.map(
+  (daysAgo, index) => {
+    const template = seedTicketTemplates[index % seedTicketTemplates.length];
+    const occurrence = Math.floor(index / seedTicketTemplates.length);
+    const duplicatePrefix =
+      occurrence > 0
+        ? `${duplicateTitlePrefixes[(occurrence - 1) % duplicateTitlePrefixes.length]} `
+        : "";
+    const duplicateDescription =
+      occurrence > 0
+        ? ` ${duplicateDescriptionAdditions[(occurrence - 1) % duplicateDescriptionAdditions.length]}`
+        : "";
+
+    return {
+      ...template,
+      title: `${duplicatePrefix}${template.title}`,
+      description: `${template.description}${duplicateDescription}`,
+      createdAt: buildSeedTimestamp(daysAgo, index),
+    };
+  },
+);
