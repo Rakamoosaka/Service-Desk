@@ -167,7 +167,7 @@ export function AdminTicketsTable({
             {tickets.map((ticket) => (
               <tr
                 key={ticket.id}
-                className="cursor-pointer hover:bg-white/2"
+                className="hover:bg-muted/35 cursor-pointer"
                 onClick={() => onOpenResponse(ticket.id)}
               >
                 <td className="px-3.5 py-3.5 align-top">
@@ -187,7 +187,7 @@ export function AdminTicketsTable({
                     {ticket.suspectedDuplicateTicketId ? (
                       <TicketDuplicateIndicator className="absolute -top-2.5 -left-2.5" />
                     ) : null}
-                    <p className="truncate font-semibold text-white">
+                    <p className="text-foreground truncate font-semibold">
                       {ticket.title}
                     </p>
                   </div>

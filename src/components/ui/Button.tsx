@@ -11,7 +11,7 @@ const buttonVariants = cva(
         primary:
           "border-accent bg-accent px-5 py-2.5 text-accent-foreground hover:-translate-y-px hover:brightness-[1.03]",
         secondary:
-          "border-border bg-panel px-5 py-2.5 text-panel-foreground hover:-translate-y-px hover:border-white/18 hover:bg-white/[0.02] hover:text-foreground",
+          "border-border bg-panel px-5 py-2.5 text-panel-foreground hover:-translate-y-px hover:border-border hover:bg-muted/55 hover:text-foreground",
         ghost:
           "border-transparent px-4 py-2 text-muted-foreground hover:border-border hover:bg-muted hover:text-foreground",
         danger:

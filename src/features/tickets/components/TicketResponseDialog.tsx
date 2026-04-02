@@ -88,7 +88,7 @@ export function TicketResponseDialog({
                   </p>
                 </div>
 
-                <div className="flex flex-col gap-3 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="border-border/70 flex flex-col gap-3 border-t pt-4 sm:flex-row sm:items-center sm:justify-between">
                   <p className="text-muted-foreground text-sm leading-7">
                     Use this reply to respond directly to the ticket submitter.
                   </p>

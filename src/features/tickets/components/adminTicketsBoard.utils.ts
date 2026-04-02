@@ -38,13 +38,13 @@ export function statusSelectClassName(status: TicketRecord["status"]) {
 export function prioritySelectClassName(priority: TicketRecord["priority"]) {
   switch (priority) {
     case "critical":
-      return "border-[#ff2244]/30 bg-[#2a1118] text-[#ffb8c3]";
+      return "border-destructive/30 bg-destructive/12 text-destructive";
     case "high":
-      return "border-[#ff8a3d]/30 bg-[#2b1b10] text-[#ffc296]";
+      return "border-warning/30 bg-warning/12 text-warning";
     case "medium":
-      return "border-white/12 bg-white/[0.03] text-[#d5dde1]";
+      return "border-border bg-muted/45 text-foreground";
     case "low":
-      return "border-[#6fd9c4]/25 bg-[#0f201d] text-[#9fe9db]";
+      return "border-accent/25 bg-accent/12 text-accent";
     default:
       return "border-border bg-input text-muted-foreground";
   }
@@ -68,11 +68,11 @@ export function sentenceCase(value: string) {
 export function typeTagClassName(type: TicketRecord["type"]) {
   switch (type) {
     case "bug":
-      return "border-[#ff2244]/20 bg-[#ff2244]/10 text-[#ff9aaa]";
+      return "border-destructive/25 bg-destructive/10 text-destructive";
     case "suggestion":
-      return "border-[#43b5ff]/22 bg-[#102638] text-[#8fd8ff]";
+      return "border-info/25 bg-info/10 text-info";
     default:
-      return "border-[#4fcf8d]/22 bg-[#11261b] text-[#9ce8c1]";
+      return "border-accent/25 bg-accent/10 text-accent";
   }
 }
 

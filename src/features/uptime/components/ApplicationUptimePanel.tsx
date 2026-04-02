@@ -146,9 +146,7 @@ export function ServiceUptimePanel({
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-3">
                 <CardEyebrow>Service health</CardEyebrow>
-                <CardTitle className="text-white">
-                  Live uptime overview
-                </CardTitle>
+                <CardTitle>Live uptime overview</CardTitle>
                 <p className="text-muted-foreground max-w-2xl text-sm leading-7">
                   {snapshot.summary}
                 </p>
@@ -178,7 +176,7 @@ export function ServiceUptimePanel({
                   <span>Source</span>
                   <Radar className="size-4" />
                 </div>
-                <p className="mt-3 font-semibold text-white">
+                <p className="text-foreground mt-3 font-semibold">
                   {snapshot.source}
                 </p>
               </div>
@@ -188,7 +186,7 @@ export function ServiceUptimePanel({
                   <span>Last checked</span>
                   <Activity className="size-4" />
                 </div>
-                <p className="mt-3 font-semibold text-white">
+                <p className="text-foreground mt-3 font-semibold">
                   {formatDate(snapshot.checkedAt)}
                 </p>
               </div>
@@ -198,7 +196,7 @@ export function ServiceUptimePanel({
                   <span>Polling</span>
                   <Siren className="size-4" />
                 </div>
-                <p className="mt-3 font-semibold text-white">
+                <p className="text-foreground mt-3 font-semibold">
                   {snapshot.pollIntervalMs > 0
                     ? `Every ${Math.round(snapshot.pollIntervalMs / 1000)}s`
                     : "Disabled"}
@@ -208,7 +206,7 @@ export function ServiceUptimePanel({
 
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] font-semibold tracking-[0.24em] text-white/70 uppercase">
+                <p className="text-foreground/70 text-[11px] font-semibold tracking-[0.24em] uppercase">
                   Monitors
                 </p>
                 <p className="text-muted-foreground text-xs">
@@ -225,7 +223,7 @@ export function ServiceUptimePanel({
                     >
                       <div className="flex flex-wrap items-start justify-between gap-4">
                         <div>
-                          <p className="font-semibold text-white">
+                          <p className="text-foreground font-semibold">
                             {monitor.name}
                           </p>
                           <p className="text-muted-foreground mt-1 text-sm">
@@ -241,19 +239,19 @@ export function ServiceUptimePanel({
                       </div>
 
                       <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                        <div className="rounded-2xl bg-black/15 px-3 py-3">
+                        <div className="bg-background/55 rounded-2xl px-3 py-3">
                           <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
                             24h uptime
                           </p>
-                          <p className="mt-2 font-semibold text-white">
+                          <p className="text-foreground mt-2 font-semibold">
                             {formatPercent(monitor.uptimeRatio24h)}
                           </p>
                         </div>
-                        <div className="rounded-2xl bg-black/15 px-3 py-3">
+                        <div className="bg-background/55 rounded-2xl px-3 py-3">
                           <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
                             Latest latency
                           </p>
-                          <p className="mt-2 font-semibold text-white">
+                          <p className="text-foreground mt-2 font-semibold">
                             {formatLatency(monitor.responseTimeMs)}
                           </p>
                         </div>
@@ -270,7 +268,7 @@ export function ServiceUptimePanel({
 
             <div className="space-y-3">
               <div className="flex items-center justify-between gap-3">
-                <p className="text-[11px] font-semibold tracking-[0.24em] text-white/70 uppercase">
+                <p className="text-foreground/70 text-[11px] font-semibold tracking-[0.24em] uppercase">
                   Recent incidents
                 </p>
                 <p className="text-muted-foreground text-xs">
@@ -286,7 +284,7 @@ export function ServiceUptimePanel({
                       className="border-border bg-muted/40 rounded-[18px] border p-4"
                     >
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-white">
+                        <p className="text-foreground font-semibold">
                           {incident.title}
                         </p>
                         <Badge tone={incidentTone(incident.status)}>

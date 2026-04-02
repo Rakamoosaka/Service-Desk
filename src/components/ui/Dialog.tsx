@@ -18,7 +18,7 @@ export const DialogOverlay = forwardRef<
     <DialogPrimitive.Overlay
       ref={ref}
       className={cn(
-        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-black/52",
+        "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 z-50 bg-(--overlay)",
         className,
       )}
       {...props}
@@ -62,7 +62,7 @@ export const DialogTitle = forwardRef<
     <DialogPrimitive.Title
       ref={ref}
       className={cn(
-        "display-face text-4xl font-semibold tracking-[-0.04em] text-white",
+        "display-face text-foreground text-4xl font-semibold tracking-[-0.04em]",
         className,
       )}
       {...props}
@@ -90,7 +90,7 @@ export function DialogDismissButton({
   return (
     <DialogPrimitive.Close
       className={cn(
-        "border-border bg-muted/45 text-foreground hover:bg-muted hover:text-foreground focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-full border transition hover:border-white/18 focus-visible:ring-2 focus-visible:outline-none",
+        "border-border bg-muted/45 text-foreground hover:border-border hover:bg-muted hover:text-foreground focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-full border transition focus-visible:ring-2 focus-visible:outline-none",
         className,
       )}
       {...props}

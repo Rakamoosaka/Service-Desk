@@ -96,7 +96,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
             <CardContent className="space-y-4">
               <div>
                 <CardEyebrow>Activity</CardEyebrow>
-                <p className="display-face mt-3 text-2xl font-semibold tracking-[-0.03em] text-white">
+                <p className="display-face text-foreground mt-3 text-2xl font-semibold tracking-[-0.03em]">
                   Recent service tickets
                 </p>
                 <p className="text-muted-foreground mt-3 text-sm leading-7">
@@ -117,7 +117,7 @@ export default async function ServicePage({ params }: ServicePageProps) {
                           {ticket.suspectedDuplicateTicketId ? (
                             <TicketDuplicateIndicator className="absolute -top-2.5 -left-2.5" />
                           ) : null}
-                          <p className="font-semibold text-white">
+                          <p className="text-foreground font-semibold">
                             {ticket.title}
                           </p>
                         </div>

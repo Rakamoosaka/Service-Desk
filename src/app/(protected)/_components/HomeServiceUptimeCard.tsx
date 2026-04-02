@@ -32,7 +32,7 @@ function historyClass(status: UptimeState) {
     case "stale":
       return "bg-slate-500";
     default:
-      return "bg-white/18";
+      return "bg-foreground/18";
   }
 }
 
@@ -62,7 +62,7 @@ function historyLabelClass(status: UptimeState) {
     case "stale":
       return "text-slate-400";
     default:
-      return "text-white/72";
+      return "text-foreground/72";
   }
 }
 
@@ -138,7 +138,7 @@ export function HomeServiceUptimeCard({
 
   if (uptimeQuery.isLoading && !snapshot) {
     return (
-      <div className="border-border bg-muted/25 flex items-center gap-3 border-b px-4 py-4 text-sm text-white/80 last:border-b-0 md:px-5 md:py-5">
+      <div className="border-border bg-muted/25 text-foreground/80 flex items-center gap-3 border-b px-4 py-4 text-sm last:border-b-0 md:px-5 md:py-5">
         <LoaderCircle className="size-4 animate-spin" />
         Loading live uptime data for {serviceName}.
       </div>
@@ -147,7 +147,7 @@ export function HomeServiceUptimeCard({
 
   if (uptimeQuery.isError && !snapshot) {
     return (
-      <div className="border-border bg-destructive/10 flex flex-col gap-3 border-b px-4 py-4 text-sm text-white/80 last:border-b-0 md:px-5 md:py-5">
+      <div className="border-border bg-destructive/10 text-foreground/80 flex flex-col gap-3 border-b px-4 py-4 text-sm last:border-b-0 md:px-5 md:py-5">
         <div className="flex items-center gap-3">
           <AlertTriangle className="size-4" />
           Unable to load live uptime data for {serviceName}.
@@ -172,18 +172,18 @@ export function HomeServiceUptimeCard({
   return (
     <div
       className={cn(
-        "relative border-b border-white/8 last:border-b-0",
+        "border-border/70 relative border-b last:border-b-0",
         isActive ? "" : "opacity-70 saturate-50",
       )}
     >
       {uptimeQuery.isFetching ? (
-        <div className="border-b border-white/8 px-4 py-2 text-[11px] font-semibold tracking-[0.16em] text-white/58 uppercase md:px-5">
+        <div className="border-border/70 text-foreground/58 border-b px-4 py-2 text-[11px] font-semibold tracking-[0.16em] uppercase md:px-5">
           Refreshing live data
         </div>
       ) : null}
 
       {uptimeQuery.isError ? (
-        <div className="bg-destructive/10 border-b border-white/8 px-4 py-2 text-[11px] font-semibold tracking-[0.16em] text-white/72 uppercase md:px-5">
+        <div className="bg-destructive/10 border-border/70 text-foreground/72 border-b px-4 py-2 text-[11px] font-semibold tracking-[0.16em] uppercase md:px-5">
           Live refresh failed
         </div>
       ) : null}
@@ -195,14 +195,14 @@ export function HomeServiceUptimeCard({
               key={monitor.id}
               className={cn(
                 "relative grid gap-4 px-4 py-4 md:px-5 md:py-5 lg:grid-cols-[0.44fr_0.56fr] lg:items-center",
-                index > 0 ? "border-t border-white/8" : "",
+                index > 0 ? "border-border/70 border-t" : "",
               )}
             >
               <div className="flex items-start gap-3">
                 <div
                   className={cn(
-                    "rounded-full border border-white/10 px-3 py-1 text-xs font-semibold",
-                    isActive ? "text-white" : "text-white/72",
+                    "border-border/70 rounded-full border px-3 py-1 text-xs font-semibold",
+                    isActive ? "text-foreground" : "text-foreground/72",
                   )}
                 >
                   {formatPercent(monitor.uptimeRatio24h)}
@@ -210,7 +210,7 @@ export function HomeServiceUptimeCard({
 
                 <div>
                   <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                    <p className="text-[13px] font-semibold text-white md:text-sm">
+                    <p className="text-foreground text-[13px] font-semibold md:text-sm">
                       {serviceName}
                     </p>
                     <p
@@ -222,7 +222,7 @@ export function HomeServiceUptimeCard({
                             ? "text-warning"
                             : snapshot.status === "outage"
                               ? "text-destructive"
-                              : "text-white/50",
+                              : "text-foreground/50",
                       )}
                     >
                       {snapshot.status}
@@ -258,7 +258,7 @@ export function HomeServiceUptimeCard({
                       aria-label={`${historyLabel(point.status)} at ${formatHistoryTimestamp(point.checkedAt)}`}
                     >
                       <span
-                        className="pointer-events-none absolute top-[calc(100%+10px)] left-1/2 z-10 w-max -translate-x-1/2 rounded-xl border border-white/10 bg-slate-800 px-3 py-2 text-center opacity-0 shadow-[0_10px_24px_rgba(0,0,0,0.28)] transition duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
+                        className="border-border/70 bg-panel pointer-events-none absolute top-[calc(100%+10px)] left-1/2 z-10 w-max -translate-x-1/2 rounded-xl border px-3 py-2 text-center opacity-0 shadow-[0_10px_24px_rgba(0,0,0,0.18)] transition duration-150 group-hover:opacity-100 group-focus-visible:opacity-100"
                         aria-hidden="true"
                       >
                         <span
@@ -269,7 +269,7 @@ export function HomeServiceUptimeCard({
                         >
                           {historyLabel(point.status)}
                         </span>
-                        <span className="mt-1 block text-[11px] text-white/78">
+                        <span className="text-foreground/78 mt-1 block text-[11px]">
                           {formatHistoryTimestamp(point.checkedAt)}
                         </span>
                       </span>

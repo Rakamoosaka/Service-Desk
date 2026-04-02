@@ -62,6 +62,8 @@
   --sidebar-foreground: #081217;
   --sidebar-muted: #5f7178;
   --sidebar-border: #c6d3d8;
+  --body-gradient: linear-gradient(180deg, #f7fbfd 0%, #edf3f5 100%);
+  --overlay: rgb(4 14 18 / 0.22);
   --shadow-color: 13 215 242;
 }
 
@@ -112,6 +114,8 @@
   --sidebar-foreground: #ffffff;
   --sidebar-muted: #919191;
   --sidebar-border: #262626;
+  --body-gradient: linear-gradient(180deg, #050505 0%, #080808 100%);
+  --overlay: rgb(0 0 0 / 0.52);
   --shadow-color: 13 215 242;
 }
 
@@ -127,7 +131,7 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-body), sans-serif;
-  background-image: linear-gradient(180deg, #050505 0%, #080808 100%);
+  background-image: var(--body-gradient);
   letter-spacing: -0.01em;
 }
 
@@ -156,7 +160,8 @@ a {
 .surface-shadow {
   box-shadow:
     0 0 0 1px rgb(from var(--border) r g b / 0.75),
-    0 4px 10px rgb(0 0 0 / 0.08);
+    0 4px 10px rgb(0 0 0 / 0.08),
+    0 18px 48px rgb(from var(--shadow-color) r g b / 0.08);
 }
 
 .panel-grid {

@@ -33,7 +33,7 @@ export function TicketServiceSection({
   return (
     <div
       className={cn(
-        "rounded-[14px] border border-white/8 bg-black/15",
+        "border-border/70 bg-muted/30 rounded-[14px] border",
         compact ? "px-4 py-4 md:px-5 md:py-5" : "px-5 py-5 md:px-6 md:py-6",
       )}
     >
@@ -95,7 +95,7 @@ export function TicketInputFields({
     <>
       <div
         className={cn(
-          compact ? "border-t-0" : "border-t border-white/8",
+          compact ? "border-t-0" : "border-border/70 border-t",
           compact ? "px-4 py-4 md:px-5 md:py-5" : "px-5 py-5 md:px-6 md:py-6",
         )}
       >
@@ -114,7 +114,7 @@ export function TicketInputFields({
 
       <div
         className={cn(
-          "border-t border-white/8",
+          "border-border/70 border-t",
           compact ? "px-4 py-4 md:px-5 md:py-5" : "px-5 py-5 md:px-6 md:py-6",
         )}
       >
@@ -152,7 +152,7 @@ export function TicketSubmitSection({
   return (
     <div
       className={cn(
-        "flex flex-col gap-4 border-t border-white/8 md:flex-row md:items-center md:justify-between",
+        "border-border/70 flex flex-col gap-4 border-t md:flex-row md:items-center md:justify-between",
         compact ? "px-4 py-4 md:px-5 md:py-5" : "px-5 py-5 md:px-6 md:py-6",
       )}
     >

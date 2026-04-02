@@ -30,9 +30,7 @@ export function AnalyticsApplicationsCard({
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="space-y-3">
             <CardEyebrow>Applications</CardEyebrow>
-            <CardTitle className="text-white">
-              Tickets per application
-            </CardTitle>
+            <CardTitle>Tickets per application</CardTitle>
             <p className="text-muted-foreground max-w-2xl text-[13px] leading-6">
               Applications are ranked by ticket volume within the current window
               so you can spot where support load is clustering.
@@ -55,7 +53,7 @@ export function AnalyticsApplicationsCard({
                         Rank {index + 1}
                       </p>
                       <div className="space-y-1">
-                        <p className="text-lg leading-tight font-semibold text-white sm:text-xl">
+                        <p className="text-foreground text-lg leading-tight font-semibold sm:text-xl">
                           {application.name}
                         </p>
                         <p className="text-muted-foreground/80 text-xs sm:text-sm">
@@ -65,7 +63,7 @@ export function AnalyticsApplicationsCard({
                     </div>
 
                     <div className="text-left sm:text-right">
-                      <p className="data-face text-3xl leading-none font-semibold text-white sm:text-4xl">
+                      <p className="data-face text-foreground text-3xl leading-none font-semibold sm:text-4xl">
                         {application.ticketCount}
                       </p>
                       <p className="text-muted-foreground mt-2 text-[10px] tracking-[0.16em] uppercase">

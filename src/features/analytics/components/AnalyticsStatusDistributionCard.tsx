@@ -27,7 +27,7 @@ export function AnalyticsStatusDistributionCard({
       <CardContent className="space-y-5">
         <div className="space-y-3">
           <CardEyebrow>Status split</CardEyebrow>
-          <CardTitle className="text-white">Queue composition</CardTitle>
+          <CardTitle>Queue composition</CardTitle>
           <p className="text-muted-foreground text-[13px] leading-6">
             Distribution of created tickets in the selected window by current
             status.
@@ -44,7 +44,7 @@ export function AnalyticsStatusDistributionCard({
                       {formatStatusLabel(entry.status)}
                     </Badge>
                   </div>
-                  <p className="data-face text-sm font-semibold text-white">
+                  <p className="data-face text-foreground text-sm font-semibold">
                     {entry.value}{" "}
                     <span className="text-muted-foreground">
                       ({entry.share}%)

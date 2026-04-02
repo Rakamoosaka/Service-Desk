@@ -92,7 +92,7 @@ export function ApplicationsCatalogPanel({
               <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                 Applications
               </p>
-              <p className="mt-2 text-2xl font-semibold text-white">
+              <p className="text-foreground mt-2 text-2xl font-semibold">
                 {applications.length}
               </p>
             </div>
@@ -100,7 +100,7 @@ export function ApplicationsCatalogPanel({
               <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                 Synced services
               </p>
-              <p className="mt-2 text-2xl font-semibold text-white">
+              <p className="text-foreground mt-2 text-2xl font-semibold">
                 {totalServices}
               </p>
             </div>
@@ -108,7 +108,7 @@ export function ApplicationsCatalogPanel({
               <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                 Needs attention
               </p>
-              <p className="mt-2 text-2xl font-semibold text-white">
+              <p className="text-foreground mt-2 text-2xl font-semibold">
                 {totalInactiveServices}
               </p>
             </div>
@@ -161,7 +161,7 @@ export function ApplicationsCatalogPanel({
                         <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                           /{application.slug}
                         </p>
-                        <h3 className="display-face mt-1.5 text-xl font-semibold tracking-[-0.03em] text-white">
+                        <h3 className="display-face text-foreground mt-1.5 text-xl font-semibold tracking-[-0.03em]">
                           {application.name}
                         </h3>
                       </div>
@@ -216,7 +216,7 @@ export function ApplicationsCatalogPanel({
                     <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                       Last sync
                     </p>
-                    <p className="mt-1.5 text-[13px] font-medium text-white">
+                    <p className="text-foreground mt-1.5 text-[13px] font-medium">
                       {formatTimestamp(application.lastSyncedAt)}
                     </p>
                   </div>
@@ -224,7 +224,7 @@ export function ApplicationsCatalogPanel({
                     <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                       Coverage
                     </p>
-                    <p className="mt-1.5 text-[13px] font-medium text-white">
+                    <p className="text-foreground mt-1.5 text-[13px] font-medium">
                       {serviceSummary.totalCount} services
                       {serviceSummary.inactiveCount > 0
                         ? `, ${serviceSummary.inactiveCount} inactive`
@@ -234,7 +234,7 @@ export function ApplicationsCatalogPanel({
                 </div>
 
                 <div className="border-border bg-muted/25 rounded-2xl border">
-                  <div className="flex flex-col gap-1 border-b border-white/6 px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="border-border/70 flex flex-col gap-1 border-b px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex items-center gap-2">
                       <p className="text-muted-foreground text-[10px] font-semibold tracking-[0.18em] uppercase">
                         Synced services
@@ -254,7 +254,7 @@ export function ApplicationsCatalogPanel({
                       No monitors were discovered for this identifier.
                     </div>
                   ) : (
-                    <div className="divide-y divide-white/6">
+                    <div className="divide-border/70 divide-y">
                       {application.services.map((service) => (
                         <div
                           key={service.id}
@@ -268,7 +268,7 @@ export function ApplicationsCatalogPanel({
                             }
                           >
                             <div className="flex flex-wrap items-center gap-2">
-                              <p className="text-[13px] font-semibold text-white">
+                              <p className="text-foreground text-[13px] font-semibold">
                                 {service.name}
                               </p>
                               <Badge

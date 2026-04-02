@@ -24,7 +24,7 @@ export function TicketTypePicker({
   onSelectedTypeChange,
 }: TicketTypePickerProps) {
   return (
-    <div className="overflow-hidden rounded-xl border border-white/8 bg-black/15">
+    <div className="border-border/70 bg-muted/30 overflow-hidden rounded-xl border">
       <div className="grid md:grid-cols-3">
         {typeOptions.map((option) => (
           <button
@@ -35,14 +35,14 @@ export function TicketTypePicker({
               "focus-visible:ring-ring text-left transition duration-150 ease-out focus-visible:ring-2 focus-visible:outline-none",
               compact ? "px-4 py-4" : "px-5 py-5",
               compact
-                ? "border-white/8 md:min-h-36"
-                : "border-white/8 md:min-h-42",
+                ? "border-border/70 md:min-h-36"
+                : "border-border/70 md:min-h-42",
               option.value !== typeOptions[0].value
                 ? "border-t md:border-t-0 md:border-l"
                 : undefined,
               selectedType === option.value
-                ? "bg-white/4 ring-1 ring-white/10 ring-inset"
-                : "bg-transparent hover:bg-white/3",
+                ? "bg-panel/70 ring-border/70 ring-1 ring-inset"
+                : "hover:bg-panel/55 bg-transparent",
             )}
             onClick={() => {
               startTransition(() => {
@@ -60,7 +60,7 @@ export function TicketTypePicker({
                 </span>
                 <p
                   className={cn(
-                    "font-semibold text-white",
+                    "text-foreground font-semibold",
                     compact ? "text-sm" : undefined,
                   )}
                 >

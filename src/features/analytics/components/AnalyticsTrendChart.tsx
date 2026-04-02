@@ -89,11 +89,11 @@ export function AnalyticsTrendChart({
 
           {tooltip ? (
             <div
-              className="pointer-events-none absolute z-10 w-max rounded-lg border border-white/10 bg-[#111111] px-2.5 py-2 text-left shadow-[0_10px_24px_rgba(0,0,0,0.28)]"
+              className="border-border/70 bg-panel text-foreground pointer-events-none absolute z-10 w-max rounded-lg border px-2.5 py-2 text-left shadow-[0_10px_24px_rgba(0,0,0,0.18)]"
               style={{ left: tooltip.x, top: tooltip.y }}
               aria-hidden="true"
             >
-              <p className="text-[11px] font-semibold text-white">
+              <p className="text-[11px] font-semibold">
                 {formatTrendDate(tooltip.date)}
               </p>
               <p className="text-muted-foreground mt-1 text-[10px] font-medium tracking-[0.14em] uppercase">
@@ -122,7 +122,7 @@ export function AnalyticsTrendChart({
                 aria-label={`${formatTrendDate(point.date)}: ${formatTicketCount(point.value)}`}
               >
                 <div
-                  className="from-accent/30 via-accent to-accent/75 group-hover:via-accent group-hover:to-accent group-focus-visible:via-accent group-focus-visible:to-accent w-full rounded-t-lg border border-white/8 bg-linear-to-t transition duration-200 group-hover:from-white/40 group-focus-visible:from-white/40"
+                  className="from-accent/22 via-accent/60 to-accent/80 group-hover:via-accent/80 group-hover:to-accent group-focus-visible:via-accent/80 group-focus-visible:to-accent border-accent/20 group-hover:from-accent/42 group-focus-visible:from-accent/42 w-full rounded-t-lg border bg-linear-to-t transition duration-200"
                   style={{
                     height: `${Math.max((point.value / axisMax) * 100, 6)}%`,
                   }}

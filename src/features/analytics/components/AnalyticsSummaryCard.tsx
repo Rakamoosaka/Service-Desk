@@ -26,7 +26,7 @@ export function AnalyticsSummaryCard({
           <Icon className="size-4.5" />
         </div>
         <div className="space-y-2">
-          <p className="display-face data-face text-4xl leading-none font-semibold text-white md:text-5xl">
+          <p className="display-face data-face text-foreground text-4xl leading-none font-semibold md:text-5xl">
             {value}
           </p>
           <p className="text-muted-foreground text-[13px] leading-5.5">

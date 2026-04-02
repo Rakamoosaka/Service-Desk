@@ -79,7 +79,7 @@ export function ApplicationStatusExperience({
   return (
     <>
       <Dialog open={isIntakeOpen} onOpenChange={setIsIntakeOpen}>
-        <DialogContent className="max-h-[88vh] w-[min(92vw,940px)] overflow-hidden rounded-[18px] border-white/12 bg-[linear-gradient(180deg,rgba(8,12,16,0.995),rgba(8,12,16,0.985))] p-0 shadow-none [&_.panel-grid]:hidden">
+        <DialogContent className="border-border/70 bg-panel max-h-[88vh] w-[min(92vw,940px)] overflow-hidden rounded-[18px] p-0 shadow-none [&_.panel-grid]:hidden">
           <div className="flex max-h-[88vh] flex-col overflow-hidden">
             <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
               <DialogHeader className="max-w-3xl">
@@ -109,14 +109,14 @@ export function ApplicationStatusExperience({
                 description=""
                 onSuccess={() => setIsIntakeOpen(false)}
                 headerAddon={
-                  <div className="border-t border-white/8 pt-4">
+                  <div className="border-border/70 border-t pt-4">
                     <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
                       <div className="min-w-0 space-y-2">
-                        <div className="flex flex-wrap items-center gap-3 text-[11px] font-semibold tracking-[0.18em] text-white/48 uppercase">
+                        <div className="text-foreground/48 flex flex-wrap items-center gap-3 text-[11px] font-semibold tracking-[0.18em] uppercase">
                           <span>Selected application</span>
                           <span
                             aria-hidden="true"
-                            className="size-1 rounded-full bg-white/18"
+                            className="bg-foreground/18 size-1 rounded-full"
                           />
                           <span>
                             {activeServices.length} service
@@ -124,7 +124,7 @@ export function ApplicationStatusExperience({
                           </span>
                         </div>
 
-                        <p className="display-face truncate text-[1.5rem] font-semibold tracking-[-0.045em] text-white md:text-[1.8rem]">
+                        <p className="display-face text-foreground truncate text-[1.5rem] font-semibold tracking-[-0.045em] md:text-[1.8rem]">
                           {application.name}
                         </p>
                       </div>
@@ -146,12 +146,12 @@ export function ApplicationStatusExperience({
         className="mx-auto min-h-screen w-full max-w-5xl px-4 py-6 md:px-8 md:py-8 xl:px-6 xl:py-10"
       >
         <div className="space-y-4">
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+          <div className="border-border/70 flex flex-wrap items-center justify-between gap-3 border-b pb-4">
             <Button
               asChild
               variant="secondary"
               size="sm"
-              className="rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
+              className="rounded-xl bg-transparent px-3.5"
             >
               <Link href="/">
                 <ArrowLeft className="size-4" />
@@ -167,7 +167,7 @@ export function ApplicationStatusExperience({
             </div>
           </div>
 
-          <div className="rounded-xl border border-white/8 p-6 md:p-7">
+          <div className="border-border/70 rounded-xl border p-6 md:p-7">
             <div className="space-y-5">
               <div className="flex flex-wrap items-start justify-between gap-4">
                 <div className="space-y-2.5">
@@ -176,7 +176,7 @@ export function ApplicationStatusExperience({
                   </p>
 
                   <div>
-                    <h1 className="display-face text-[1.75rem] font-semibold tracking-[-0.03em] text-white md:text-[2.3rem]">
+                    <h1 className="display-face text-foreground text-[1.75rem] font-semibold tracking-[-0.03em] md:text-[2.3rem]">
                       {application.name}
                     </h1>
                     <p className="text-muted-foreground mt-2 max-w-3xl text-sm leading-7">
@@ -188,7 +188,7 @@ export function ApplicationStatusExperience({
                 <Button
                   variant="secondary"
                   size="sm"
-                  className="rounded-xl border-white/10 bg-transparent px-3.5 text-white/72 hover:border-white/16 hover:bg-white/4 hover:text-white"
+                  className="rounded-xl bg-transparent px-3.5"
                   onClick={() => setIsIntakeOpen(true)}
                 >
                   Create ticket
@@ -196,44 +196,44 @@ export function ApplicationStatusExperience({
                 </Button>
               </div>
 
-              <div className="overflow-hidden rounded-xl border border-white/8 bg-black/20">
+              <div className="border-border/70 bg-muted/35 overflow-hidden rounded-xl border">
                 <div className="grid md:grid-cols-4">
-                  <div className="border-white/8 px-4 py-4 md:border-r md:px-5 md:py-5">
+                  <div className="border-border/70 px-4 py-4 md:border-r md:px-5 md:py-5">
                     <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
                       Services
                     </p>
-                    <p className="mt-3 text-2xl font-semibold text-white">
+                    <p className="text-foreground mt-3 text-2xl font-semibold">
                       {application.services.length}
                     </p>
                   </div>
-                  <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
+                  <div className="border-border/70 border-t px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
                     <p className="text-accent text-[11px] font-semibold tracking-[0.24em] uppercase">
                       Operational
                     </p>
-                    <p className="mt-3 text-2xl font-semibold text-white">
+                    <p className="text-foreground mt-3 text-2xl font-semibold">
                       {application.counts.operational}
                     </p>
                   </div>
-                  <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
+                  <div className="border-border/70 border-t px-4 py-4 md:border-t-0 md:border-r md:px-5 md:py-5">
                     <p className="text-warning text-[11px] font-semibold tracking-[0.24em] uppercase">
                       Degraded
                     </p>
-                    <p className="mt-3 text-2xl font-semibold text-white">
+                    <p className="text-foreground mt-3 text-2xl font-semibold">
                       {application.counts.degraded}
                     </p>
                   </div>
-                  <div className="border-t border-white/8 px-4 py-4 md:border-t-0 md:px-5 md:py-5">
+                  <div className="border-border/70 border-t px-4 py-4 md:border-t-0 md:px-5 md:py-5">
                     <p className="text-destructive text-[11px] font-semibold tracking-[0.24em] uppercase">
                       Outage
                     </p>
-                    <p className="mt-3 text-2xl font-semibold text-white">
+                    <p className="text-foreground mt-3 text-2xl font-semibold">
                       {application.counts.outage}
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-black/15">
+              <div className="border-border/70 bg-muted/30 rounded-2xl border">
                 {application.services.length ? (
                   application.services.map((service) => (
                     <HomeServiceUptimeCard

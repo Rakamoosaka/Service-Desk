@@ -54,7 +54,7 @@ export function ServiceEditorCard({
         {editingService ? (
           <form className="space-y-4" onSubmit={form.handleSubmit(onSubmit)}>
             <div className="border-border bg-muted/40 rounded-2xl border px-3.5 py-3">
-              <p className="text-[13px] font-semibold text-white">
+              <p className="text-foreground text-[13px] font-semibold">
                 {editingService.applicationName}
               </p>
               <p className="text-muted-foreground mt-1 text-[13px]">
@@ -98,7 +98,7 @@ export function ServiceEditorCard({
           </form>
         ) : (
           <div className="border-border rounded-2xl border border-dashed px-4 py-5">
-            <p className="text-[13px] font-medium text-white">
+            <p className="text-foreground text-[13px] font-medium">
               No service selected.
             </p>
             <p className="text-muted-foreground mt-2 text-[13px] leading-6">

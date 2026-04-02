@@ -66,11 +66,11 @@ function StateSurface({
       )}
     >
       <div className="flex min-w-0 items-start gap-3">
-        <div className="bg-panel mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border border-white/10 text-white/80">
+        <div className="bg-panel text-foreground/80 border-border/70 mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-full border">
           {icon}
         </div>
         <div className="min-w-0">
-          <p className="text-[13px] font-semibold text-white">{title}</p>
+          <p className="text-foreground text-[13px] font-semibold">{title}</p>
           <p className="text-muted-foreground mt-2 max-w-2xl text-[13px] leading-6">
             {description}
           </p>
@@ -149,7 +149,7 @@ export function InlineNotice({
       )}
     >
       <div>
-        <p className="text-[11px] font-semibold tracking-[0.18em] text-white uppercase">
+        <p className="text-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
           {title}
         </p>
         <p className="text-muted-foreground mt-1 text-[12px] leading-5">
@@ -271,11 +271,11 @@ export function CardStackSkeleton({
             </div>
 
             <div className="border-border bg-muted/25 rounded-2xl border">
-              <div className="flex items-center justify-between gap-3 border-b border-white/6 px-4 py-3">
+              <div className="border-border/70 flex items-center justify-between gap-3 border-b px-4 py-3">
                 <div className="bg-muted/45 h-3 w-28 animate-pulse rounded-full" />
                 <div className="bg-muted/35 h-3 w-14 animate-pulse rounded-full" />
               </div>
-              <div className="divide-y divide-white/6">
+              <div className="divide-border/70 divide-y">
                 {Array.from({ length: 2 }).map((_, serviceIndex) => (
                   <div
                     key={`service-skeleton-${index}-${serviceIndex}`}
@@ -308,7 +308,7 @@ export function RouteLoadingState({
         <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.28em] uppercase">
           {eyebrow}
         </p>
-        <h1 className="display-face text-3xl font-semibold tracking-[-0.04em] text-white md:text-4xl">
+        <h1 className="display-face text-foreground text-3xl font-semibold tracking-[-0.04em] md:text-4xl">
           {title}
         </h1>
         <p className="text-muted-foreground max-w-2xl text-sm leading-7">

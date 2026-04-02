@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { useState } from "react";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 import { SignOutButton } from "@/components/navigation/SignOutButton";
+import { ThemeToggle } from "@/components/theme/ThemeToggle";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { RequestIntakeModal } from "@/features/tickets/components/RequestIntakeModal";
@@ -135,19 +136,25 @@ export function HomePageExperience({
                 Create ticket
               </Button>
 
-              {session.user.role === "admin" ? (
-                <Button
-                  asChild
-                  variant="secondary"
-                  size="sm"
-                  className="h-9 rounded-xl bg-transparent px-3.5"
-                >
-                  <Link href="/admin">
-                    <ShieldCheck className="size-4" />
-                    Open admin
-                  </Link>
-                </Button>
-              ) : null}
+              <div className="flex w-full items-center gap-3">
+                {session.user.role === "admin" ? (
+                  <Button
+                    asChild
+                    variant="secondary"
+                    size="sm"
+                    className="h-9 flex-1 rounded-xl bg-transparent px-3.5"
+                  >
+                    <Link href="/admin">
+                      <ShieldCheck className="size-4" />
+                      Open admin
+                    </Link>
+                  </Button>
+                ) : (
+                  <div className="flex-1" />
+                )}
+
+                <ThemeToggle />
+              </div>
             </div>
 
             <div className="border-border/80 mt-7 border-t pt-5">

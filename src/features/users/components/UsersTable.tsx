@@ -182,9 +182,9 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
             </thead>
             <tbody className="divide-border bg-panel divide-y">
               {users.map((user) => (
-                <tr key={user.id} className="hover:bg-white/2">
+                <tr key={user.id} className="hover:bg-muted/35">
                   <td className="px-4 py-3.5">
-                    <p className="text-[13px] font-semibold text-white">
+                    <p className="text-foreground text-[13px] font-semibold">
                       {user.name}
                     </p>
                     <p className="text-muted-foreground text-xs">

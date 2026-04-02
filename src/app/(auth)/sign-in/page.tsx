@@ -20,7 +20,7 @@ export default async function SignInPage() {
             KOZ AI Service Desk
           </p>
           <div className="space-y-5">
-            <h1 className="display-face text-5xl leading-[0.9] font-semibold tracking-[-0.04em] text-white md:text-7xl xl:text-8xl">
+            <h1 className="display-face text-foreground text-5xl leading-[0.9] font-semibold tracking-[-0.04em] md:text-7xl xl:text-8xl">
               Internal support operations on a sharper grid.
             </h1>
             <p className="text-muted-foreground max-w-2xl text-base leading-8 md:text-lg">
@@ -41,7 +41,7 @@ export default async function SignInPage() {
                 <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
                   {label}
                 </p>
-                <p className="mt-3 font-semibold text-white">{value}</p>
+                <p className="text-foreground mt-3 font-semibold">{value}</p>
               </div>
             ))}
           </div>
@@ -56,7 +56,7 @@ export default async function SignInPage() {
                 Authentication
               </p>
               <div>
-                <h2 className="display-face text-3xl font-semibold tracking-[-0.03em] text-white">
+                <h2 className="display-face text-foreground text-3xl font-semibold tracking-[-0.03em]">
                   Access the workspace
                 </h2>
                 <p className="text-muted-foreground mt-3 text-sm leading-7">

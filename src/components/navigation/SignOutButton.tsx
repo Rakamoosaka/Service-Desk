@@ -28,8 +28,8 @@ export function SignOutButton({
       variant="ghost"
       className={cn(
         iconOnly
-          ? "text-sidebar-muted h-8 w-8 justify-center rounded-full px-0 hover:bg-transparent hover:text-white"
-          : "text-sidebar-muted w-full justify-start px-4 py-3 text-sm font-medium hover:bg-transparent hover:text-white",
+          ? "text-sidebar-muted hover:text-sidebar-foreground h-8 w-8 justify-center rounded-full px-0 hover:bg-transparent"
+          : "text-sidebar-muted hover:text-sidebar-foreground w-full justify-start px-4 py-3 text-sm font-medium hover:bg-transparent",
         className,
       )}
       onClick={handleSignOut}

@@ -21,7 +21,7 @@ export function InfoTooltip({
       <button
         type="button"
         aria-label={label}
-        className="border-border bg-muted/35 text-muted-foreground focus-visible:ring-ring inline-flex size-7 items-center justify-center rounded-full border transition hover:border-white/15 hover:text-white focus-visible:ring-2 focus-visible:outline-none"
+        className="border-border bg-muted/35 text-muted-foreground focus-visible:ring-ring hover:border-border hover:text-foreground inline-flex size-7 items-center justify-center rounded-full border transition focus-visible:ring-2 focus-visible:outline-none"
       >
         <Info className="size-3.5" />
       </button>

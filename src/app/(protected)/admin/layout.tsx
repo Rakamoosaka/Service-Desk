@@ -56,7 +56,7 @@ export default async function AdminLayout({
                 </p>
                 <Link
                   href="/admin"
-                  className="display-face mt-1.5 block text-[1.65rem] leading-none font-semibold tracking-[-0.04em] text-white"
+                  className="display-face text-sidebar-foreground mt-1.5 block text-[1.65rem] leading-none font-semibold tracking-[-0.04em]"
                 >
                   Service Desk
                 </Link>
@@ -79,7 +79,7 @@ export default async function AdminLayout({
           <div className="from-sidebar via-sidebar/95 sticky bottom-0 mt-auto space-y-2 bg-linear-to-t to-transparent pt-5">
             <div className="px-1 py-1.5">
               <div>
-                <p className="text-[13px] font-semibold text-white">
+                <p className="text-sidebar-foreground text-[13px] font-semibold">
                   {session.user.name}
                 </p>
                 <p className="text-sidebar-muted mt-1 text-xs">
@@ -91,7 +91,7 @@ export default async function AdminLayout({
                 asChild
                 variant="secondary"
                 size="sm"
-                className="mt-3 w-full justify-center border-white/10 bg-white/6 hover:bg-white/10"
+                className="bg-sidebar-foreground/5 border-sidebar-border hover:bg-sidebar-foreground/10 mt-3 w-full justify-center"
               >
                 <Link href="/">
                   <ArrowUpLeft className="size-4" />

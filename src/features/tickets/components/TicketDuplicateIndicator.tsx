@@ -14,7 +14,7 @@ export function TicketDuplicateIndicator({
     <span
       title={title}
       className={cn(
-        "border-warning/35 text-warning inline-flex size-5 items-center justify-center rounded-full border bg-black/80 shadow-[0_0_20px_rgb(from_var(--warning)_r_g_b/0.18)]",
+        "border-warning/35 bg-panel/95 text-warning inline-flex size-5 items-center justify-center rounded-full border shadow-[0_0_20px_rgb(from_var(--warning)_r_g_b/0.18)]",
         className,
       )}
     >

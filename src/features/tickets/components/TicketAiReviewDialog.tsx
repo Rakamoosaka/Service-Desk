@@ -268,7 +268,7 @@ export function TicketAiReviewDialog({
                 )}
               </div>
 
-              <div className="flex flex-col gap-3 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="border-border/70 flex flex-col gap-3 border-t pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-muted-foreground text-sm leading-7">
                   {ticket.aiSuggestionStatus === "pending_review"
                     ? "Use the action inside Lane recommendation to apply the lane change, and manage duplicate reminders from the list above."

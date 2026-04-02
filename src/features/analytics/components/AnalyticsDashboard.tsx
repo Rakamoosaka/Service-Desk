@@ -86,7 +86,7 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="space-y-3">
                 <CardEyebrow>Ticket trend</CardEyebrow>
-                <CardTitle className="text-white">Daily intake curve</CardTitle>
+                <CardTitle>Daily intake curve</CardTitle>
                 <p className="text-muted-foreground max-w-2xl text-[13px] leading-6">
                   Each column represents tickets created on a given day. The
                   view is read directly from the database for the selected

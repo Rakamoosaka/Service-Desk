@@ -63,7 +63,7 @@ export function RequestIntakeModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="max-h-[88vh] w-[min(92vw,940px)] overflow-hidden rounded-[18px] border-white/12 bg-[linear-gradient(180deg,rgba(8,12,16,0.995),rgba(8,12,16,0.985))] p-0 shadow-none [&_.panel-grid]:hidden"
+        className="border-border/70 bg-panel max-h-[88vh] w-[min(92vw,940px)] overflow-hidden rounded-[18px] p-0 shadow-none [&_.panel-grid]:hidden"
         onPointerDownOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
@@ -110,25 +110,25 @@ export function RequestIntakeModal({
                     description=""
                     onSuccess={onClose}
                     headerAddon={
-                      <div className="rounded-2xl border border-white/10 bg-white/[0.035] px-4 py-4 md:px-5 md:py-4.5">
+                      <div className="border-border/70 bg-muted/35 rounded-2xl border px-4 py-4 md:px-5 md:py-4.5">
                         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                           <div className="min-w-0 space-y-3">
                             <div className="flex flex-wrap items-center gap-2">
                               <Badge
                                 tone="neutral"
-                                className="border-white/10 bg-white/4 text-[10px] tracking-[0.18em] text-white/72"
+                                className="border-border/70 bg-panel/65 text-foreground/72 text-[10px] tracking-[0.18em]"
                               >
                                 Selected application
                               </Badge>
                               <Badge
                                 tone="accent"
-                                className="text-accent border-white/10 bg-white/4.5 text-[10px] tracking-[0.18em] shadow-none"
+                                className="border-accent/20 bg-accent/10 text-accent text-[10px] tracking-[0.18em] shadow-none"
                               >
                                 /{selectedApplication!.slug}
                               </Badge>
                               <Badge
                                 tone="neutral"
-                                className="border-white/10 bg-white/3 text-[10px] tracking-[0.18em] text-white/68"
+                                className="border-border/70 bg-panel/55 text-foreground/68 text-[10px] tracking-[0.18em]"
                               >
                                 {selectedApplication!.services.length} service
                                 {selectedApplication!.services.length === 1
@@ -138,7 +138,7 @@ export function RequestIntakeModal({
                             </div>
 
                             <div className="min-w-0 space-y-1">
-                              <p className="display-face text-[1.15rem] font-semibold tracking-[-0.04em] text-white md:text-[1.3rem]">
+                              <p className="display-face text-foreground text-[1.15rem] font-semibold tracking-[-0.04em] md:text-[1.3rem]">
                                 {selectedApplication!.name}
                               </p>
                               <p className="text-muted-foreground text-[12px] leading-5 md:text-[13px]">
@@ -185,21 +185,21 @@ export function RequestIntakeModal({
                             delay: 0.03 * index,
                             ease: [0.22, 1, 0.36, 1],
                           }}
-                          className="group overflow-hidden rounded-2xl border border-white/8 bg-black/16 text-left transition duration-200 hover:border-white/14 hover:bg-black/22"
+                          className="border-border/70 bg-muted/30 group hover:border-border hover:bg-muted/45 overflow-hidden rounded-2xl border text-left transition duration-200"
                           onClick={() =>
                             onSelectedApplicationSlugChange(application.slug)
                           }
                         >
-                          <div className="flex flex-wrap items-center gap-2 border-b border-white/8 px-4 py-3.5">
+                          <div className="border-border/70 flex flex-wrap items-center gap-2 border-b px-4 py-3.5">
                             <Badge
                               tone="accent"
-                              className="text-accent border-white/10 bg-white/4.5 text-[11px] shadow-none"
+                              className="border-accent/20 bg-accent/10 text-accent text-[11px] shadow-none"
                             >
                               /{application.slug}
                             </Badge>
                             <Badge
                               tone="neutral"
-                              className="border-white/10 bg-white/3 text-[11px]"
+                              className="border-border/70 bg-panel/60 text-[11px]"
                             >
                               {application.services.length} service
                               {application.services.length === 1 ? "" : "s"}
@@ -208,7 +208,7 @@ export function RequestIntakeModal({
 
                           <div className="space-y-3 px-4 py-4">
                             <div>
-                              <h3 className="display-face text-[1.7rem] font-semibold tracking-[-0.04em] text-white md:text-[1.85rem]">
+                              <h3 className="display-face text-foreground text-[1.7rem] font-semibold tracking-[-0.04em] md:text-[1.85rem]">
                                 {application.name}
                               </h3>
                               <p className="text-muted-foreground mt-2.5 text-[13px] leading-6">
@@ -228,7 +228,7 @@ export function RequestIntakeModal({
                         (_, index) => (
                           <div
                             key={`placeholder-${index}`}
-                            className="rounded-2xl border border-dashed border-white/10 bg-transparent p-4 opacity-60"
+                            className="border-border/60 rounded-2xl border border-dashed bg-transparent p-4 opacity-60"
                           >
                             <div aria-hidden="true" className="min-h-55" />
                           </div>
