@@ -27,23 +27,24 @@ const envSchema = z
     RESEND_TEST_EMAIL: z.string().email().optional(),
   })
   .superRefine((value, ctx) => {
-    if (value.NODE_ENV !== "production") {
-      return;
-    }
+    const hasUpstashUrl = Boolean(value.UPSTASH_REDIS_REST_URL);
+    const hasUpstashToken = Boolean(value.UPSTASH_REDIS_REST_TOKEN);
 
-    if (!value.UPSTASH_REDIS_REST_URL) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["UPSTASH_REDIS_REST_URL"],
-        message: "UPSTASH_REDIS_REST_URL is required in production",
-      });
-    }
-
-    if (!value.UPSTASH_REDIS_REST_TOKEN) {
+    if (hasUpstashUrl && !hasUpstashToken) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["UPSTASH_REDIS_REST_TOKEN"],
-        message: "UPSTASH_REDIS_REST_TOKEN is required in production",
+        message:
+          "UPSTASH_REDIS_REST_TOKEN is required when UPSTASH_REDIS_REST_URL is set",
+      });
+    }
+
+    if (!hasUpstashUrl && hasUpstashToken) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["UPSTASH_REDIS_REST_URL"],
+        message:
+          "UPSTASH_REDIS_REST_URL is required when UPSTASH_REDIS_REST_TOKEN is set",
       });
     }
   });

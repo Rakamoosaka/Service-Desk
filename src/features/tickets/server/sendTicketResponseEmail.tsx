@@ -27,9 +27,9 @@ function getResendClient() {
 }
 
 function resolveDeliveryErrorMessage(error: {
-  message?: string;
-  name?: string;
-  statusCode?: number;
+  message?: string | null;
+  name?: string | null;
+  statusCode?: number | null;
 }) {
   const message = error.message?.trim();
 

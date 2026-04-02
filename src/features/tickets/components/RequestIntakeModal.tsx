@@ -13,12 +13,7 @@ import {
 } from "@/components/ui/Dialog";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
-import {
-  Card,
-  CardContent,
-  CardEyebrow,
-  CardTitle,
-} from "@/components/ui/Card";
+import { Card, CardContent } from "@/components/ui/Card";
 import { TicketIntakeForm } from "@/features/tickets/components/TicketIntakeForm";
 
 type ApplicationSummary = {

@@ -20,7 +20,7 @@ export function ThemeToggle() {
       type="button"
       aria-label="Toggle theme"
       className={cn(
-        "border-sidebar-border bg-panel text-foreground hover:border-accent hover:text-accent inline-flex h-10 w-10 items-center justify-center rounded-xl border transition duration-150 ease-out hover:shadow-[0_0_20px_rgb(from_var(--accent)_r_g_b_/_0.16)]",
+        "border-sidebar-border bg-panel text-foreground hover:border-accent hover:text-accent inline-flex h-10 w-10 items-center justify-center rounded-xl border transition duration-150 ease-out hover:shadow-[0_0_20px_rgb(from_var(--accent)_r_g_b/0.16)]",
         !mounted && "opacity-0",
       )}
       onClick={() => setTheme(isDark ? "light" : "dark")}

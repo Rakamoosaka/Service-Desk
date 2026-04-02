@@ -21,19 +21,6 @@ interface HomeServiceUptimeCardProps {
   initialSnapshot: UptimeSnapshot;
 }
 
-function statusTone(status: UptimeState) {
-  switch (status) {
-    case "operational":
-      return "success" as const;
-    case "degraded":
-      return "warning" as const;
-    case "outage":
-      return "danger" as const;
-    default:
-      return "neutral" as const;
-  }
-}
-
 function historyClass(status: UptimeState) {
   switch (status) {
     case "operational":

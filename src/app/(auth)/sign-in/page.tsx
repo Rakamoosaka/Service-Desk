@@ -14,7 +14,7 @@ export default async function SignInPage() {
     <main className="bg-background grid min-h-screen overflow-hidden lg:grid-cols-[1.15fr_0.85fr]">
       <section className="border-border relative flex items-end border-b px-6 py-12 lg:border-r lg:border-b-0 lg:px-10 lg:py-14">
         <div className="panel-grid absolute inset-0 opacity-40" />
-        <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-cyan-400/70 to-transparent" />
+        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-cyan-400/70 to-transparent" />
         <div className="relative max-w-3xl space-y-8">
           <p className="text-accent text-[11px] font-semibold tracking-[0.36em] uppercase">
             KOZ AI Service Desk
