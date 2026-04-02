@@ -18,6 +18,10 @@ import type {
 import type { StoredTicketAiTriage } from "@/features/tickets/ticketAi";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
+import {
+  optimisticQueryUpdate,
+  rollbackOptimisticQueryUpdate,
+} from "@/lib/query/optimistic";
 import { cn, formatDate } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -192,9 +196,10 @@ export function AdminTicketsBoard({
   const exportHref = exportParams
     ? `/api/tickets/export?${exportParams}`
     : "/api/tickets/export";
+  const ticketsQueryKey = queryKeys.tickets(activeFilters);
 
   const ticketsQuery = useQuery({
-    queryKey: queryKeys.tickets(activeFilters),
+    queryKey: ticketsQueryKey,
     queryFn: async () => {
       const params = buildTicketSearchParams(activeFilters);
 
@@ -245,31 +250,21 @@ export function AdminTicketsBoard({
         method: "PATCH",
         body: JSON.stringify({ status }),
       }),
-    onMutate: async ({ id, status }) => {
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.tickets(activeFilters),
-      });
-      const previous = queryClient.getQueryData<TicketRecord[]>(
-        queryKeys.tickets(activeFilters),
-      );
-
-      queryClient.setQueryData<TicketRecord[]>(
-        queryKeys.tickets(activeFilters),
-        (current) =>
+    onMutate: ({ id, status }) =>
+      optimisticQueryUpdate<TicketRecord[]>({
+        queryClient,
+        queryKey: ticketsQueryKey,
+        updater: (current) =>
           current?.map((ticket) =>
             ticket.id === id ? { ...ticket, status } : ticket,
           ) ?? [],
-      );
-
-      return { previous };
-    },
+      }),
     onError: (error, _, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(
-          queryKeys.tickets(activeFilters),
-          context.previous,
-        );
-      }
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: ticketsQueryKey,
+        context,
+      });
 
       toast.error(error.message);
     },
@@ -278,7 +273,7 @@ export function AdminTicketsBoard({
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.tickets(activeFilters),
+        queryKey: ticketsQueryKey,
       });
     },
   });
@@ -348,31 +343,21 @@ export function AdminTicketsBoard({
         method: "PATCH",
         body: JSON.stringify({ priority }),
       }),
-    onMutate: async ({ id, priority }) => {
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.tickets(activeFilters),
-      });
-      const previous = queryClient.getQueryData<TicketRecord[]>(
-        queryKeys.tickets(activeFilters),
-      );
-
-      queryClient.setQueryData<TicketRecord[]>(
-        queryKeys.tickets(activeFilters),
-        (current) =>
+    onMutate: ({ id, priority }) =>
+      optimisticQueryUpdate<TicketRecord[]>({
+        queryClient,
+        queryKey: ticketsQueryKey,
+        updater: (current) =>
           current?.map((ticket) =>
             ticket.id === id ? { ...ticket, priority } : ticket,
           ) ?? [],
-      );
-
-      return { previous };
-    },
+      }),
     onError: (error, _, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(
-          queryKeys.tickets(activeFilters),
-          context.previous,
-        );
-      }
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: ticketsQueryKey,
+        context,
+      });
 
       toast.error(error.message);
     },
@@ -381,7 +366,7 @@ export function AdminTicketsBoard({
     },
     onSettled: async () => {
       await queryClient.invalidateQueries({
-        queryKey: queryKeys.tickets(activeFilters),
+        queryKey: ticketsQueryKey,
       });
     },
   });
@@ -392,17 +377,11 @@ export function AdminTicketsBoard({
         method: "PATCH",
         body: JSON.stringify(payload),
       }),
-    onMutate: async (payload) => {
-      await queryClient.cancelQueries({
-        queryKey: queryKeys.tickets(activeFilters),
-      });
-      const previous = queryClient.getQueryData<TicketRecord[]>(
-        queryKeys.tickets(activeFilters),
-      );
-
-      queryClient.setQueryData<TicketRecord[]>(
-        queryKeys.tickets(activeFilters),
-        (current) =>
+    onMutate: (payload) =>
+      optimisticQueryUpdate<TicketRecord[]>({
+        queryClient,
+        queryKey: ticketsQueryKey,
+        updater: (current) =>
           current?.map((ticket) => {
             if (!payload.ids.includes(ticket.id)) {
               return ticket;
@@ -414,17 +393,13 @@ export function AdminTicketsBoard({
               ...(payload.priority ? { priority: payload.priority } : null),
             };
           }) ?? [],
-      );
-
-      return { previous };
-    },
+      }),
     onError: (error, _, context) => {
-      if (context?.previous) {
-        queryClient.setQueryData(
-          queryKeys.tickets(activeFilters),
-          context.previous,
-        );
-      }
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: ticketsQueryKey,
+        context,
+      });
 
       toast.error(error.message);
     },

@@ -37,6 +37,10 @@ import {
 } from "@/features/services/schemas/serviceSchemas";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
+import {
+  optimisticQueryUpdate,
+  rollbackOptimisticQueryUpdate,
+} from "@/lib/query/optimistic";
 import { slugify } from "@/lib/utils";
 
 type ServiceRecord = {
@@ -64,6 +68,11 @@ interface ApplicationsManagerProps {
   initialApplications: ApplicationRecord[];
 }
 
+type SaveApplicationVariables = {
+  values: ApplicationInput;
+  applicationId?: string;
+};
+
 function formatTimestamp(value: string | Date | null) {
   if (!value) {
     return "Not synced yet";
@@ -89,6 +98,7 @@ export function ApplicationsManager({
   initialApplications,
 }: ApplicationsManagerProps) {
   const queryClient = useQueryClient();
+  const applicationsQueryKey = queryKeys.applications;
   const [editingApplication, setEditingApplication] =
     useState<ApplicationRecord | null>(null);
   const [editingService, setEditingService] = useState<{
@@ -116,30 +126,82 @@ export function ApplicationsManager({
   });
 
   const applicationsQuery = useQuery({
-    queryKey: queryKeys.applications,
+    queryKey: applicationsQueryKey,
     queryFn: () => fetchJson<ApplicationRecord[]>("/api/applications"),
     initialData: initialApplications,
   });
 
+  function setApplicationsData(
+    updater: (applications: ApplicationRecord[]) => ApplicationRecord[],
+  ) {
+    queryClient.setQueryData<ApplicationRecord[]>(
+      applicationsQueryKey,
+      (current) => updater(current ?? []),
+    );
+  }
+
   const saveMutation = useMutation({
-    mutationFn: async (values: ApplicationInput) => {
-      if (editingApplication) {
-        return fetchJson(`/api/applications/${editingApplication.id}`, {
+    mutationFn: async ({ values, applicationId }: SaveApplicationVariables) => {
+      if (applicationId) {
+        return fetchJson<
+          Omit<ApplicationRecord, "services"> & { services?: ServiceRecord[] }
+        >(`/api/applications/${applicationId}`, {
           method: "PATCH",
           body: JSON.stringify(values),
         });
       }
 
-      return fetchJson("/api/applications", {
+      return fetchJson<
+        Omit<ApplicationRecord, "services"> & { services?: ServiceRecord[] }
+      >("/api/applications", {
         method: "POST",
         body: JSON.stringify(values),
       });
     },
-    onSuccess: async () => {
+    onMutate: ({ values, applicationId }) => {
+      if (!applicationId) {
+        return undefined;
+      }
+
+      return optimisticQueryUpdate<ApplicationRecord[]>({
+        queryClient,
+        queryKey: applicationsQueryKey,
+        updater: (current) =>
+          current?.map((application) =>
+            application.id === applicationId
+              ? {
+                  ...application,
+                  ...values,
+                }
+              : application,
+          ) ?? [],
+      });
+    },
+    onSuccess: async (savedApplication, variables) => {
+      if (variables.applicationId) {
+        setApplicationsData((applications) =>
+          applications.map((application) =>
+            application.id === variables.applicationId
+              ? {
+                  ...application,
+                  ...savedApplication,
+                }
+              : application,
+          ),
+        );
+      } else {
+        setApplicationsData((applications) =>
+          [...applications, { ...savedApplication, services: [] }].sort(
+            (left, right) => left.name.localeCompare(right.name),
+          ),
+        );
+      }
+
       toast.success(
-        editingApplication ? "Application synced" : "Application created",
+        variables.applicationId ? "Application synced" : "Application created",
       );
-      await queryClient.invalidateQueries({ queryKey: queryKeys.applications });
+
+      await queryClient.invalidateQueries({ queryKey: applicationsQueryKey });
       setEditingApplication(null);
       applicationForm.reset({
         name: "",
@@ -148,7 +210,13 @@ export function ApplicationsManager({
         uptimeKumaIdentifier: "",
       });
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: applicationsQueryKey,
+        context,
+      });
+
       toast.error(error.message);
     },
   });
@@ -161,20 +229,58 @@ export function ApplicationsManager({
       id: string;
       values: ServiceMetadataInput;
     }) =>
-      fetchJson(`/api/services/${id}`, {
+      fetchJson<Partial<ServiceRecord>>(`/api/services/${id}`, {
         method: "PATCH",
         body: JSON.stringify(values),
       }),
-    onSuccess: async () => {
+    onMutate: ({ id, values }) =>
+      optimisticQueryUpdate<ApplicationRecord[]>({
+        queryClient,
+        queryKey: applicationsQueryKey,
+        updater: (current) =>
+          current?.map((application) => ({
+            ...application,
+            services: application.services.map((service) =>
+              service.id === id
+                ? {
+                    ...service,
+                    ...values,
+                  }
+                : service,
+            ),
+          })) ?? [],
+      }),
+    onSuccess: async (savedService, variables) => {
+      setApplicationsData((applications) =>
+        applications.map((application) => ({
+          ...application,
+          services: application.services.map((service) =>
+            service.id === variables.id
+              ? {
+                  ...service,
+                  ...savedService,
+                }
+              : service,
+          ),
+        })),
+      );
+
       toast.success("Service details updated");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.applications });
+
+      await queryClient.invalidateQueries({ queryKey: applicationsQueryKey });
       setEditingService(null);
       serviceForm.reset({
         name: "",
         description: "",
       });
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: applicationsQueryKey,
+        context,
+      });
+
       toast.error(error.message);
     },
   });
@@ -184,14 +290,28 @@ export function ApplicationsManager({
       fetchJson(`/api/applications/${id}`, {
         method: "DELETE",
       }),
+    onMutate: (id) =>
+      optimisticQueryUpdate<ApplicationRecord[]>({
+        queryClient,
+        queryKey: applicationsQueryKey,
+        updater: (current) =>
+          current?.filter((application) => application.id !== id) ?? [],
+      }),
     onSuccess: async (_, id) => {
       toast.success("Application removed");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.applications });
+
+      await queryClient.invalidateQueries({ queryKey: applicationsQueryKey });
       if (editingApplication?.id === id) {
         clearApplicationForm();
       }
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: applicationsQueryKey,
+        context,
+      });
+
       toast.error(error.message);
     },
   });
@@ -533,7 +653,10 @@ export function ApplicationsManager({
             <form
               className="space-y-4"
               onSubmit={applicationForm.handleSubmit((values) =>
-                saveMutation.mutate(values),
+                saveMutation.mutate({
+                  values,
+                  applicationId: editingApplication?.id,
+                }),
               )}
             >
               <div className="space-y-2">

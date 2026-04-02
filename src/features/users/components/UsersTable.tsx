@@ -14,6 +14,10 @@ import { Card, CardContent } from "@/components/ui/Card";
 import { Select } from "@/components/ui/Select";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
+import {
+  optimisticQueryUpdate,
+  rollbackOptimisticQueryUpdate,
+} from "@/lib/query/optimistic";
 import { formatDate } from "@/lib/utils";
 
 type UserRecord = {
@@ -31,25 +35,50 @@ interface UsersTableProps {
 
 export function UsersTable({ initialUsers }: UsersTableProps) {
   const queryClient = useQueryClient();
+  const usersQueryKey = queryKeys.users;
 
   const usersQuery = useQuery({
-    queryKey: queryKeys.users,
+    queryKey: usersQueryKey,
     queryFn: () => fetchJson<UserRecord[]>("/api/users"),
     initialData: initialUsers,
   });
 
   const roleMutation = useMutation({
     mutationFn: async ({ id, role }: Pick<UserRecord, "id" | "role">) =>
-      fetchJson(`/api/users/${id}/role`, {
+      fetchJson<UserRecord>(`/api/users/${id}/role`, {
         method: "PATCH",
         body: JSON.stringify({ role }),
       }),
-    onSuccess: async () => {
+    onMutate: ({ id, role }) =>
+      optimisticQueryUpdate<UserRecord[]>({
+        queryClient,
+        queryKey: usersQueryKey,
+        updater: (current) =>
+          current?.map((user) => (user.id === id ? { ...user, role } : user)) ??
+          [],
+      }),
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData<UserRecord[]>(
+        usersQueryKey,
+        (current) =>
+          current?.map((user) =>
+            user.id === updatedUser.id ? updatedUser : user,
+          ) ?? [],
+      );
+
       toast.success("User role updated");
-      await queryClient.invalidateQueries({ queryKey: queryKeys.users });
     },
-    onError: (error) => {
+    onError: (error, _, context) => {
+      rollbackOptimisticQueryUpdate({
+        queryClient,
+        queryKey: usersQueryKey,
+        context,
+      });
+
       toast.error(error.message);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({ queryKey: usersQueryKey });
     },
   });
 
