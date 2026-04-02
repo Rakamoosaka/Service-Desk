@@ -9,7 +9,7 @@
     "prestart": "npm run db:migrate",
     "start": "next start",
     "lint": "eslint .",
-    "test": "tsx --test src/features/tickets/server/ticketAiAnalysis.test.ts",
+    "test": "tsx --test --import ./src/db/loadEnv.ts \"src/**/*.test.ts\"",
     "format": "prettier --check .",
     "format:write": "prettier --write .",
     "db:up": "docker compose up -d postgres",
