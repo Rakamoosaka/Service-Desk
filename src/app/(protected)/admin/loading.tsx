@@ -1,11 +1,5 @@
-import { RouteLoadingState } from "@/components/feedback/AsyncStates";
+import { AdminOverviewSkeleton } from "@/components/feedback/RouteSkeletons";
 
 export default function AdminLoading() {
-  return (
-    <RouteLoadingState
-      eyebrow="Loading admin"
-      title="Preparing the admin workspace"
-      description="Fetching analytics, catalog, ticket, and user data for the admin area."
-    />
-  );
+  return <AdminOverviewSkeleton />;
 }
