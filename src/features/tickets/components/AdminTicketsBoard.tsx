@@ -23,9 +23,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
-import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { Input } from "@/components/ui/Input";
+import { Label } from "@/components/ui/Label";
 import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
 import { TicketDuplicateIndicator } from "@/features/tickets/components/TicketDuplicateIndicator";
 
 type TicketRecord = {
@@ -129,50 +130,6 @@ function buildTicketSearchParams(filters: TicketFilters) {
   return params;
 }
 
-function aiStatusTone(ticket: TicketRecord) {
-  if (ticket.aiSuggestionStatus === "pending_review") {
-    return "warning" as const;
-  }
-
-  if (ticket.analysisState === "completed") {
-    return "success" as const;
-  }
-
-  if (ticket.analysisState === "failed") {
-    return "danger" as const;
-  }
-
-  return "neutral" as const;
-}
-
-function aiStatusLabel(ticket: TicketRecord) {
-  if (ticket.aiSuggestionStatus === "pending_review") {
-    return "needs review";
-  }
-
-  if (ticket.aiSuggestionStatus === "accepted") {
-    return "reviewed";
-  }
-
-  if (ticket.aiSuggestionStatus === "dismissed") {
-    return "kept current";
-  }
-
-  if (ticket.analysisState === "pending") {
-    return "analysis pending";
-  }
-
-  if (ticket.analysisState === "failed") {
-    return "analysis failed";
-  }
-
-  if (ticket.analysisState === "completed") {
-    return "no changes";
-  }
-
-  return "not configured";
-}
-
 function sentenceCase(value: string) {
   return value.replace(/_/g, " ");
 }
@@ -215,6 +172,7 @@ export function AdminTicketsBoard({
   const [filters, setFilters] = useState<TicketFilters>({});
   const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
   const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [responseMessage, setResponseMessage] = useState("");
   const [bulkStatus, setBulkStatus] = useState<"" | TicketRecord["status"]>("");
   const [bulkPriority, setBulkPriority] = useState<
     "" | TicketRecord["priority"]
@@ -313,43 +271,19 @@ export function AdminTicketsBoard({
     },
   });
 
-  const reviewMutation = useMutation({
-    mutationFn: async ({
-      id,
-      action,
-    }: {
-      id: string;
-      action:
-        | "accept"
-        | "dismiss"
-        | "accept_type"
-        | "dismiss_type"
-        | "clear_duplicate"
-        | "clear_all_duplicates";
-    }) =>
-      fetchJson(`/api/tickets/${id}/ai-review`, {
-        method: "PATCH",
-        body: JSON.stringify({ action }),
+  const sendResponseMutation = useMutation({
+    mutationFn: async ({ id, message }: { id: string; message: string }) =>
+      fetchJson<{ success: true }>(`/api/tickets/${id}/respond`, {
+        method: "POST",
+        body: JSON.stringify({ message }),
       }),
     onError: (error) => {
       toast.error(error.message);
     },
-    onSuccess: (_, variables) => {
-      const messageByAction = {
-        accept: "Suggestions applied",
-        dismiss: "Suggestions dismissed",
-        accept_type: "Lane change applied",
-        dismiss_type: "Lane change dismissed",
-        clear_duplicate: "Duplicate reminder removed",
-        clear_all_duplicates: "All duplicate reminders removed",
-      } as const;
-
-      toast.success(messageByAction[variables.action]);
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: queryKeys.tickets(activeFilters),
-      });
+    onSuccess: () => {
+      toast.success("Ticket response emailed");
+      setResponseMessage("");
+      setSelectedTicketId(null);
     },
   });
 
@@ -466,8 +400,6 @@ export function AdminTicketsBoard({
   });
 
   const isMutatingBulkTickets = bulkUpdateMutation.isPending;
-  const isMutatingSingleTicket =
-    updateStatusMutation.isPending || updatePriorityMutation.isPending;
 
   return (
     <>
@@ -807,9 +739,10 @@ export function AdminTicketsBoard({
                           }
                           className="h-9 w-9 rounded-full px-0"
                           aria-label="Review ticket triage"
-                          title="Review ticket triage"
+                          title="Reply to ticket"
                           onClick={(event) => {
                             event.stopPropagation();
+                            setResponseMessage("");
                             setSelectedTicketId(ticket.id);
                           }}
                         >
@@ -829,6 +762,7 @@ export function AdminTicketsBoard({
         open={Boolean(selectedTicket)}
         onOpenChange={(open) => {
           if (!open) {
+            setResponseMessage("");
             setSelectedTicketId(null);
           }
         }}
@@ -839,14 +773,14 @@ export function AdminTicketsBoard({
               <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
                 <DialogHeader className="max-w-3xl">
                   <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
-                    Ticket details
+                    Reply to ticket
                   </p>
                   <DialogTitle className="text-[1.65rem] md:text-[1.9rem]">
                     {selectedTicket.title}
                   </DialogTitle>
                   <DialogDescription className="text-[13px] leading-6 md:text-sm md:leading-6">
-                    Review the ticket contents, then handle triage suggestions
-                    and duplicate flags if needed.
+                    Send a direct email response to the user based on the full
+                    ticket details below.
                   </DialogDescription>
                 </DialogHeader>
 
@@ -858,299 +792,77 @@ export function AdminTicketsBoard({
               <div className="space-y-5 px-5 py-5 md:px-6 md:py-6">
                 <div className="border-border bg-panel/55 rounded-[18px] border p-4 md:p-5">
                   <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                    Ticket contents
+                    Description
                   </p>
                   <p className="text-foreground mt-3 text-sm leading-7 whitespace-pre-wrap md:text-[15px]">
                     {selectedTicket.description}
                   </p>
                 </div>
 
-                <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <Select
-                      className={`min-w-36 font-medium ${prioritySelectClassName(selectedTicket.priority)}`}
-                      value={selectedTicket.priority}
+                <form
+                  className="border-border bg-muted/30 space-y-3 rounded-[18px] border p-4 md:p-5"
+                  onSubmit={(event) => {
+                    event.preventDefault();
+
+                    if (!selectedTicket || !responseMessage.trim()) {
+                      return;
+                    }
+
+                    sendResponseMutation.mutate({
+                      id: selectedTicket.id,
+                      message: responseMessage,
+                    });
+                  }}
+                >
+                  <div className="space-y-2">
+                    <Label htmlFor="ticket-response">Response</Label>
+                    <Textarea
+                      id="ticket-response"
+                      value={responseMessage}
                       onChange={(event) =>
-                        updatePriorityMutation.mutate({
-                          id: selectedTicket.id,
-                          priority: event.target
-                            .value as TicketRecord["priority"],
-                        })
+                        setResponseMessage(event.target.value)
                       }
-                      disabled={isMutatingBulkTickets || isMutatingSingleTicket}
-                    >
-                      {ticketPriorityOptions.map((option) => (
-                        <option key={option.value} value={option.value}>
-                          {option.label}
-                        </option>
-                      ))}
-                    </Select>
-                    <Badge tone={aiStatusTone(selectedTicket)}>
-                      {aiStatusLabel(selectedTicket)}
-                    </Badge>
-                    {selectedTicket.suspectedDuplicateTicketId ? (
-                      <Badge tone="warning">duplicate flag</Badge>
-                    ) : null}
-                  </div>
-                  <p className="text-foreground mt-4 font-semibold">
-                    {selectedTicket.title}
-                  </p>
-                  <p className="text-muted-foreground mt-2 text-sm leading-7">
-                    {selectedTicket.aiTriage.priorityReason ??
-                      "Priority could not be scored because analysis has not completed yet."}
-                  </p>
-                </div>
-
-                <div className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] md:items-start">
-                  <div className="border-border bg-muted/30 self-start rounded-[18px] border p-4 md:p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                          Lane recommendation
-                        </p>
-                        <p className="text-muted-foreground mt-1 text-xs leading-5">
-                          Review the current lane against the suggested update.
-                        </p>
-                      </div>
-                      <InfoTooltip
-                        content="This panel compares the current lane with the suggested one. Accept applies the suggested lane, and dismiss keeps the current lane unchanged."
-                        label="Lane recommendation help"
-                      />
-                    </div>
-
-                    <div className="mt-4 space-y-3">
-                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
-                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-                          Current lane
-                        </span>
-                        <Badge tone="neutral">
-                          {sentenceCase(selectedTicket.type)}
-                        </Badge>
-                      </div>
-
-                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
-                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-                          Suggested lane
-                        </span>
-                        <Badge tone="accent">
-                          {sentenceCase(
-                            selectedTicket.aiTriage.recommendedType ??
-                              selectedTicket.type,
-                          )}
-                        </Badge>
-                      </div>
-
-                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
-                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-                          Confidence
-                        </span>
-                        <span className="text-foreground text-sm font-semibold">
-                          {selectedTicket.aiTriage.recommendedTypeConfidence
-                            ? `${Math.round(selectedTicket.aiTriage.recommendedTypeConfidence)}%`
-                            : "n/a"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="border-border/70 bg-panel/35 mt-4 rounded-2xl border px-3.5 py-3.5">
-                      <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-                        Why this was suggested
-                      </p>
-                      <p className="text-foreground/88 mt-2 text-sm leading-6">
-                        {selectedTicket.aiTriage.typeReason ??
-                          "No category change was suggested for this ticket."}
-                      </p>
-                    </div>
-
-                    {selectedTicket.aiSuggestionStatus === "pending_review" ? (
-                      <div className="mt-4 flex justify-end gap-3">
-                        <Button
-                          size="sm"
-                          variant="secondary"
-                          disabled={reviewMutation.isPending}
-                          onClick={() =>
-                            reviewMutation.mutate({
-                              id: selectedTicket.id,
-                              action: "dismiss_type",
-                            })
-                          }
-                        >
-                          Dismiss lane change
-                        </Button>
-                        <Button
-                          size="sm"
-                          disabled={reviewMutation.isPending}
-                          onClick={() =>
-                            reviewMutation.mutate({
-                              id: selectedTicket.id,
-                              action: "accept_type",
-                            })
-                          }
-                        >
-                          Accept lane change
-                        </Button>
-                      </div>
-                    ) : null}
+                      placeholder="Write the email that should be sent to the user."
+                      disabled={sendResponseMutation.isPending}
+                    />
+                    <p className="text-muted-foreground text-sm leading-6">
+                      This will be emailed to {selectedTicket.submittedBy.email}
+                      .
+                    </p>
                   </div>
 
-                  <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                          Extra context
-                        </p>
-                        <p className="text-muted-foreground mt-1 text-xs leading-5">
-                          Supporting signals for the review decision.
-                        </p>
-                      </div>
-                      <InfoTooltip
-                        content="These values are reference only. They do not change the ticket by themselves. This review can approve a lane change and keep or dismiss a duplicate reminder; priority was already set at creation."
-                        label="Extra context help"
-                        align="right"
-                      />
-                    </div>
+                  <div className="flex flex-col gap-3 border-t border-white/8 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <p className="text-muted-foreground text-sm leading-7">
+                      Use this reply to respond directly to the ticket
+                      submitter.
+                    </p>
 
-                    <div className="mt-4 space-y-3">
-                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
-                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-                          User sentiment
-                        </span>
-                        <Badge tone="neutral">
-                          {sentenceCase(
-                            selectedTicket.aiTriage.sentiment ?? "n/a",
-                          )}
-                        </Badge>
-                      </div>
-
-                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
-                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
-                          Service impact
-                        </span>
-                        <Badge tone="neutral">
-                          {sentenceCase(
-                            selectedTicket.aiTriage.technicalImpact ?? "n/a",
-                          )}
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
-                  <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div>
-                      <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
-                        Duplicate review
-                      </p>
-                      <p className="text-muted-foreground mt-1 text-xs leading-5">
-                        Review duplicate reminders individually.
-                      </p>
-                    </div>
-
-                    {selectedTicket.suspectedDuplicateTicket &&
-                    selectedTicket.aiSuggestionStatus === "pending_review" ? (
+                    <div className="flex flex-col gap-3 sm:flex-row">
                       <Button
                         size="sm"
                         variant="secondary"
-                        disabled={reviewMutation.isPending}
-                        onClick={() =>
-                          reviewMutation.mutate({
-                            id: selectedTicket.id,
-                            action: "clear_all_duplicates",
-                          })
+                        onClick={() => {
+                          setResponseMessage("");
+                          setSelectedTicketId(null);
+                        }}
+                      >
+                        Close
+                      </Button>
+                      <Button
+                        size="sm"
+                        type="submit"
+                        disabled={
+                          sendResponseMutation.isPending ||
+                          !responseMessage.trim()
                         }
                       >
-                        Delete all
+                        {sendResponseMutation.isPending
+                          ? "Sending..."
+                          : "Send email"}
                       </Button>
-                    ) : null}
+                    </div>
                   </div>
-
-                  {selectedTicket.suspectedDuplicateTicket ? (
-                    <ul className="mt-4 space-y-3">
-                      <li className="border-border/70 bg-panel/35 rounded-2xl border px-4 py-4">
-                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                          <div className="min-w-0 flex-1 space-y-3">
-                            <div className="flex flex-wrap items-center gap-2">
-                              <Badge tone="warning">
-                                {selectedTicket.aiTriage.duplicateScore
-                                  ? `${Math.round(selectedTicket.aiTriage.duplicateScore)}% match`
-                                  : "possible duplicate"}
-                              </Badge>
-                              <Badge tone="neutral">
-                                {sentenceCase(
-                                  selectedTicket.suspectedDuplicateTicket
-                                    .status,
-                                )}
-                              </Badge>
-                            </div>
-
-                            <p className="text-foreground font-semibold">
-                              {selectedTicket.suspectedDuplicateTicket.title}
-                            </p>
-
-                            <p className="text-muted-foreground text-sm leading-7">
-                              {selectedTicket.aiTriage.duplicateReason ??
-                                "This ticket appears related to an earlier item in the queue."}
-                            </p>
-
-                            {selectedTicket.aiTriage.duplicateSignals
-                              ?.length ? (
-                              <div className="flex flex-wrap gap-2">
-                                {selectedTicket.aiTriage.duplicateSignals.map(
-                                  (signal) => (
-                                    <Badge key={signal} tone="neutral">
-                                      {signal}
-                                    </Badge>
-                                  ),
-                                )}
-                              </div>
-                            ) : null}
-                          </div>
-
-                          {selectedTicket.aiSuggestionStatus ===
-                          "pending_review" ? (
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="shrink-0"
-                              disabled={reviewMutation.isPending}
-                              onClick={() =>
-                                reviewMutation.mutate({
-                                  id: selectedTicket.id,
-                                  action: "clear_duplicate",
-                                })
-                              }
-                            >
-                              Delete
-                            </Button>
-                          ) : null}
-                        </div>
-                      </li>
-                    </ul>
-                  ) : (
-                    <p className="text-muted-foreground mt-4 text-sm leading-7">
-                      No strong duplicate match was found for this ticket.
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex flex-col gap-3 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-muted-foreground text-sm leading-7">
-                    {selectedTicket.aiSuggestionStatus === "pending_review"
-                      ? "Use the action inside Lane recommendation to apply the lane change, and manage duplicate reminders from the list above."
-                      : "No pending suggestion changes are waiting for review on this ticket."}
-                  </p>
-
-                  <div className="flex flex-col gap-3 sm:flex-row">
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => setSelectedTicketId(null)}
-                    >
-                      Close
-                    </Button>
-                  </div>
-                </div>
+                </form>
               </div>
             </div>
           ) : null}

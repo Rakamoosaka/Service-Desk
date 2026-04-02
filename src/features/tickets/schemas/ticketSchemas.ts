@@ -47,6 +47,10 @@ export const ticketPrioritySchema = z.object({
   priority: z.enum(ticketPriorityValues),
 });
 
+export const ticketResponseSchema = z.object({
+  message: z.string().trim().min(4).max(4000),
+});
+
 export const bulkTicketUpdateSchema = z
   .object({
     ids: z.array(z.string().uuid()).min(1).max(200),
@@ -78,3 +82,4 @@ export type TicketInput = z.infer<typeof ticketInputSchema>;
 export type TicketFilters = z.infer<typeof ticketFiltersSchema>;
 export type TicketAiReviewInput = z.infer<typeof ticketAiReviewSchema>;
 export type BulkTicketUpdateInput = z.infer<typeof bulkTicketUpdateSchema>;
+export type TicketResponseInput = z.infer<typeof ticketResponseSchema>;
