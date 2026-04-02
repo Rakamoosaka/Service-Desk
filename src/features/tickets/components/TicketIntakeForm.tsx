@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
 import { Bug, Lightbulb, MessageSquare } from "lucide-react";
 import { type ReactNode, startTransition, useState } from "react";
-import { useForm } from "react-hook-form";
+import { useForm, useWatch } from "react-hook-form";
 import { toast } from "sonner";
 import {
   ticketInputSchema,
@@ -146,6 +146,10 @@ export function TicketIntakeForm({
       title: "",
       description: "",
     },
+  });
+  const serviceId = useWatch({
+    control: form.control,
+    name: "serviceId",
   });
 
   const createMutation = useMutation({
@@ -313,7 +317,18 @@ export function TicketIntakeForm({
             >
               <div className="space-y-2">
                 <Label htmlFor="serviceId">{serviceLabel}</Label>
-                <Select id="serviceId" {...form.register("serviceId")}>
+                <Select
+                  id="serviceId"
+                  name="serviceId"
+                  value={serviceId}
+                  onChange={(event) =>
+                    form.setValue("serviceId", event.target.value, {
+                      shouldDirty: true,
+                      shouldTouch: true,
+                      shouldValidate: true,
+                    })
+                  }
+                >
                   <option value="">Application-level ticket</option>
                   {services.map((service) => (
                     <option key={service.id} value={service.id}>

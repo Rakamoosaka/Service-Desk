@@ -686,7 +686,8 @@ export function AdminTicketsBoard({
                       </td>
                       <td className="px-3.5 py-3.5 align-top">
                         <Select
-                          className={`min-w-32 font-medium ${prioritySelectClassName(ticket.priority)}`}
+                          size="sm"
+                          className={`min-w-28 font-medium ${prioritySelectClassName(ticket.priority)}`}
                           value={ticket.priority}
                           onClick={(event) => event.stopPropagation()}
                           onChange={(event) =>
@@ -707,7 +708,8 @@ export function AdminTicketsBoard({
                       </td>
                       <td className="px-3.5 py-3.5 align-top">
                         <Select
-                          className={`min-w-32 font-medium ${statusSelectClassName(ticket.status)}`}
+                          size="sm"
+                          className={`min-w-28 font-medium ${statusSelectClassName(ticket.status)}`}
                           value={ticket.status}
                           onClick={(event) => event.stopPropagation()}
                           onChange={(event) =>
