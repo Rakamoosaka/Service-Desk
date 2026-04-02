@@ -2,6 +2,7 @@ import type { Route } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
+import { EmptyState } from "@/components/feedback/AsyncStates";
 import { SectionIntro } from "@/components/layout/SectionIntro";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -131,9 +132,10 @@ export default async function ServicePage({ params }: ServicePageProps) {
                     </div>
                   ))
                 ) : (
-                  <div className="border-border bg-muted/40 text-muted-foreground rounded-[18px] border border-dashed p-5 text-sm">
-                    No service-scoped tickets have been submitted yet.
-                  </div>
+                  <EmptyState
+                    title="No service-scoped tickets yet"
+                    description="This service has not received any direct tickets yet. New submissions will appear here once they are filed."
+                  />
                 )}
               </div>
             </CardContent>

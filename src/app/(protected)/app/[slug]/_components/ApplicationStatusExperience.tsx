@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { HomeServiceUptimeCard } from "@/app/(protected)/_components/HomeServiceUptimeCard";
+import { EmptyState } from "@/components/feedback/AsyncStates";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
@@ -245,8 +246,11 @@ export function ApplicationStatusExperience({
                     />
                   ))
                 ) : (
-                  <div className="border-border bg-muted/40 text-muted-foreground m-4 rounded-lg border border-dashed p-5 text-sm">
-                    No services are mapped to this application yet.
+                  <div className="m-4">
+                    <EmptyState
+                      title="No services are mapped to this application yet"
+                      description="Sync monitors from Uptime Kuma or add service mappings before using this status view."
+                    />
                   </div>
                 )}
               </div>

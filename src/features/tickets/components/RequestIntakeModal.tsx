@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { EmptyState } from "@/components/feedback/AsyncStates";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,6 @@ import { Button } from "@/components/ui/Button";
 import {
   Card,
   CardContent,
-  CardDescription,
   CardEyebrow,
   CardTitle,
 } from "@/components/ui/Card";
@@ -242,16 +242,11 @@ export function RequestIntakeModal({
                     </div>
                   ) : (
                     <Card>
-                      <CardContent className="space-y-2.5 p-5 md:p-6">
-                        <CardEyebrow>No applications configured</CardEyebrow>
-                        <CardTitle className="text-lg text-white">
-                          There is nothing to submit a request against yet
-                        </CardTitle>
-                        <CardDescription className="text-[13px] leading-6">
-                          Add a real application with a valid Uptime Kuma
-                          identifier from the admin area before opening the
-                          shared intake flow.
-                        </CardDescription>
+                      <CardContent className="p-5 md:p-6">
+                        <EmptyState
+                          title="No applications configured"
+                          description="Add a real application with a valid Uptime Kuma identifier from the admin area before opening the shared intake flow."
+                        />
                       </CardContent>
                     </Card>
                   )}

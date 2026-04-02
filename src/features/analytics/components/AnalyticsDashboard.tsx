@@ -18,6 +18,7 @@ import {
   CardEyebrow,
   CardTitle,
 } from "@/components/ui/Card";
+import { EmptyState } from "@/components/feedback/AsyncStates";
 import type {
   AnalyticsDashboard as AnalyticsDashboardData,
   AnalyticsStatusDistributionEntry,
@@ -316,9 +317,10 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
                 </div>
               </>
             ) : (
-              <div className="border-border bg-muted/40 text-muted-foreground rounded-[18px] border border-dashed p-5 text-sm">
-                No ticket activity was recorded in this time range.
-              </div>
+              <EmptyState
+                title="No ticket activity in this time range"
+                description="Expand the reporting window or wait for new submissions to see trend data here."
+              />
             )}
           </CardContent>
         </Card>
@@ -453,9 +455,10 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
               ))}
             </div>
           ) : (
-            <div className="border-border bg-muted/40 text-muted-foreground rounded-[18px] border border-dashed p-5 text-sm">
-              No services recorded ticket volume in this time range.
-            </div>
+            <EmptyState
+              title="No application activity in this time range"
+              description="No applications recorded ticket volume in the selected reporting window."
+            />
           )}
         </CardContent>
       </Card>

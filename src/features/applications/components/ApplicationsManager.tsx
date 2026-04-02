@@ -9,6 +9,13 @@ import { toast } from "sonner";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import {
+  CardStackSkeleton,
+  EmptyState,
+  ErrorState,
+  InlineNotice,
+  LoadingState,
+} from "@/components/feedback/AsyncStates";
+import {
   Card,
   CardContent,
   CardDescription,
@@ -229,7 +236,7 @@ export function ApplicationsManager({
     });
   }
 
-  const applications = applicationsQuery.data;
+  const applications = applicationsQuery.data ?? [];
   const totalServices = applications.reduce(
     (count, application) => count + application.services.length,
     0,
@@ -253,6 +260,28 @@ export function ApplicationsManager({
               label="About the application catalog"
             />
           </div>
+          {applicationsQuery.isFetching ? (
+            <InlineNotice
+              title="Refreshing catalog"
+              description="Latest application and service sync data is being fetched in the background."
+            />
+          ) : null}
+          {applicationsQuery.isError && applications.length > 0 ? (
+            <InlineNotice
+              tone="danger"
+              title="Background refresh failed"
+              description={applicationsQuery.error.message}
+              action={
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => applicationsQuery.refetch()}
+                >
+                  Retry fetch
+                </Button>
+              }
+            />
+          ) : null}
           {applications.length > 0 ? (
             <div className="grid gap-2 pt-3 sm:grid-cols-3">
               <div className="border-border bg-muted/35 rounded-2xl border px-4 py-3">
@@ -283,16 +312,39 @@ export function ApplicationsManager({
           ) : null}
         </CardHeader>
         <CardContent className="space-y-4">
-          {applications.length === 0 ? (
-            <div className="border-border bg-muted/50 rounded-2xl border border-dashed p-5">
-              <p className="text-[13px] font-medium text-white">
-                No applications configured yet.
-              </p>
-              <p className="text-muted-foreground mt-2 text-[13px] leading-6">
-                Create an application with a valid Uptime Kuma identifier to
-                sync its services immediately.
-              </p>
+          {applicationsQuery.isLoading && applications.length === 0 ? (
+            <div className="space-y-4">
+              <LoadingState
+                title="Loading application catalog"
+                description="Fetching applications and their synced services."
+              />
+              <CardStackSkeleton count={3} />
             </div>
+          ) : null}
+
+          {applicationsQuery.isError && applications.length === 0 ? (
+            <ErrorState
+              title="Unable to load the application catalog"
+              description={applicationsQuery.error.message}
+              action={
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  onClick={() => applicationsQuery.refetch()}
+                >
+                  Retry fetch
+                </Button>
+              }
+            />
+          ) : null}
+
+          {!applicationsQuery.isLoading &&
+          !applicationsQuery.isError &&
+          applications.length === 0 ? (
+            <EmptyState
+              title="No applications configured yet"
+              description="Create an application with a valid Uptime Kuma identifier to sync its services immediately."
+            />
           ) : null}
 
           {applications.map((application) => {

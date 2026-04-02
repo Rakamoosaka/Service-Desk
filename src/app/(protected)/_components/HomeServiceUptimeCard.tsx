@@ -1,7 +1,9 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
+import { AlertTriangle, LoaderCircle } from "lucide-react";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { fetchJson } from "@/lib/query/fetchJson";
 import { queryKeys } from "@/lib/query/keys";
 import { cn, formatDate } from "@/lib/utils";
@@ -147,6 +149,39 @@ export function HomeServiceUptimeCard({
 
   const snapshot = uptimeQuery.data;
 
+  if (uptimeQuery.isLoading && !snapshot) {
+    return (
+      <div className="border-border bg-muted/25 flex items-center gap-3 border-b px-4 py-4 text-sm text-white/80 last:border-b-0 md:px-5 md:py-5">
+        <LoaderCircle className="size-4 animate-spin" />
+        Loading live uptime data for {serviceName}.
+      </div>
+    );
+  }
+
+  if (uptimeQuery.isError && !snapshot) {
+    return (
+      <div className="border-border bg-destructive/10 flex flex-col gap-3 border-b px-4 py-4 text-sm text-white/80 last:border-b-0 md:px-5 md:py-5">
+        <div className="flex items-center gap-3">
+          <AlertTriangle className="size-4" />
+          Unable to load live uptime data for {serviceName}.
+        </div>
+        <div>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => uptimeQuery.refetch()}
+          >
+            Retry fetch
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!snapshot) {
+    return null;
+  }
+
   return (
     <div
       className={cn(
@@ -154,6 +189,18 @@ export function HomeServiceUptimeCard({
         isActive ? "" : "opacity-70 saturate-50",
       )}
     >
+      {uptimeQuery.isFetching ? (
+        <div className="border-b border-white/8 px-4 py-2 text-[11px] font-semibold tracking-[0.16em] text-white/58 uppercase md:px-5">
+          Refreshing live data
+        </div>
+      ) : null}
+
+      {uptimeQuery.isError ? (
+        <div className="bg-destructive/10 border-b border-white/8 px-4 py-2 text-[11px] font-semibold tracking-[0.16em] text-white/72 uppercase md:px-5">
+          Live refresh failed
+        </div>
+      ) : null}
+
       {snapshot.monitors.length ? (
         <div>
           {snapshot.monitors.map((monitor, index) => (
