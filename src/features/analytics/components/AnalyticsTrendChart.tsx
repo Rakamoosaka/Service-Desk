@@ -61,8 +61,8 @@ export function AnalyticsTrendChart({
   }
 
   return (
-    <div className="grid grid-cols-[32px_minmax(0,1fr)] gap-3">
-      <div className="relative h-56">
+    <div className="grid grid-cols-[28px_minmax(0,1fr)] gap-2.5 sm:grid-cols-[32px_minmax(0,1fr)] sm:gap-3">
+      <div className="relative h-52 sm:h-56">
         {ticks.map((tick) => (
           <div
             key={tick}
@@ -77,8 +77,8 @@ export function AnalyticsTrendChart({
         ))}
       </div>
 
-      <div className="border-border/70 bg-muted/35 rounded-[18px] border px-4 py-4">
-        <div ref={plotRef} className="relative h-56">
+      <div className="border-border/70 bg-muted/35 rounded-[18px] border px-3 py-4 sm:px-4">
+        <div ref={plotRef} className="relative h-52 sm:h-56">
           {ticks.map((tick) => (
             <div
               key={tick}
@@ -103,7 +103,7 @@ export function AnalyticsTrendChart({
           ) : null}
 
           <div
-            className="relative grid h-full items-end gap-px md:gap-1"
+            className="relative grid h-full items-end gap-px sm:gap-1"
             style={{
               gridTemplateColumns: `repeat(${trend.length}, minmax(0, 1fr))`,
             }}

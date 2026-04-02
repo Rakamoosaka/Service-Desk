@@ -63,12 +63,12 @@ export function RequestIntakeModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent
-        className="border-border/70 bg-panel max-h-[88vh] w-[min(92vw,940px)] overflow-hidden rounded-[18px] p-0 shadow-none [&_.panel-grid]:hidden"
+        className="border-border/70 bg-panel max-h-[calc(100dvh-1rem)] w-[min(100vw-1rem,940px)] overflow-hidden rounded-[18px] p-0 shadow-none md:w-[min(92vw,940px)] [&_.panel-grid]:hidden"
         onPointerDownOutside={(event) => event.preventDefault()}
         onEscapeKeyDown={(event) => event.preventDefault()}
       >
-        <div className="flex max-h-[88vh] flex-col overflow-hidden">
-          <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
+        <div className="flex max-h-[calc(100dvh-1rem)] flex-col overflow-hidden">
+          <div className="border-border/70 flex flex-col items-start gap-4 border-b px-4 py-4 sm:flex-row sm:justify-between sm:px-5 md:px-6 md:py-5">
             <DialogHeader className="max-w-3xl">
               <p className="text-accent text-[11px] font-semibold tracking-[0.3em] uppercase">
                 Shared intake
@@ -88,7 +88,7 @@ export function RequestIntakeModal({
             <DialogDismissButton onClick={onClose} />
           </div>
 
-          <div className="overflow-y-auto px-5 py-5 md:px-6 md:py-6">
+          <div className="overflow-y-auto px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6">
             <AnimatePresence mode="wait" initial={false}>
               {isComposeStep ? (
                 <motion.div

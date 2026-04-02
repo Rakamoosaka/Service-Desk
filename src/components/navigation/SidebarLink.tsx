@@ -10,9 +10,10 @@ interface SidebarLinkProps {
   href: Route;
   icon: ReactNode;
   label: string;
+  onClick?: () => void;
 }
 
-export function SidebarLink({ href, icon, label }: SidebarLinkProps) {
+export function SidebarLink({ href, icon, label, onClick }: SidebarLinkProps) {
   const pathname = usePathname();
   const isActive =
     href === "/admin"
@@ -22,6 +23,7 @@ export function SidebarLink({ href, icon, label }: SidebarLinkProps) {
   return (
     <Link
       href={href}
+      onClick={onClick}
       className={cn(
         "flex cursor-default items-center gap-2.5 rounded-xl border-l-2 px-3 py-2.5 text-[13px] transition duration-150 ease-out",
         isActive

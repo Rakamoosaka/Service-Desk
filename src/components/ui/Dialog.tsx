@@ -36,7 +36,7 @@ export const DialogContent = forwardRef<
       <DialogPrimitive.Content
         ref={ref}
         className={cn(
-          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 border-border bg-panel fixed top-1/2 left-1/2 z-50 w-[min(96vw,1080px)] -translate-x-1/2 -translate-y-1/2 rounded-3xl border shadow-[0_24px_64px_rgba(0,0,0,0.35)] outline-none",
+          "data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 border-border bg-panel fixed top-1/2 left-1/2 z-50 max-h-[calc(100dvh-1rem)] w-[calc(100vw-1rem)] max-w-[1080px] -translate-x-1/2 -translate-y-1/2 overflow-y-auto overscroll-contain rounded-[1.35rem] border shadow-[0_24px_64px_rgba(0,0,0,0.35)] outline-none sm:w-[min(96vw,1080px)] sm:rounded-3xl",
           className,
         )}
         {...props}
@@ -90,7 +90,7 @@ export function DialogDismissButton({
   return (
     <DialogPrimitive.Close
       className={cn(
-        "border-border bg-muted/45 text-foreground hover:border-border hover:bg-muted hover:text-foreground focus-visible:ring-ring inline-flex h-10 w-10 items-center justify-center rounded-full border transition focus-visible:ring-2 focus-visible:outline-none",
+        "border-border bg-muted/45 text-foreground hover:border-border hover:bg-muted hover:text-foreground focus-visible:ring-ring inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border transition focus-visible:ring-2 focus-visible:outline-none",
         className,
       )}
       {...props}

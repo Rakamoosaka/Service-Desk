@@ -163,59 +163,61 @@ export function UsersTable({ initialUsers }: UsersTableProps) {
         ) : null}
 
         {users.length > 0 ? (
-          <table className="divide-border min-w-full divide-y text-left text-[13px]">
-            <thead className="bg-muted/70 text-muted-foreground">
-              <tr>
-                <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
-                  User
-                </th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
-                  GitLab
-                </th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
-                  Role
-                </th>
-                <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
-                  Joined
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-border bg-panel divide-y">
-              {users.map((user) => (
-                <tr key={user.id} className="hover:bg-muted/35">
-                  <td className="px-4 py-3.5">
-                    <p className="text-foreground text-[13px] font-semibold">
-                      {user.name}
-                    </p>
-                    <p className="text-muted-foreground text-xs">
-                      {user.email}
-                    </p>
-                  </td>
-                  <td className="text-muted-foreground px-4 py-3.5">
-                    {user.gitlabUserId ?? "Not linked"}
-                  </td>
-                  <td className="px-4 py-3.5">
-                    <Select
-                      className="min-w-32"
-                      value={user.role}
-                      onChange={(event) =>
-                        roleMutation.mutate({
-                          id: user.id,
-                          role: event.target.value as UserRecord["role"],
-                        })
-                      }
-                    >
-                      <option value="user">User</option>
-                      <option value="admin">Admin</option>
-                    </Select>
-                  </td>
-                  <td className="text-muted-foreground px-4 py-3.5">
-                    {formatDate(user.createdAt)}
-                  </td>
+          <div className="overflow-x-auto overflow-y-hidden">
+            <table className="divide-border w-full min-w-[42rem] divide-y text-left text-[13px]">
+              <thead className="bg-muted/70 text-muted-foreground">
+                <tr>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
+                    User
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
+                    GitLab
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
+                    Role
+                  </th>
+                  <th className="px-4 py-2.5 text-[10px] font-semibold tracking-[0.18em] uppercase">
+                    Joined
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-border bg-panel divide-y">
+                {users.map((user) => (
+                  <tr key={user.id} className="hover:bg-muted/35">
+                    <td className="px-4 py-3.5">
+                      <p className="text-foreground text-[13px] font-semibold">
+                        {user.name}
+                      </p>
+                      <p className="text-muted-foreground text-xs">
+                        {user.email}
+                      </p>
+                    </td>
+                    <td className="text-muted-foreground px-4 py-3.5">
+                      {user.gitlabUserId ?? "Not linked"}
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <Select
+                        className="min-w-32"
+                        value={user.role}
+                        onChange={(event) =>
+                          roleMutation.mutate({
+                            id: user.id,
+                            role: event.target.value as UserRecord["role"],
+                          })
+                        }
+                      >
+                        <option value="user">User</option>
+                        <option value="admin">Admin</option>
+                      </Select>
+                    </td>
+                    <td className="text-muted-foreground px-4 py-3.5">
+                      {formatDate(user.createdAt)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         ) : null}
       </CardContent>
     </Card>

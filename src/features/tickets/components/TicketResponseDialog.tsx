@@ -35,10 +35,10 @@ export function TicketResponseDialog({
       open={Boolean(ticket)}
       onOpenChange={(open) => (!open ? onClose() : null)}
     >
-      <DialogContent className="max-h-[88vh] w-[min(92vw,760px)] overflow-y-auto rounded-[18px] p-0 shadow-none">
+      <DialogContent className="max-h-[calc(100dvh-1rem)] w-[min(100vw-1rem,760px)] overflow-y-auto rounded-[18px] p-0 shadow-none md:w-[min(92vw,760px)]">
         {ticket ? (
           <div className="flex flex-col">
-            <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
+            <div className="border-border/70 flex flex-col items-start gap-4 border-b px-4 py-4 sm:flex-row sm:justify-between sm:px-5 md:px-6 md:py-5">
               <DialogHeader className="max-w-3xl">
                 <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
                   Reply to ticket
@@ -55,7 +55,7 @@ export function TicketResponseDialog({
               <DialogDismissButton onClick={onClose} />
             </div>
 
-            <div className="space-y-5 px-5 py-5 md:px-6 md:py-6">
+            <div className="space-y-5 px-4 py-4 sm:px-5 sm:py-5 md:px-6 md:py-6">
               <div className="border-border bg-panel/55 rounded-[18px] border p-4 md:p-5">
                 <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
                   Description

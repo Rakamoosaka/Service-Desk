@@ -174,58 +174,60 @@ export function TableSkeleton({
   return (
     <div
       className={cn(
-        "border-border overflow-hidden rounded-[18px] border",
+        "border-border overflow-x-auto overflow-y-hidden rounded-[18px] border",
         className,
       )}
     >
-      <div
-        className="bg-muted/70 grid gap-3 px-4 py-3"
-        style={{ gridTemplateColumns: columnTemplate }}
-      >
-        {Array.from({ length: columns }).map((_, index) => (
-          <div
-            key={`header-${index}`}
-            className="bg-muted/45 h-3 animate-pulse rounded-full"
-            style={{ width: headerWidths[index] ?? "70%" }}
-          />
-        ))}
-      </div>
+      <div className="min-w-max">
+        <div
+          className="bg-muted/70 grid gap-3 px-4 py-3"
+          style={{ gridTemplateColumns: columnTemplate }}
+        >
+          {Array.from({ length: columns }).map((_, index) => (
+            <div
+              key={`header-${index}`}
+              className="bg-muted/45 h-3 animate-pulse rounded-full"
+              style={{ width: headerWidths[index] ?? "70%" }}
+            />
+          ))}
+        </div>
 
-      <div className="divide-border bg-panel divide-y">
-        {Array.from({ length: rows }).map((_, rowIndex) => (
-          <div
-            key={`row-${rowIndex}`}
-            className="grid gap-3 px-4 py-4"
-            style={{ gridTemplateColumns: columnTemplate }}
-          >
-            {Array.from({ length: columns }).map((_, columnIndex) => {
-              const showSecondaryLine =
-                secondaryLineColumns.includes(columnIndex);
+        <div className="divide-border bg-panel divide-y">
+          {Array.from({ length: rows }).map((_, rowIndex) => (
+            <div
+              key={`row-${rowIndex}`}
+              className="grid gap-3 px-4 py-4"
+              style={{ gridTemplateColumns: columnTemplate }}
+            >
+              {Array.from({ length: columns }).map((_, columnIndex) => {
+                const showSecondaryLine =
+                  secondaryLineColumns.includes(columnIndex);
 
-              return (
-                <div
-                  key={`cell-${rowIndex}-${columnIndex}`}
-                  className="flex min-w-0 items-center"
-                >
-                  <div className="w-full space-y-2">
-                    <div
-                      className="bg-muted/35 h-4 animate-pulse rounded-full"
-                      style={{ width: bodyWidths[columnIndex] ?? "80%" }}
-                    />
-                    {showSecondaryLine ? (
+                return (
+                  <div
+                    key={`cell-${rowIndex}-${columnIndex}`}
+                    className="flex min-w-0 items-center"
+                  >
+                    <div className="w-full space-y-2">
                       <div
-                        className="bg-muted/25 h-3 animate-pulse rounded-full"
-                        style={{
-                          width: secondaryLineWidths[columnIndex] ?? "58%",
-                        }}
+                        className="bg-muted/35 h-4 animate-pulse rounded-full"
+                        style={{ width: bodyWidths[columnIndex] ?? "80%" }}
                       />
-                    ) : null}
+                      {showSecondaryLine ? (
+                        <div
+                          className="bg-muted/25 h-3 animate-pulse rounded-full"
+                          style={{
+                            width: secondaryLineWidths[columnIndex] ?? "58%",
+                          }}
+                        />
+                      ) : null}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        ))}
+                );
+              })}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

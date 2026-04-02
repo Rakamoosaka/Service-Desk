@@ -33,6 +33,7 @@ interface AnalyticsDashboardProps {
 export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
   const maxTrendValue = Math.max(...data.trend.map((point) => point.value), 1);
   const { axisMax, ticks } = getTrendScale(maxTrendValue);
+  const trendMinWidth = Math.max(data.trend.length * 18, 360);
   const windowStartLabel = data.trend[0]?.label ?? "Start";
   const windowMidLabel =
     data.trend[Math.floor((data.trend.length - 1) / 2)]?.label ?? "Mid";
@@ -97,19 +98,21 @@ export function AnalyticsDashboard({ range, data }: AnalyticsDashboardProps) {
             </div>
 
             {data.trend.some((point) => point.value > 0) ? (
-              <>
-                <AnalyticsTrendChart
-                  trend={data.trend}
-                  axisMax={axisMax}
-                  ticks={ticks}
-                />
+              <div className="overflow-x-auto overflow-y-hidden pb-1">
+                <div style={{ minWidth: `${trendMinWidth}px` }}>
+                  <AnalyticsTrendChart
+                    trend={data.trend}
+                    axisMax={axisMax}
+                    ticks={ticks}
+                  />
 
-                <div className="text-muted-foreground grid grid-cols-3 text-[10px] font-semibold tracking-[0.2em] uppercase">
-                  <span>{windowStartLabel}</span>
-                  <span className="text-center">{windowMidLabel}</span>
-                  <span className="text-right">{windowEndLabel}</span>
+                  <div className="text-muted-foreground mt-3 grid grid-cols-3 text-[10px] font-semibold tracking-[0.2em] uppercase">
+                    <span>{windowStartLabel}</span>
+                    <span className="text-center">{windowMidLabel}</span>
+                    <span className="text-right">{windowEndLabel}</span>
+                  </div>
                 </div>
-              </>
+              </div>
             ) : (
               <EmptyState
                 title="No ticket activity in this time range"
