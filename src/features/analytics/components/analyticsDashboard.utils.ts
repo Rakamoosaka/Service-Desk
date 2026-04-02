@@ -16,10 +16,38 @@ export function formatTicketCount(value: number) {
   return `${value} ticket${value === 1 ? "" : "s"}`;
 }
 
+function getNiceTickStep(maxValue: number) {
+  const roughStep = maxValue / 4;
+  const magnitude = 10 ** Math.floor(Math.log10(roughStep));
+  const normalizedStep = roughStep / magnitude;
+
+  if (normalizedStep <= 1) {
+    return magnitude;
+  }
+
+  if (normalizedStep <= 2) {
+    return 2 * magnitude;
+  }
+
+  if (normalizedStep <= 5) {
+    return 5 * magnitude;
+  }
+
+  return 10 * magnitude;
+}
+
 export function getTrendScale(maxValue: number) {
-  const roughStep = maxValue <= 10 ? 10 : Math.ceil(maxValue / 4 / 10) * 10;
-  const step = Math.max(10, roughStep);
-  const axisMax = Math.max(step * 3, Math.ceil(maxValue / step) * step);
+  const safeMaxValue = Math.max(maxValue, 1);
+
+  if (safeMaxValue <= 4) {
+    return {
+      axisMax: safeMaxValue,
+      ticks: Array.from({ length: safeMaxValue + 1 }, (_, index) => index),
+    };
+  }
+
+  const step = getNiceTickStep(safeMaxValue);
+  const axisMax = Math.ceil(safeMaxValue / step) * step;
   const ticks = Array.from(
     { length: Math.floor(axisMax / step) + 1 },
     (_, index) => index * step,
