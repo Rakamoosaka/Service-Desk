@@ -23,6 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/Dialog";
+import { InfoTooltip } from "@/components/ui/InfoTooltip";
 import { Input } from "@/components/ui/Input";
 import { Label } from "@/components/ui/Label";
 import { Select } from "@/components/ui/Select";
@@ -171,7 +172,8 @@ export function AdminTicketsBoard({
   const queryClient = useQueryClient();
   const [filters, setFilters] = useState<TicketFilters>({});
   const [selectedTicketIds, setSelectedTicketIds] = useState<string[]>([]);
-  const [selectedTicketId, setSelectedTicketId] = useState<string | null>(null);
+  const [responseTicketId, setResponseTicketId] = useState<string | null>(null);
+  const [aiReviewTicketId, setAiReviewTicketId] = useState<string | null>(null);
   const [responseMessage, setResponseMessage] = useState("");
   const [bulkStatus, setBulkStatus] = useState<"" | TicketRecord["status"]>("");
   const [bulkPriority, setBulkPriority] = useState<
@@ -199,8 +201,10 @@ export function AdminTicketsBoard({
         ? initialTickets
         : undefined,
   });
-  const selectedTicket =
-    ticketsQuery.data?.find((ticket) => ticket.id === selectedTicketId) ?? null;
+  const responseTicket =
+    ticketsQuery.data?.find((ticket) => ticket.id === responseTicketId) ?? null;
+  const aiReviewTicket =
+    ticketsQuery.data?.find((ticket) => ticket.id === aiReviewTicketId) ?? null;
   const visibleTicketIds = ticketsQuery.data?.map((ticket) => ticket.id) ?? [];
   const visibleTicketIdSet = new Set(visibleTicketIds);
   const selectedVisibleTicketIds = selectedTicketIds.filter((ticketId) =>
@@ -283,7 +287,47 @@ export function AdminTicketsBoard({
     onSuccess: () => {
       toast.success("Ticket response emailed");
       setResponseMessage("");
-      setSelectedTicketId(null);
+      setResponseTicketId(null);
+    },
+  });
+
+  const reviewMutation = useMutation({
+    mutationFn: async ({
+      id,
+      action,
+    }: {
+      id: string;
+      action:
+        | "accept"
+        | "dismiss"
+        | "accept_type"
+        | "dismiss_type"
+        | "clear_duplicate"
+        | "clear_all_duplicates";
+    }) =>
+      fetchJson(`/api/tickets/${id}/ai-review`, {
+        method: "PATCH",
+        body: JSON.stringify({ action }),
+      }),
+    onError: (error) => {
+      toast.error(error.message);
+    },
+    onSuccess: (_, variables) => {
+      const messageByAction = {
+        accept: "Suggestions applied",
+        dismiss: "Suggestions dismissed",
+        accept_type: "Lane change applied",
+        dismiss_type: "Lane change dismissed",
+        clear_duplicate: "Duplicate reminder removed",
+        clear_all_duplicates: "All duplicate reminders removed",
+      } as const;
+
+      toast.success(messageByAction[variables.action]);
+    },
+    onSettled: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: queryKeys.tickets(activeFilters),
+      });
     },
   });
 
@@ -637,7 +681,10 @@ export function AdminTicketsBoard({
                     <tr
                       key={ticket.id}
                       className="cursor-pointer hover:bg-white/2"
-                      onClick={() => setSelectedTicketId(ticket.id)}
+                      onClick={() => {
+                        setResponseMessage("");
+                        setResponseTicketId(ticket.id);
+                      }}
                     >
                       <td className="px-3.5 py-3.5 align-top">
                         <input
@@ -741,11 +788,10 @@ export function AdminTicketsBoard({
                           }
                           className="h-9 w-9 rounded-full px-0"
                           aria-label="Review ticket triage"
-                          title="Reply to ticket"
+                          title="Review ticket triage"
                           onClick={(event) => {
                             event.stopPropagation();
-                            setResponseMessage("");
-                            setSelectedTicketId(ticket.id);
+                            setAiReviewTicketId(ticket.id);
                           }}
                         >
                           <Search className="size-4" aria-hidden="true" />
@@ -761,16 +807,16 @@ export function AdminTicketsBoard({
       </Card>
 
       <Dialog
-        open={Boolean(selectedTicket)}
+        open={Boolean(responseTicket)}
         onOpenChange={(open) => {
           if (!open) {
             setResponseMessage("");
-            setSelectedTicketId(null);
+            setResponseTicketId(null);
           }
         }}
       >
         <DialogContent className="max-h-[88vh] w-[min(92vw,760px)] overflow-y-auto rounded-[18px] p-0 shadow-none">
-          {selectedTicket ? (
+          {responseTicket ? (
             <div className="flex flex-col">
               <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
                 <DialogHeader className="max-w-3xl">
@@ -778,7 +824,7 @@ export function AdminTicketsBoard({
                     Reply to ticket
                   </p>
                   <DialogTitle className="text-[1.65rem] md:text-[1.9rem]">
-                    {selectedTicket.title}
+                    {responseTicket.title}
                   </DialogTitle>
                   <DialogDescription className="text-[13px] leading-6 md:text-sm md:leading-6">
                     Send a direct email response to the user based on the full
@@ -787,7 +833,7 @@ export function AdminTicketsBoard({
                 </DialogHeader>
 
                 <DialogDismissButton
-                  onClick={() => setSelectedTicketId(null)}
+                  onClick={() => setResponseTicketId(null)}
                 />
               </div>
 
@@ -797,7 +843,7 @@ export function AdminTicketsBoard({
                     Description
                   </p>
                   <p className="text-foreground mt-3 text-sm leading-7 whitespace-pre-wrap md:text-[15px]">
-                    {selectedTicket.description}
+                    {responseTicket.description}
                   </p>
                 </div>
 
@@ -806,12 +852,12 @@ export function AdminTicketsBoard({
                   onSubmit={(event) => {
                     event.preventDefault();
 
-                    if (!selectedTicket || !responseMessage.trim()) {
+                    if (!responseTicket || !responseMessage.trim()) {
                       return;
                     }
 
                     sendResponseMutation.mutate({
-                      id: selectedTicket.id,
+                      id: responseTicket.id,
                       message: responseMessage,
                     });
                   }}
@@ -828,7 +874,7 @@ export function AdminTicketsBoard({
                       disabled={sendResponseMutation.isPending}
                     />
                     <p className="text-muted-foreground text-sm leading-6">
-                      This will be emailed to {selectedTicket.submittedBy.email}
+                      This will be emailed to {responseTicket.submittedBy.email}
                       .
                     </p>
                   </div>
@@ -845,7 +891,7 @@ export function AdminTicketsBoard({
                         variant="secondary"
                         onClick={() => {
                           setResponseMessage("");
-                          setSelectedTicketId(null);
+                          setResponseTicketId(null);
                         }}
                       >
                         Close
@@ -865,6 +911,302 @@ export function AdminTicketsBoard({
                     </div>
                   </div>
                 </form>
+              </div>
+            </div>
+          ) : null}
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={Boolean(aiReviewTicket)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setAiReviewTicketId(null);
+          }
+        }}
+      >
+        <DialogContent className="max-h-[88vh] w-[min(92vw,880px)] overflow-y-auto rounded-[18px] p-0 shadow-none">
+          {aiReviewTicket ? (
+            <div className="flex flex-col">
+              <div className="border-border/70 flex items-start justify-between gap-4 border-b px-5 py-4 md:px-6 md:py-5">
+                <DialogHeader className="max-w-3xl">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.22em] uppercase">
+                    Ticket details
+                  </p>
+                  <DialogTitle className="text-[1.65rem] md:text-[1.9rem]">
+                    {aiReviewTicket.title}
+                  </DialogTitle>
+                  <DialogDescription className="text-[13px] leading-6 md:text-sm md:leading-6">
+                    Review the ticket contents, then handle triage suggestions
+                    and duplicate flags if needed.
+                  </DialogDescription>
+                </DialogHeader>
+
+                <DialogDismissButton
+                  onClick={() => setAiReviewTicketId(null)}
+                />
+              </div>
+
+              <div className="space-y-5 px-5 py-5 md:px-6 md:py-6">
+                <div className="border-border bg-panel/55 rounded-[18px] border p-4 md:p-5">
+                  <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                    Ticket contents
+                  </p>
+                  <p className="text-foreground mt-3 text-sm leading-7 whitespace-pre-wrap md:text-[15px]">
+                    {aiReviewTicket.description}
+                  </p>
+                </div>
+
+                <div className="grid gap-4 md:grid-cols-[minmax(0,1.2fr)_minmax(17rem,0.8fr)] md:items-start">
+                  <div className="border-border bg-muted/30 self-start rounded-[18px] border p-4 md:p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                          Lane recommendation
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-xs leading-5">
+                          Review the current lane against the suggested update.
+                        </p>
+                      </div>
+                      <InfoTooltip
+                        content="This panel compares the current lane with the suggested one. Accept applies the suggested lane, and dismiss keeps the current lane unchanged."
+                        label="Lane recommendation help"
+                      />
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
+                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
+                          Current lane
+                        </span>
+                        <Badge tone="neutral">
+                          {sentenceCase(aiReviewTicket.type)}
+                        </Badge>
+                      </div>
+
+                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
+                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
+                          Suggested lane
+                        </span>
+                        <Badge tone="accent">
+                          {sentenceCase(
+                            aiReviewTicket.aiTriage.recommendedType ??
+                              aiReviewTicket.type,
+                          )}
+                        </Badge>
+                      </div>
+
+                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
+                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
+                          Confidence
+                        </span>
+                        <span className="text-foreground text-sm font-semibold">
+                          {aiReviewTicket.aiTriage.recommendedTypeConfidence
+                            ? `${Math.round(aiReviewTicket.aiTriage.recommendedTypeConfidence)}%`
+                            : "n/a"}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="border-border/70 bg-panel/35 mt-4 rounded-2xl border px-3.5 py-3.5">
+                      <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
+                        Why this was suggested
+                      </p>
+                      <p className="text-foreground/88 mt-2 text-sm leading-6">
+                        {aiReviewTicket.aiTriage.typeReason ??
+                          "No category change was suggested for this ticket."}
+                      </p>
+                    </div>
+
+                    {aiReviewTicket.aiSuggestionStatus === "pending_review" ? (
+                      <div className="mt-4 flex justify-end gap-3">
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          disabled={reviewMutation.isPending}
+                          onClick={() =>
+                            reviewMutation.mutate({
+                              id: aiReviewTicket.id,
+                              action: "dismiss_type",
+                            })
+                          }
+                        >
+                          Dismiss lane change
+                        </Button>
+                        <Button
+                          size="sm"
+                          disabled={reviewMutation.isPending}
+                          onClick={() =>
+                            reviewMutation.mutate({
+                              id: aiReviewTicket.id,
+                              action: "accept_type",
+                            })
+                          }
+                        >
+                          Accept lane change
+                        </Button>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                          Extra context
+                        </p>
+                        <p className="text-muted-foreground mt-1 text-xs leading-5">
+                          Supporting signals for the review decision.
+                        </p>
+                      </div>
+                      <InfoTooltip
+                        content="These values are reference only. They do not change the ticket by themselves. This review can approve a lane change and keep or dismiss a duplicate reminder; priority was already set at creation."
+                        label="Extra context help"
+                        align="right"
+                      />
+                    </div>
+
+                    <div className="mt-4 space-y-3">
+                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
+                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
+                          User sentiment
+                        </span>
+                        <Badge tone="neutral">
+                          {sentenceCase(
+                            aiReviewTicket.aiTriage.sentiment ?? "n/a",
+                          )}
+                        </Badge>
+                      </div>
+
+                      <div className="border-border/70 bg-panel/45 flex items-center justify-between gap-4 rounded-2xl border px-3.5 py-3">
+                        <span className="text-muted-foreground text-[11px] font-semibold tracking-[0.18em] uppercase">
+                          Service impact
+                        </span>
+                        <Badge tone="neutral">
+                          {sentenceCase(
+                            aiReviewTicket.aiTriage.technicalImpact ?? "n/a",
+                          )}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-border bg-muted/30 rounded-[18px] border p-4 md:p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-muted-foreground text-[11px] font-semibold tracking-[0.24em] uppercase">
+                        Duplicate review
+                      </p>
+                      <p className="text-muted-foreground mt-1 text-xs leading-5">
+                        Review duplicate reminders individually.
+                      </p>
+                    </div>
+
+                    {aiReviewTicket.suspectedDuplicateTicket &&
+                    aiReviewTicket.aiSuggestionStatus === "pending_review" ? (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        disabled={reviewMutation.isPending}
+                        onClick={() =>
+                          reviewMutation.mutate({
+                            id: aiReviewTicket.id,
+                            action: "clear_all_duplicates",
+                          })
+                        }
+                      >
+                        Delete all
+                      </Button>
+                    ) : null}
+                  </div>
+
+                  {aiReviewTicket.suspectedDuplicateTicket ? (
+                    <ul className="mt-4 space-y-3">
+                      <li className="border-border/70 bg-panel/35 rounded-2xl border px-4 py-4">
+                        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                          <div className="min-w-0 flex-1 space-y-3">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <Badge tone="warning">
+                                {aiReviewTicket.aiTriage.duplicateScore
+                                  ? `${Math.round(aiReviewTicket.aiTriage.duplicateScore)}% match`
+                                  : "possible duplicate"}
+                              </Badge>
+                              <Badge tone="neutral">
+                                {sentenceCase(
+                                  aiReviewTicket.suspectedDuplicateTicket
+                                    .status,
+                                )}
+                              </Badge>
+                            </div>
+
+                            <p className="text-foreground font-semibold">
+                              {aiReviewTicket.suspectedDuplicateTicket.title}
+                            </p>
+
+                            <p className="text-muted-foreground text-sm leading-7">
+                              {aiReviewTicket.aiTriage.duplicateReason ??
+                                "This ticket appears related to an earlier item in the queue."}
+                            </p>
+
+                            {aiReviewTicket.aiTriage.duplicateSignals
+                              ?.length ? (
+                              <div className="flex flex-wrap gap-2">
+                                {aiReviewTicket.aiTriage.duplicateSignals.map(
+                                  (signal) => (
+                                    <Badge key={signal} tone="neutral">
+                                      {signal}
+                                    </Badge>
+                                  ),
+                                )}
+                              </div>
+                            ) : null}
+                          </div>
+
+                          {aiReviewTicket.aiSuggestionStatus ===
+                          "pending_review" ? (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              className="shrink-0"
+                              disabled={reviewMutation.isPending}
+                              onClick={() =>
+                                reviewMutation.mutate({
+                                  id: aiReviewTicket.id,
+                                  action: "clear_duplicate",
+                                })
+                              }
+                            >
+                              Delete
+                            </Button>
+                          ) : null}
+                        </div>
+                      </li>
+                    </ul>
+                  ) : (
+                    <p className="text-muted-foreground mt-4 text-sm leading-7">
+                      No strong duplicate match was found for this ticket.
+                    </p>
+                  )}
+                </div>
+
+                <div className="flex flex-col gap-3 border-t border-white/8 pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-muted-foreground text-sm leading-7">
+                    {aiReviewTicket.aiSuggestionStatus === "pending_review"
+                      ? "Use the action inside Lane recommendation to apply the lane change, and manage duplicate reminders from the list above."
+                      : "No pending suggestion changes are waiting for review on this ticket."}
+                  </p>
+
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={() => setAiReviewTicketId(null)}
+                    >
+                      Close
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           ) : null}
