@@ -65,6 +65,8 @@ OPENROUTER_API_KEY=sk-or-xxxxxxxxx
 OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
 OPENROUTER_MODEL=qwen/qwen3.5-flash-02-23
 UPTIME_KUMA_BASE_URL=https://status.example.com
+UPSTASH_REDIS_REST_URL=https://your-upstash-instance.upstash.io
+UPSTASH_REDIS_REST_TOKEN=replace-with-upstash-rest-token
 RESEND_API_KEY=re_xxxxxxxxx
 RESEND_FROM_EMAIL=Service Desk <notifications@example.com>
 RESEND_TEST_EMAIL=you@example.com
@@ -78,6 +80,7 @@ Notes:
 - `OPENROUTER_API_KEY`, `OPENROUTER_BASE_URL`, and `OPENROUTER_MODEL` let the Mastra ticket triage agent run against OpenRouter.
 - `OPENAI_API_KEY` remains available as a direct fallback if you prefer OpenAI instead of OpenRouter.
 - `UPTIME_KUMA_BASE_URL` is only needed if you want live uptime data.
+- `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are required in production for API route rate limiting.
 - `RESEND_API_KEY` and `RESEND_FROM_EMAIL` are only needed for email notifications.
 - `RESEND_TEST_EMAIL` is optional and useful with an unverified Resend setup. When set, all admin notification emails are routed to that single address.
 

@@ -7,6 +7,7 @@ import { sendTicketResponseEmail } from "@/features/tickets/server/sendTicketRes
 import { getTicketById } from "@/features/tickets/server/ticketService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 interface TicketResponseRouteProps {
   params: Promise<{
@@ -26,6 +27,15 @@ export async function POST(
 
   if (session.user.role !== "admin") {
     return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "ticketRespond",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const parsedParams = ticketStatusParamsSchema.safeParse(await params);

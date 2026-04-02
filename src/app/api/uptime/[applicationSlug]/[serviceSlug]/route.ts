@@ -3,6 +3,7 @@ import { getServiceBySlugs } from "@/features/services/server/serviceService";
 import { getServiceUptime } from "@/features/uptime/server/uptimeService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 interface UptimeRouteProps {
   params: Promise<{
@@ -16,6 +17,15 @@ export async function GET(request: NextRequest, { params }: UptimeRouteProps) {
 
   if (!session) {
     return errorResponse("UNAUTHORIZED", "Authentication required", 401);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "uptime",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const { applicationSlug, serviceSlug } = await params;

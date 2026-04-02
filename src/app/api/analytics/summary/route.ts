@@ -3,6 +3,7 @@ import { getAnalyticsSummary } from "@/features/analytics/server/analyticsServic
 import { analyticsFiltersSchema } from "@/features/analytics/schemas/analyticsSchemas";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromRequest(request.headers);
@@ -13,6 +14,15 @@ export async function GET(request: NextRequest) {
 
   if (session.user.role !== "admin") {
     return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "analytics",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const filters = analyticsFiltersSchema.safeParse({

@@ -8,6 +8,7 @@ import {
 import { bulkUpdateTickets } from "@/features/tickets/server/ticketService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function PATCH(request: NextRequest) {
   const session = await getSessionFromRequest(request.headers);
@@ -18,6 +19,15 @@ export async function PATCH(request: NextRequest) {
 
   if (session.user.role !== "admin") {
     return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "bulkTicketUpdate",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const parsedBody = bulkTicketUpdateSchema.safeParse(await request.json());

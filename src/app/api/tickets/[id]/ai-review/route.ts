@@ -6,6 +6,7 @@ import { ticketAiReviewParamsSchema } from "@/features/tickets/schemas/ticketSch
 import { reviewTicketAiSuggestions } from "@/features/tickets/server/ticketService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 interface TicketAiReviewRouteProps {
   params: Promise<{
@@ -25,6 +26,15 @@ export async function PATCH(
 
   if (session.user.role !== "admin") {
     return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "ticketAiReview",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const parsedParams = ticketAiReviewParamsSchema.safeParse(await params);

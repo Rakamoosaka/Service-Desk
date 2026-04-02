@@ -3,6 +3,7 @@ import { listTickets } from "@/features/tickets/server/ticketService";
 import { parseTicketFilters } from "@/features/tickets/schemas/ticketSchemas";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 function escapeCsvValue(value: string) {
   const escaped = value.replaceAll('"', '""');
@@ -60,6 +61,15 @@ export async function GET(request: NextRequest) {
 
   if (session.user.role !== "admin") {
     return errorResponse("FORBIDDEN", "Admin access required", 403);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "ticketExport",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const filters = parseTicketFilters(request.nextUrl.searchParams);

@@ -15,6 +15,7 @@ import { getApplicationById } from "@/features/applications/server/applicationSe
 import { getServiceById } from "@/features/services/server/serviceService";
 import { getSessionFromRequest } from "@/lib/auth/session";
 import { errorResponse } from "@/lib/http";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function GET(request: NextRequest) {
   const session = await getSessionFromRequest(request.headers);
@@ -42,6 +43,15 @@ export async function POST(request: NextRequest) {
 
   if (!session) {
     return errorResponse("UNAUTHORIZED", "Authentication required", 401);
+  }
+
+  const rateLimitResponse = await enforceRateLimit(request, {
+    policy: "ticketCreate",
+    userId: session.user.id,
+  });
+
+  if (rateLimitResponse) {
+    return rateLimitResponse;
   }
 
   const body = await request.json();
